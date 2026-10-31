@@ -153,6 +153,12 @@ impl CaptureStream {
             .clear();
         paused
     }
+    /// Stop accepting callbacks while preserving the captured tail. The caller
+    /// drains the bounded queue before ending the utterance; cancel uses pause.
+    pub fn pause_preserving_buffer(&self) -> Result<(), AudioError> {
+        self.active.store(false, Ordering::Release);
+        self.stream.pause().map_err(backend)
+    }
     pub fn resume(&self) -> Result<(), AudioError> {
         self.active.store(true, Ordering::Release);
         if let Err(error) = self.stream.play() {
@@ -181,6 +187,9 @@ where
         .build_input_stream(
             config,
             move |samples: &[T], _| {
+                if !active.load(Ordering::Acquire) {
+                    return;
+                }
                 let mut queue = match ring.try_lock() {
                     Ok(queue) => queue,
                     Err(_) => {

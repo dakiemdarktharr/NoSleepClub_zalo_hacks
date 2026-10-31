@@ -1,0 +1,23 @@
+[package]
+name = "nora-broker"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Scoped local grants, approval-bound actions and verified file receipts for NORA"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+sha2.workspace = true
+rusqlite.workspace = true
+cap-std.workspace = true
+getrandom = "=0.4.3"
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

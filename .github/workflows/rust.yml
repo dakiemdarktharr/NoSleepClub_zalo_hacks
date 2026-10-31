@@ -1,4 +1,4 @@
-name: Rust foundation
+name: NORA Rust validation
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
 
   windows-native:
     runs-on: windows-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
@@ -37,6 +37,17 @@ jobs:
         run: rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
       - run: ./scripts/Build-Rust.ps1 -Action Test
       - run: ./scripts/Build-Rust.ps1 -Action Clippy
+      - run: ./scripts/Build-Rust.ps1 -Action Release
+      - name: Publish unsigned Windows validation binaries
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: nora-windows-x64-unsigned
+          path: |
+            target/x86_64-pc-windows-msvc/release/nora-app.exe
+            target/x86_64-pc-windows-msvc/release/nora.exe
+          if-no-files-found: error
+          retention-days: 7
 
 # CI uses generated synthetic fixtures; no voice model, private dataset,
 # microphone, credentials or paid API is required. Real-model probes are opt-in.
+# Artifacts contain binaries only: no API keys, user state or model assets.

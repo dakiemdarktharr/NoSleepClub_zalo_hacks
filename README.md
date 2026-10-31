@@ -4,7 +4,7 @@
 
 NORA là định hướng sản phẩm trợ lý giọng nói tiếng Việt chạy nền trên máy tính: nhận một yêu cầu, chọn cách thực thi phù hợp, làm việc trong quyền được cấp và báo tiến độ khi có điều đáng nói.
 
-**Trạng thái: Rust foundation, ngày 01/11/2026. Chưa phải ứng dụng production.** Đã có 5 crates cho policy/resources, audio/native inference, VieNeu Rust host, SQLite state/effects và CLI có scoped file write/readback. Silero và VieNeu FP32 + native G2P đã chạy model thật. Chưa có voice loop hoàn chỉnh, desktop installer, LLM integration, OS permission broker hoặc bộ sinh submission LifeMate. Mốc 2 GB RAM cho toàn bộ NORA vẫn cần kiểm chứng.
+**Trạng thái: bản tích hợp Rust đang được kiểm chứng, ngày 01/11/2026.** Có11 crates: desktop/tray/PTT tiếng Việt, Responses API (`gpt-6-luna`, `xhigh`), goal/checkpoint/effect ledger, broker app/folder, cùng voice workers local trong Windows AppContainer. Chưa chứng nhận production hoặc đạt trần2GB cho toàn sản phẩm. Xem [phạm vi và cách chạy](docs/production-integration.md); số đo foundation bên dưới chỉ áp dụng cho mốc cũ.
 
 ## Đọc từ đây
 
@@ -62,7 +62,7 @@ Reference validation: **21 tests passed** và replay 9 events. Python được g
 
 ## Hướng triển khai đã chọn
 
-Windows-first: UI/tray → Rust supervisor/permission broker → Rust goal/audio runtime và typed app adapters. LLM/worker roles dùng API; chưa tích hợp provider. [ADR-0005](docs/adr/0005-rust-client-proposal.md) chấp nhận hướng Rust cho foundation, thay Python resident workers trong đề xuất ban đầu. Audio theo STT → agent → TTS; push-to-talk/hotkey trước, wake word sau khi kiểm thử tiếng Việt và giấy phép. Một orchestrator mặc định; worker song song chỉ khi nhánh độc lập đáng chi phí.
+Windows-first: UI/tray → Rust supervisor/permission broker → Rust goal/audio runtime và typed tools. LLM/worker roles dùng Responses API; một orchestrator và các lượt nghiên cứu công khai tách biệt, có giới hạn chung. [ADR-0005](docs/adr/0005-rust-client-proposal.md) ghi quyết định nền tảng. Audio theo STT → agent → TTS; push-to-talk/hotkey, chưa bật wake word.
 
 Tauri UI vẫn là ứng viên cần benchmark với native UI. State primitives hiện dùng Rust/SQLite; không có LangGraph/Temporal runtime dependency. Không cần cloud hosting để truy cập app/folder local.
 

@@ -51,7 +51,7 @@ try {
         'Test' { & cargo test --locked --workspace @noraFeatures @noraTarget }
         'Check' { & cargo check --locked --workspace --all-targets @noraFeatures @noraTarget }
         'Clippy' { & cargo clippy --locked --workspace --all-targets @noraFeatures @noraTarget -- -D warnings }
-        'Release' { & cargo build --locked --release -p nora-cli @noraFeatures @noraTarget }
+        'Release' { & cargo build --locked --release --jobs 1 -p nora-cli -p nora-app @noraFeatures @noraTarget }
     }
     if ($LASTEXITCODE -ne 0) { throw "Rust $Action failed" }
 } finally { Pop-Location }

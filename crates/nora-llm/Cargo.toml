@@ -1,0 +1,23 @@
+[package]
+name = "nora-llm"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Bounded, cancellable OpenAI Responses transport for NORA"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+reqwest = { version = "=0.13.5", default-features = false, features = ["rustls", "http2"] }
+tokio = { version = "=1.54.1", default-features = false, features = ["rt", "net", "time", "macros"] }
+secrecy = "=0.10.3"
+zeroize = "1.8"
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

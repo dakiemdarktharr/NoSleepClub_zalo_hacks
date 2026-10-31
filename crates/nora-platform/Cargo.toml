@@ -1,0 +1,27 @@
+[package]
+name = "nora-platform"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Auditable Windows process resource and native-host isolation boundary for NORA"
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+getrandom = "=0.4.3"
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "=0.61.2", features = ["Win32_Foundation", "Win32_Security", "Win32_Security_Authorization", "Win32_Security_Isolation", "Win32_Storage_FileSystem", "Win32_System_Com", "Win32_System_JobObjects", "Win32_System_Threading", "Win32_System_ProcessStatus", "Win32_System_RemoteDesktop", "Win32_System_SystemInformation", "Win32_System_WindowsProgramming", "Win32_UI_WindowsAndMessaging"] }
+
+# This small FFI boundary cannot inherit unsafe_code=forbid. All other NORA
+# application crates do; every unsafe block here documents its native contract.
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

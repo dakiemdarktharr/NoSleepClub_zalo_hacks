@@ -5,13 +5,19 @@ members = [
     "crates/nora-vieneu",
     "crates/nora-store",
     "crates/nora-cli",
+    "crates/nora-llm",
+    "crates/nora-broker",
+    "crates/nora-desktop",
+    "crates/nora-platform",
+    "crates/nora-runtime",
+    "crates/nora-app",
 ]
 resolver = "3"
 
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.92"
+rust-version = "1.95"
 license = "MIT"
 repository = "https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks"
 

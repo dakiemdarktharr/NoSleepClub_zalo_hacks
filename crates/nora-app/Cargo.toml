@@ -1,0 +1,26 @@
+[package]
+name = "nora-app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "NORA Windows desktop assistant"
+
+[[bin]]
+name = "nora-app"
+path = "src/main.rs"
+
+[features]
+default = []
+native-voice = ["nora-runtime/native-voice"]
+
+[dependencies]
+nora-runtime = { path = "../nora-runtime" }
+nora-platform = { path = "../nora-platform" }
+nora-desktop = { path = "../nora-desktop" }
+nora-llm = { path = "../nora-llm" }
+serde_json.workspace = true
+
+[lints]
+workspace = true

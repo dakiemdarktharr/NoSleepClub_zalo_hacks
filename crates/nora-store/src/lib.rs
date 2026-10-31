@@ -195,7 +195,10 @@ impl Store {
                 goal_revision INTEGER NOT NULL, fingerprint TEXT NOT NULL,
                 status TEXT NOT NULL, receipt TEXT,
                 created_ms INTEGER NOT NULL, updated_ms INTEGER NOT NULL);
-             CREATE INDEX IF NOT EXISTS effects_goal ON effects(goal_id,status);",
+             CREATE INDEX IF NOT EXISTS effects_goal ON effects(goal_id,status);
+             CREATE TABLE IF NOT EXISTS goal_results (
+                goal_id TEXT PRIMARY KEY REFERENCES goals(id), summary TEXT NOT NULL,
+                updated_ms INTEGER NOT NULL);",
         )?;
         tx.pragma_update(None, "application_id", APPLICATION_ID)?;
         tx.pragma_update(None, "user_version", 1)?;
@@ -205,7 +208,7 @@ impl Store {
 
     pub fn create_goal(&self, id: &str, objective: &str, now_ms: i64) -> Result<GoalRecord> {
         identifier(id)?;
-        nonempty(objective, 4096, "objective")?;
+        nonempty(objective, 16_384, "objective")?;
         timestamp(now_ms)?;
         self.connection.execute(
             "INSERT INTO goals VALUES (?1,?2,0,'queued','{}',?3,?3)",
@@ -217,6 +220,82 @@ impl Store {
     pub fn goal(&self, id: &str) -> Result<GoalRecord> {
         identifier(id)?;
         read_goal(&self.connection, id)
+    }
+
+    /// Display-only final answers stay local and are never restored as model
+    /// authority. Retain at most128 bounded results independently of checkpoints.
+    pub fn record_result(&self, id: &str, summary: &str, now_ms: i64) -> Result<()> {
+        identifier(id)?;
+        nonempty(summary, 16_384, "goal result")?;
+        timestamp(now_ms)?;
+        self.connection.execute("INSERT INTO goal_results VALUES(?1,?2,?3) ON CONFLICT(goal_id) DO UPDATE SET summary=excluded.summary,updated_ms=excluded.updated_ms",params![id,summary,now_ms])?;
+        self.connection.execute("DELETE FROM goal_results WHERE goal_id NOT IN (SELECT goal_id FROM goal_results ORDER BY updated_ms DESC,goal_id LIMIT 128)",[])?;
+        Ok(())
+    }
+    pub fn result(&self, id: &str) -> Result<Option<String>> {
+        identifier(id)?;
+        let result: Option<String> = self
+            .connection
+            .query_row(
+                "SELECT summary FROM goal_results WHERE goal_id=?1",
+                [id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        if result.as_ref().is_some_and(|s| s.len() > 16_384) {
+            return Err(StoreError::Invalid("stored goal result bound"));
+        }
+        Ok(result)
+    }
+
+    /// Bounded history for the trusted desktop. No model-facing list of other
+    /// goals is implied by this API.
+    pub fn list_goals(&self, limit: usize) -> Result<Vec<GoalRecord>> {
+        if !(1..=128).contains(&limit) {
+            return Err(StoreError::Invalid("goal history limit"));
+        }
+        let mut statement = self
+            .connection
+            .prepare("SELECT id FROM goals ORDER BY updated_ms DESC,id LIMIT ?1")?;
+        let ids = statement
+            .query_map([limit as i64], |r| r.get::<_, String>(0))?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+        ids.into_iter()
+            .map(|id| read_goal(&self.connection, &id))
+            .collect()
+    }
+
+    pub fn goal_effects(&self, id: &str) -> Result<Vec<EffectRecord>> {
+        identifier(id)?;
+        let mut statement = self
+            .connection
+            .prepare("SELECT id FROM effects WHERE goal_id=?1 ORDER BY created_ms,id LIMIT 257")?;
+        let ids = statement
+            .query_map([id], |r| r.get::<_, String>(0))?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+        if ids.len() > 256 {
+            return Err(StoreError::Invalid("goal effect history limit"));
+        }
+        ids.into_iter()
+            .map(|id| read_effect(&self.connection, &id)?.ok_or(StoreError::NotFound(id)))
+            .collect()
+    }
+
+    /// Called once after exclusive supervisor/broker ownership. Interrupted
+    /// external effects remain unknown; other interrupted computation waits for
+    /// explicit user resume instead of consuming API usage after restart.
+    pub fn recover_abandoned_goals(&mut self, now_ms: i64) -> Result<usize> {
+        self.recover_interrupted(now_ms)?;
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let future:i64=tx.query_row("SELECT COUNT(*) FROM goals WHERE status IN ('queued','running','verifying') AND (updated_ms>?1 OR revision=9223372036854775807)",[now_ms],|r|r.get(0))?;
+        if future != 0 {
+            return Err(StoreError::Conflict);
+        }
+        let count=tx.execute("UPDATE goals SET status='waiting_input',revision=revision+1,updated_ms=?1 WHERE status IN ('queued','running','verifying')",[now_ms])?;
+        tx.commit()?;
+        Ok(count)
     }
 
     pub fn transition_goal(
@@ -839,6 +918,21 @@ mod tests {
         drop(c);
         let s = Store::open(&path).unwrap();
         assert_eq!(s.delivery_state("g", "k").unwrap().last_speech, Some(12.0));
+    }
+    #[test]
+    fn restart_history_keeps_original_goal_and_does_not_retry_computation() {
+        let mut s = Store::memory().unwrap();
+        running(&mut s);
+        assert_eq!(s.recover_abandoned_goals(2).unwrap(), 1);
+        let history = s.list_goals(8).unwrap();
+        assert_eq!(history.len(), 1);
+        assert_eq!(history[0].status, GoalStatus::WaitingInput);
+        assert_eq!(
+            history[0].objective,
+            "Tạo bản nháp trong thư mục được cấp quyền"
+        );
+        assert!(s.goal_effects("goal").unwrap().is_empty());
+        assert!(s.list_goals(129).is_err());
     }
     #[test]
     fn foreign_view_or_legacy_trigger_is_not_adopted() {
