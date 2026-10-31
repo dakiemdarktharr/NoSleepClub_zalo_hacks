@@ -2,6 +2,8 @@
 
 Trạng thái: **proposed implementation**, chưa có desktop build hoặc integration production. Các quyết định được giải thích trong [ADR](adr/0001-windows-local-first.md).
 
+Ràng buộc mới của user: **2 GB RAM cho NORA, hỗ trợ card 4 GB VRAM, SSD 15 GB; LLM có thể dùng API**. [ADR-0004](adr/0004-lightweight-client.md) và [thiết kế client nhẹ](lightweight-client.md) đề xuất native/ONNX audio và giới hạn process/model residency. Đây là target cần đo; Python/audio framework dưới đây là hướng ban đầu, không phải bộ runtime đã chốt đạt ngân sách.
+
 ## Ranh giới tiến trình
 
 ```mermaid

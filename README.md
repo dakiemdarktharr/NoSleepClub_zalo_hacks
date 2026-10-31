@@ -13,6 +13,7 @@ NORA là định hướng sản phẩm trợ lý giọng nói tiếng Việt ch�
 | [Báo cáo nghiên cứu](docs/report-vi.md) | Kết luận, kiến trúc, lựa chọn nền tảng và điểm chưa biết |
 | [LifeMate 2026](docs/lifemate-2026.md) | Đề thi, hợp đồng đầu ra, mốc thời gian và giới hạn công khai |
 | [Kiến trúc](docs/architecture.md) | Desktop, voice, goal runtime, adapters, memory |
+| [Ngân sách client nhẹ](docs/lightweight-client.md) | Mục tiêu 2 GB RAM, GPU 4 GB, SSD 15 GB; chưa benchmark |
 | [Chính sách cập nhật](docs/progress-policy.md) | Khi nào nói, hiện card hoặc giữ im lặng |
 | [Quyền và bảo mật](docs/security-permissions.md) | App/folder grants, approval, isolation, prompt injection |
 | [Lộ trình và release gates](docs/production-roadmap.md) | Đường từ reference core đến beta và production |
