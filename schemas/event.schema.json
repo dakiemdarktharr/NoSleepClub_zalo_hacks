@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:nora:event:0.1",
+  "title": "NORA proposed production progress event envelope",
+  "description": "Not the offline CLI input. Trusted producers and broker validation are required; verified=true is not a self-certification mechanism.",
+  "type": "object", "additionalProperties": false,
+  "required": ["event_id", "goal_id", "kind", "occurred_at", "sequence", "producer_ref", "summary", "evidence_refs", "verified", "sensitivity", "policy_version"],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 1},
+    "goal_id": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["goal.accepted", "worker.started", "sources.milestone", "finding.material", "permission.required", "input.required", "blocker.material", "goal.completed", "status.requested", "technical", "heartbeat"]},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "sequence": {"type": "integer", "minimum": 0},
+    "producer_ref": {"type": "string", "minLength": 1},
+    "summary": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "milestone_key": {"type": "string"},
+    "evidence_refs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "read_source_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "verified": {"type": "boolean"},
+    "sensitivity": {"enum": ["public", "private", "sensitive"]},
+    "expires_at": {"type": ["string", "null"], "format": "date-time"},
+    "policy_version": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"kind": {"enum": ["worker.started", "sources.milestone", "finding.material", "goal.completed"]}}, "required": ["kind"]},
+      "then": {"properties": {"verified": {"const": true}, "evidence_refs": {"minItems": 1}}}
+    }
+  ]
+}

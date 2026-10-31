@@ -1,0 +1,9 @@
+{"event":{"goal_id":"demo","event_id":"e1","kind":"goal.accepted","occurred_at":0,"summary":"Tôi sẽ đối chiếu tài liệu rồi lưu báo cáo."}}
+{"event":{"goal_id":"demo","event_id":"e2","kind":"technical","occurred_at":2,"summary":"Khởi tạo skill."}}
+{"event":{"goal_id":"demo","event_id":"e3","kind":"technical","occurred_at":3,"summary":"Epoch 12/100."}}
+{"event":{"goal_id":"demo","event_id":"e4","kind":"worker.started","occurred_at":50,"summary":"Đã khởi chạy hai nhánh nghiên cứu: giọng nói và quyền ứng dụng.","verified":true,"evidence_refs":["worker-receipt:1"],"milestone_key":"research-workers"}}
+{"event":{"goal_id":"demo","event_id":"e5","kind":"sources.milestone","occurred_at":100,"summary":"Số nguồn sẽ được dựng từ registry.","verified":true,"evidence_refs":["source-registry:v1"],"read_source_ids":["s1","s2","s2","s3"],"milestone_key":"sources-3"}}
+{"event":{"goal_id":"demo","event_id":"e6","kind":"permission.required","occurred_at":101,"summary":"Cần quyền ghi note vào folder Báo cáo trong vault Obsidian.","milestone_key":"obsidian-write"}}
+{"event":{"goal_id":"demo","event_id":"e7","kind":"goal.completed","occurred_at":150,"summary":"Đã lưu báo cáo và kiểm tra lại file.","verified":false,"milestone_key":"done"}}
+{"event":{"goal_id":"demo","event_id":"e8","kind":"goal.completed","occurred_at":151,"summary":"Đã lưu báo cáo và kiểm tra lại file.","verified":true,"evidence_refs":["file-receipt:sha256-example"],"milestone_key":"done"}}
+{"event":{"goal_id":"demo","event_id":"e9","kind":"heartbeat","occurred_at":160,"summary":"Không có thay đổi."}}

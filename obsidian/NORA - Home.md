@@ -1,0 +1,43 @@
+---
+title: NORA - Home
+created: 2026-10-31
+updated: 2026-10-31
+tags: [nora, nosleepclub, zalo-ai-challenge, research]
+status: research-foundation
+---
+
+# NORA
+
+**Natural-language Orchestration, Reasoning & Action**. Đọc “Nô-ra”, gọi “Nora ơi”. Codename chưa kiểm tra nhãn hiệu hoặc hiệu quả wake word.
+
+Một trợ lý giọng nói tiếng Việt chạy nền trên máy tính: nhận một yêu cầu, chọn task flow phù hợp, làm trong quyền được cấp, kiểm chứng kết quả và chỉ cập nhật khi có thay đổi đáng biết. Cảm hứng JARVIS/FRIDAY ở phong cách tương tác và sự chủ động có giới hạn.
+
+**Trạng thái ngày 31/10/2026:** đã có nghiên cứu, source ledger, schemas và reference policy core; chưa có ứng dụng production, voice benchmark, installer hoặc official LifeMate submission.
+
+## Bản đồ ghi chú
+
+- [[NORA - Ground Truths]] — facts có nguồn, observations, decisions và unknowns được phân loại.
+- [[NORA - Decisions]] — kiến trúc đã chọn và lý do.
+- [[NORA - Open Questions]] — các bước cần chứng minh trước khi triển khai.
+- [[NORA - Research Report]] — bản báo cáo đầy đủ để đọc trong vault.
+- [[NORA - Sources]] — bảng nguồn và hạn chế bằng chứng.
+
+[Repo public NoSleepClub_zalo_hacks](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks) · [Báo cáo đầy đủ](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/report-vi.md) · [Lộ trình production](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/production-roadmap.md)
+
+## Hướng sản phẩm
+
+Windows-first user-session tray app. Tauri UI → Rust permission broker → Python goal/audio workers → typed app/file adapters. Cascade STT → agent → TTS; hotkey/push-to-talk trước wake word. Prototype LangGraph với persistent storage được kiểm thử, effect ledger và supervisor; chưa có runtime integration trong repo.
+
+Một prompt tạo một goal có acceptance checks. Thiếu quyền thì nhánh cần quyền chờ; không mất yêu cầu gốc. Một orchestrator mặc định; workers chỉ khi nhánh độc lập có ích. Độ phức tạp task và rủi ro hành động là hai trục riêng.
+
+## Quy tắc giao tiếp
+
+Nói khi có milestone/finding/blocker/permission/completion đã xác minh. Im lặng với epoch, skill initialization, retries đã xử lý và heartbeat không đổi. Source counts chỉ tính tài liệu đã đọc và loại trùng. Không đọc raw reasoning hoặc lấy lời model làm proof of completion.
+
+`Dừng nói` khác `tạm dừng goal` và `hủy goal`. Quiet mode và người dùng đang nói ảnh hưởng timing; status question lấy state mới nhất.
+
+## Liên hệ cuộc thi
+
+Track phù hợp: [LifeMate 2026](https://challenge.zalo.ai/portal/lifemate). Simulator chấm ordered tools và final state hash, khác desktop automation thật. Hạn giải pháp được công bố tại ngày kiểm tra: **16/11/2026 23:59 GMT+7**. Cần đọc lại lịch và devkit trước nộp.
+
+Public repo chứa nghiên cứu và policy reference độc lập. Không đưa dataset/audio/private outputs lên repo. Mã thi trong thời gian cuộc thi có điều kiện chia sẻ riêng tại mục 8.2; GitHub public không tự đáp ứng điều kiện công khai trên diễn đàn chính thức. [Thể lệ PDF](https://dl-challenge.zalo.ai/zalo-ai-challenge-regulations-vi.pdf)

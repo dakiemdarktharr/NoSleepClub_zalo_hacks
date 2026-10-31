@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:nora:goal:0.1",
+  "title": "NORA proposed durable goal contract",
+  "description": "Design contract only. Schema validation is not authorization, graph validation or effect verification.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["goal_id", "owner_id", "objective", "original_request_ref", "status", "acceptance_checks", "scope", "budget", "plan_version", "policy_version", "runtime_version", "pending_approvals", "effect_receipts", "evidence_refs", "cancel_requested"],
+  "properties": {
+    "goal_id": {"type": "string", "minLength": 1},
+    "owner_id": {"type": "string", "minLength": 1},
+    "objective": {"type": "string", "minLength": 1},
+    "original_request_ref": {"type": "string", "minLength": 1},
+    "status": {"enum": ["queued", "running", "waiting_input", "waiting_permission", "waiting_approval", "verifying", "needs_reconciliation", "completed", "failed", "cancelled"]},
+    "acceptance_checks": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["check_id", "description", "verifier", "status", "evidence_refs"],
+        "properties": {
+          "check_id": {"type": "string", "minLength": 1},
+          "description": {"type": "string", "minLength": 1},
+          "verifier": {"type": "string", "minLength": 1},
+          "status": {"enum": ["pending", "passed", "failed", "unverifiable"]},
+          "evidence_refs": {"$ref": "#/$defs/refs"}
+        }
+      }
+    },
+    "scope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["grant_refs", "egress_policy_ref"],
+      "properties": {
+        "grant_refs": {"$ref": "#/$defs/refs"},
+        "egress_policy_ref": {"type": "string", "minLength": 1}
+      }
+    },
+    "budget": {
+      "type": "object", "additionalProperties": false,
+      "required": ["max_steps", "max_cost_usd", "max_elapsed_seconds", "max_parallel_workers", "deadline"],
+      "properties": {
+        "max_steps": {"type": "integer", "minimum": 1},
+        "max_cost_usd": {"type": "number", "minimum": 0},
+        "max_elapsed_seconds": {"type": "integer", "minimum": 1},
+        "max_parallel_workers": {"type": "integer", "minimum": 1},
+        "deadline": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "plan_version": {"type": "integer", "minimum": 1},
+    "policy_version": {"type": "string", "minLength": 1},
+    "runtime_version": {"type": "string", "minLength": 1},
+    "checkpoint_ref": {"type": ["string", "null"]},
+    "pending_approvals": {"$ref": "#/$defs/refs"},
+    "effect_receipts": {"$ref": "#/$defs/refs"},
+    "evidence_refs": {"$ref": "#/$defs/refs"},
+    "cancel_requested": {"type": "boolean"}
+  },
+  "$defs": {
+    "refs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "completed"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "evidence_refs": {"minItems": 1},
+          "pending_approvals": {"maxItems": 0},
+          "acceptance_checks": {"items": {"properties": {"status": {"const": "passed"}, "evidence_refs": {"minItems": 1}}}}
+        }
+      }
+    }
+  ]
+}

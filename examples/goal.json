@@ -1,0 +1,21 @@
+{
+  "goal_id": "synthetic-research-goal",
+  "owner_id": "synthetic-user",
+  "objective": "Tạo báo cáo đối chiếu và lưu vào folder note đã được cấp quyền",
+  "original_request_ref": "synthetic-transcript:1",
+  "status": "queued",
+  "acceptance_checks": [
+    {"check_id": "report.content", "description": "Báo cáo có kết luận, nguồn và hạn chế", "verifier": "content-review", "status": "pending", "evidence_refs": []},
+    {"check_id": "report.saved", "description": "Note đã được lưu đúng folder", "verifier": "filesystem-readback", "status": "pending", "evidence_refs": []}
+  ],
+  "scope": {"grant_refs": ["grant:notes-create"], "egress_policy_ref": "egress:public-research-only"},
+  "budget": {"max_steps": 30, "max_cost_usd": 2, "max_elapsed_seconds": 1200, "max_parallel_workers": 2, "deadline": null},
+  "plan_version": 1,
+  "policy_version": "proposed-0.1",
+  "runtime_version": "not-implemented",
+  "checkpoint_ref": null,
+  "pending_approvals": [],
+  "effect_receipts": [],
+  "evidence_refs": [],
+  "cancel_requested": false
+}
