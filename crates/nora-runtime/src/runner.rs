@@ -436,7 +436,28 @@ fn run_with_model<M: Model>(request: RunRequest, env: Environment, model: M) -> 
     let result = engine.execute();
     let (phase, text) = match result {
         Ok(text) => (GoalPhase::Completed, text),
-        Err(error) => {
+        Err(mut error) => {
+            if error.phase == GoalPhase::Cancelled
+                && engine
+                    .env
+                    .store
+                    .lock()
+                    .ok()
+                    .and_then(|s| s.goal_effects(&engine.request.goal_id).ok())
+                    .is_none_or(|effects| {
+                        effects.iter().any(|e| {
+                            matches!(
+                                e.status,
+                                EffectStatus::InFlight | EffectStatus::NeedsReconciliation
+                            )
+                        })
+                    })
+            {
+                error.phase = GoalPhase::NeedsReconciliation;
+                error.text =
+                    "Đã dừng các bước mới; thao tác trước đó còn chưa rõ kết quả và cần đối chiếu."
+                        .into();
+            }
             engine.finish_failure(error.phase);
             (error.phase, error.text)
         }
@@ -765,6 +786,13 @@ impl<M: Model> Engine<M> {
                 ));
             }
         }
+        self.recovered_steering |= self
+            .env
+            .store
+            .lock()
+            .map_err(|_| failed("Không thể khóa input journal."))?
+            .has_pending_input(&self.request.goal_id)
+            .map_err(|_| uncertain("Không thể xác minh input journal."))?;
         let records = self
             .env
             .store
@@ -1159,6 +1187,7 @@ impl<M: Model> Engine<M> {
 
     fn accept_update(&mut self, text: String) -> RunResult<()> {
         self.validate_user(&text)?;
+        let digest = hash(text.as_bytes());
         if self.user_updates.len() >= MAX_UPDATES {
             return Err(failed("Đạt giới hạn cập nhật trong một mục tiêu."));
         }
@@ -1177,7 +1206,14 @@ impl<M: Model> Engine<M> {
             GoalPhase::Running,
             "Đã nhận thông tin từ người dùng; đang lập lại bước tiếp theo.",
         )?;
-        self.save()
+        self.save()?;
+        self.env
+            .store
+            .lock()
+            .map_err(|_| uncertain("Không thể khóa input journal."))?
+            .consume_pending_input(&self.request.goal_id, &digest)
+            .map_err(|_| uncertain("Không thể xác minh cập nhật đã lưu."))?;
+        Ok(())
     }
 
     fn recheck_authority(&mut self) -> RunResult<()> {

@@ -24,11 +24,17 @@ pub struct JobMemory {
 }
 
 #[cfg(windows)]
+mod measurement;
+#[cfg(windows)]
 pub mod sandbox;
+#[cfg(windows)]
+pub use measurement::{Measurement, MemoryMeasurement};
 #[cfg(windows)]
 mod windows;
 #[cfg(windows)]
-pub use windows::{BudgetJob, SingleInstance, process_memory, session_is_locked};
+pub use windows::{
+    BudgetJob, SingleInstance, process_creation_filetime, process_memory, session_is_locked,
+};
 
 #[cfg(not(windows))]
 pub fn process_memory(_pid: u32) -> io::Result<ProcessMemory> {

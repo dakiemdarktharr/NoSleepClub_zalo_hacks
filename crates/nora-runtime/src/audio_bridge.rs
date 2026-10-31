@@ -2,7 +2,7 @@
 //! native jobs use the AppContainer launcher and are killed on interruption.
 
 use crate::{Result, config::AppConfig};
-use std::{collections::VecDeque, path::PathBuf};
+use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub enum AudioEvent {
@@ -26,6 +26,7 @@ mod native {
     };
     use nora_platform::sandbox::{SandboxChild, SandboxRequest, spawn_with_lease};
     use std::{
+        collections::VecDeque,
         fs::{self, File},
         io::Write,
         time::{Duration, Instant},
@@ -381,15 +382,13 @@ mod native {
                 && self.recorder.is_none()
                 && self.speaker.is_none()
                 && !self.quiet
+                && let Some((id, text)) = self.speech.pop_front()
+                && self.spawn_tts(id.clone(), text).is_err()
             {
-                if let Some((id, text)) = self.speech.pop_front() {
-                    if self.spawn_tts(id.clone(), text).is_err() {
-                        events.push(AudioEvent::SpeechSkipped { notice_id: id });
-                        events.push(AudioEvent::Error(
-                            "Chưa thể chuẩn bị giọng nói; kết quả vẫn ở trong cửa sổ.".into(),
-                        ));
-                    }
-                }
+                events.push(AudioEvent::SpeechSkipped { notice_id: id });
+                events.push(AudioEvent::Error(
+                    "Chưa thể chuẩn bị giọng nói; kết quả vẫn ở trong cửa sổ.".into(),
+                ));
             }
             events
         }
@@ -440,6 +439,7 @@ impl AudioBridge {
     }
 }
 
+#[cfg(any(all(windows, feature = "native-voice"), test))]
 fn speakable(text: &str) -> String {
     let first = text
         .split("\n\n")

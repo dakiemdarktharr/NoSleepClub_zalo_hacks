@@ -8,6 +8,7 @@ pub mod config;
 pub mod diagnostics;
 mod event_outbox;
 mod leases;
+pub mod live_check;
 pub mod runner;
 pub mod tools;
 pub mod voice;

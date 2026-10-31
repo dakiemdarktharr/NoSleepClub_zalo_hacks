@@ -2,18 +2,24 @@
 //! documents; all filesystem probes are newly created test-only sentinels.
 
 use crate::Result;
-use serde::{Deserialize, Serialize};
-use serde_json::{Value, json};
-use std::{
-    fs::{self, File},
-    io::Read,
-    net::{SocketAddr, TcpListener, TcpStream},
-    path::{Path, PathBuf},
-    time::Duration,
+use serde_json::Value;
+use std::{fs, path::Path};
+#[cfg(windows)]
+use {
+    serde::{Deserialize, Serialize},
+    serde_json::json,
+    std::{
+        fs::File,
+        io::Read,
+        net::{SocketAddr, TcpListener, TcpStream},
+        path::PathBuf,
+        time::Duration,
+    },
 };
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+#[cfg(windows)]
 struct ProbeRequest {
     allowed_file: PathBuf,
     sentinel: PathBuf,

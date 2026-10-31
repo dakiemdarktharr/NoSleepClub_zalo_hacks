@@ -8,6 +8,7 @@ repository.workspace = true
 description = "Auditable Windows process resource and native-host isolation boundary for NORA"
 
 [dependencies]
+serde_json.workspace = true
 serde.workspace = true
 thiserror.workspace = true
 getrandom = "=0.4.3"

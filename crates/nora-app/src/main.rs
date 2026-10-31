@@ -30,14 +30,22 @@ fn run() -> Result<()> {
     let executable = std::env::current_exe()?;
     let mut config = AppConfig::defaults(&executable)?;
     let mut command = None;
+    let mut metrics = None;
     let mut index = 0;
     while index < args.len() {
         match args[index].as_str() {
+            "--metrics" if index + 1 < args.len() => {
+                if metrics.replace(PathBuf::from(&args[index + 1])).is_some() {
+                    return Err("select one metrics destination".into());
+                }
+                index += 2;
+            }
             "--config" if index + 1 < args.len() => {
                 config = AppConfig::load(&PathBuf::from(&args[index + 1]))?;
                 index += 2;
             }
-            "--doctor" | "--api-probe" | "--resource-probe" | "--sandbox-check" => {
+            "--doctor" | "--api-probe" | "--live-check" | "--resource-probe"
+            | "--sandbox-check" => {
                 if command.replace(args[index].as_str()).is_some() {
                     return Err("select one command".into());
                 }
@@ -45,7 +53,7 @@ fn run() -> Result<()> {
             }
             "--help" => {
                 println!(
-                    "NORA Windows desktop assistant\n  nora-app [--config APP.json]\n  nora-app --doctor [--config APP.json]\n  nora-app --api-probe [--config APP.json]\n  nora-app --resource-probe"
+                    "NORA Windows desktop assistant\n  nora-app [--config APP.json] [--metrics NEW.json]\n  nora-app --doctor [--config APP.json]\n  nora-app --api-probe [--config APP.json]\n  nora-app --live-check [--config APP.json]\n  nora-app --sandbox-check [--config APP.json]\n  nora-app --resource-probe\nAPI probe/live check are explicit billable requests."
                 );
                 return Ok(());
             }
@@ -53,12 +61,27 @@ fn run() -> Result<()> {
         }
     }
     #[cfg(windows)]
-    let memory_guard = nora_platform::BudgetJob::install(if command == Some("--resource-probe") {
-        64_000_000
-    } else {
-        nora_platform::RAM_LIMIT_BYTES
-    })?;
+    let memory_guard = std::sync::Arc::new(nora_platform::BudgetJob::install(
+        if command == Some("--resource-probe") {
+            64_000_000
+        } else {
+            nora_platform::RAM_LIMIT_BYTES
+        },
+    )?);
+    #[cfg(windows)]
+    let _measurement = metrics
+        .as_deref()
+        .map(|path| nora_platform::Measurement::start(memory_guard.clone(), path))
+        .transpose()?;
+    #[cfg(not(windows))]
+    if metrics.is_some() {
+        return Err("Windows process metrics required".into());
+    }
     match command {
+        Some("--live-check") => {
+            println!("{}", nora_runtime::live_check::run(&config)?);
+            Ok(())
+        }
         Some("--sandbox-check") => {
             println!(
                 "{}",

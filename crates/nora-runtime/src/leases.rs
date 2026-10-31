@@ -3,6 +3,7 @@
 use crate::{Result, config::AppConfig};
 use std::path::Path;
 
+#[cfg(windows)]
 pub fn validate_native_roots(config: &AppConfig, executable: &Path) -> Result<()> {
     let bin = executable
         .canonicalize()?
@@ -30,6 +31,9 @@ pub fn recover(config: &AppConfig, executable: &Path) -> Result<usize> {
     };
     let dir = config.state_dir.join("native-leases");
     if !dir.exists() {
+        return Ok(0);
+    }
+    if fs::read_dir(&dir)?.next().is_none() {
         return Ok(0);
     }
     validate_native_roots(config, executable)?;
@@ -65,6 +69,7 @@ pub fn recover(config: &AppConfig, executable: &Path) -> Result<usize> {
         }
         let lease: SandboxLease = serde_json::from_slice(&bytes)?;
         if lease.parent_pid == 0
+            || lease.parent_creation_filetime == 0
             || lease.acl_paths.len() != 3
             || !lease.acl_paths.contains(&bin)
             || !lease.acl_paths.contains(&assets)
@@ -78,8 +83,11 @@ pub fn recover(config: &AppConfig, executable: &Path) -> Result<usize> {
         {
             return Err("native lease scope changed; inspection required".into());
         }
-        match nora_platform::process_memory(lease.parent_pid) {
-            Ok(_) => return Err("native lease owner is still running; recovery postponed".into()),
+        match nora_platform::process_creation_filetime(lease.parent_pid) {
+            Ok(identity) if identity == lease.parent_creation_filetime => {
+                return Err("native lease owner is still running; recovery postponed".into());
+            }
+            Ok(_) => {}
             Err(e) if e.raw_os_error() == Some(87) => {}
             Err(_) => return Err("cannot establish native lease owner termination".into()),
         }

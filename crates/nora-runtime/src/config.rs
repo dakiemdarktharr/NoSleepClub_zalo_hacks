@@ -73,7 +73,7 @@ impl AppConfig {
             .unwrap_or_else(|| install.join("state"));
         let local_config = std::env::current_dir()?.join(".env.local");
         Ok(Self {
-            state_dir: local.join("NoSleepClub").join("NORA"),
+            state_dir: local.join("NoSleepClub").join("NORA").join("state"),
             llm_config: if local_config.is_file() {
                 local_config
             } else {

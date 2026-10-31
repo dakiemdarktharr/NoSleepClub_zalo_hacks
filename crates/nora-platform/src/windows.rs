@@ -6,7 +6,7 @@ use std::{
     ptr,
 };
 use windows_sys::Win32::{
-    Foundation::{ERROR_ALREADY_EXISTS, GetLastError, SetLastError},
+    Foundation::{ERROR_ALREADY_EXISTS, FILETIME, GetLastError, SetLastError},
     System::{
         JobObjects::{
             AssignProcessToJobObject, CreateJobObjectW, JOB_OBJECT_LIMIT_BREAKAWAY_OK,
@@ -20,8 +20,8 @@ use windows_sys::Win32::{
             WTSQuerySessionInformationW, WTSSessionInfoEx,
         },
         Threading::{
-            CreateMutexW, GetCurrentProcess, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION,
-            PROCESS_VM_READ,
+            CreateMutexW, GetCurrentProcess, GetProcessTimes, OpenProcess,
+            PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_VM_READ,
         },
     },
 };
@@ -188,6 +188,37 @@ pub fn process_memory(pid: u32) -> io::Result<ProcessMemory> {
         peak_working_set_bytes: info.PeakWorkingSetSize as u64,
         private_commit_bytes: info.PrivateUsage as u64,
     })
+}
+
+pub fn process_creation_filetime(pid: u32) -> io::Result<u64> {
+    // SAFETY: numeric PID and a query-only, non-inheritable process handle.
+    let raw = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid) };
+    if raw.is_null() {
+        return Err(io::Error::last_os_error());
+    }
+    // SAFETY: OpenProcess transfers one owned handle to this scope.
+    let handle = unsafe { OwnedHandle::from_raw_handle(raw) };
+    let mut created = FILETIME {
+        dwLowDateTime: 0,
+        dwHighDateTime: 0,
+    };
+    let mut exited = created;
+    let mut kernel = created;
+    let mut user = created;
+    // SAFETY: handle is live and four outputs are valid initialized FILETIMEs.
+    if unsafe {
+        GetProcessTimes(
+            handle.as_raw_handle(),
+            &mut created,
+            &mut exited,
+            &mut kernel,
+            &mut user,
+        )
+    } == 0
+    {
+        return Err(io::Error::last_os_error());
+    }
+    Ok((u64::from(created.dwHighDateTime) << 32) | u64::from(created.dwLowDateTime))
 }
 
 pub fn session_is_locked() -> io::Result<bool> {

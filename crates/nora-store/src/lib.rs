@@ -198,7 +198,10 @@ impl Store {
              CREATE INDEX IF NOT EXISTS effects_goal ON effects(goal_id,status);
              CREATE TABLE IF NOT EXISTS goal_results (
                 goal_id TEXT PRIMARY KEY REFERENCES goals(id), summary TEXT NOT NULL,
-                updated_ms INTEGER NOT NULL);",
+                updated_ms INTEGER NOT NULL);
+             CREATE TABLE IF NOT EXISTS pending_user_inputs (
+                goal_id TEXT PRIMARY KEY REFERENCES goals(id), content_sha256 TEXT NOT NULL,
+                created_ms INTEGER NOT NULL);",
         )?;
         tx.pragma_update(None, "application_id", APPLICATION_ID)?;
         tx.pragma_update(None, "user_version", 1)?;
@@ -245,6 +248,69 @@ impl Store {
         if result.as_ref().is_some_and(|s| s.len() > 16_384) {
             return Err(StoreError::Invalid("stored goal result bound"));
         }
+        Ok(result)
+    }
+    /// Admission marker only: user correction text is never persisted here.
+    /// An outstanding marker forces restatement on recovery before any API call.
+    pub fn record_pending_input(&self, id: &str, content_sha256: &str, now_ms: i64) -> Result<()> {
+        identifier(id)?;
+        timestamp(now_ms)?;
+        if content_sha256.len() != 64 || !content_sha256.bytes().all(|b| b.is_ascii_hexdigit()) {
+            return Err(StoreError::Invalid("input digest"));
+        }
+        self.connection.execute("INSERT INTO pending_user_inputs VALUES(?1,?2,?3) ON CONFLICT(goal_id) DO UPDATE SET content_sha256=excluded.content_sha256,created_ms=excluded.created_ms",params![id,content_sha256,now_ms])?;
+        Ok(())
+    }
+    pub fn has_pending_input(&self, id: &str) -> Result<bool> {
+        identifier(id)?;
+        Ok(self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM pending_user_inputs WHERE goal_id=?1)",
+            [id],
+            |r| r.get(0),
+        )?)
+    }
+    pub fn consume_pending_input(&self, id: &str, content_sha256: &str) -> Result<()> {
+        identifier(id)?;
+        self.connection.execute(
+            "DELETE FROM pending_user_inputs WHERE goal_id=?1 AND content_sha256=?2",
+            params![id, content_sha256],
+        )?;
+        Ok(())
+    }
+    /// Cancel future work while preserving a recoverable unknown-effect state.
+    pub fn cancel_future_work(
+        &mut self,
+        id: &str,
+        revision: i64,
+        now_ms: i64,
+    ) -> Result<GoalRecord> {
+        identifier(id)?;
+        timestamp(now_ms)?;
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let goal = read_goal(&tx, id)?;
+        if goal.revision != revision
+            || now_ms < goal.updated_ms
+            || matches!(
+                goal.status,
+                GoalStatus::Completed | GoalStatus::Failed | GoalStatus::Cancelled
+            )
+        {
+            return Err(StoreError::Conflict);
+        }
+        let unknown:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM effects WHERE goal_id=?1 AND status IN ('in_flight','needs_reconciliation'))",[id],|r|r.get(0))?;
+        let target = if unknown {
+            GoalStatus::NeedsReconciliation
+        } else {
+            GoalStatus::Cancelled
+        };
+        tx.execute(
+            "UPDATE goals SET status=?1,revision=revision+1,updated_ms=?2 WHERE id=?3",
+            params![target.as_str(), now_ms, id],
+        )?;
+        let result = read_goal(&tx, id)?;
+        tx.commit()?;
         Ok(result)
     }
 
@@ -695,6 +761,45 @@ fn read_effect(connection: &Connection, id: &str) -> Result<Option<EffectRecord>
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn accepted_input_marker_and_final_answer_survive_reopen() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("goals.sqlite");
+        let a = "a".repeat(64);
+        let b = "b".repeat(64);
+        {
+            let store = Store::open(&path).unwrap();
+            store.create_goal("goal", "Gốc", 1).unwrap();
+            store.record_pending_input("goal", &a, 2).unwrap();
+            store.record_result("goal", "Kết quả402", 3).unwrap();
+        }
+        let store = Store::open(&path).unwrap();
+        assert!(store.has_pending_input("goal").unwrap());
+        assert_eq!(store.result("goal").unwrap().as_deref(), Some("Kết quả402"));
+        store.record_pending_input("goal", &b, 4).unwrap();
+        store.consume_pending_input("goal", &a).unwrap();
+        assert!(store.has_pending_input("goal").unwrap());
+        store.consume_pending_input("goal", &b).unwrap();
+        assert!(!store.has_pending_input("goal").unwrap());
+    }
+    #[test]
+    fn cancellation_preserves_unknown_effect_reconciliation() {
+        let mut store = Store::memory().unwrap();
+        let goal = running(&mut store);
+        store
+            .prepare_effect("effect", &goal.id, goal.revision, &"a".repeat(64), 2)
+            .unwrap();
+        store.begin_effect("effect", 3).unwrap();
+        let cancelled = store
+            .cancel_future_work(&goal.id, goal.revision, 4)
+            .unwrap();
+        assert_eq!(cancelled.status, GoalStatus::NeedsReconciliation);
+        assert_eq!(
+            store.effect("effect").unwrap().status,
+            EffectStatus::InFlight
+        );
+    }
 
     fn running(store: &mut Store) -> GoalRecord {
         store

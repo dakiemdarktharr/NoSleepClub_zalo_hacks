@@ -17,7 +17,7 @@ use nora_store::{GoalStatus, Store};
 use serde_json::{Value, json};
 use std::{
     cell::RefCell,
-    collections::{BTreeMap, VecDeque},
+    collections::BTreeMap,
     fs::{self, File, OpenOptions},
     process::{Command, Stdio},
     sync::{
@@ -113,6 +113,7 @@ impl AppSession {
             last_session_check: Instant::now() - Duration::from_secs(2),
             last_reminder_check: Instant::now(),
             voice_hold: false,
+            voice_reply_goal: None,
             _owner: owner,
         };
         let thread = thread::Builder::new()
@@ -220,6 +221,7 @@ struct Actor {
     last_session_check: Instant,
     last_reminder_check: Instant,
     voice_hold: bool,
+    voice_reply_goal: Option<String>,
     _owner: File,
 }
 
@@ -346,10 +348,11 @@ impl Actor {
                 let pcm = crate::wav::read_voice_wav(&path, self.config.max_recording_seconds)?;
                 self.audio.stop_speech();
                 self.drop_pending_speech();
-                if let Some(active) = &self.active {
-                    if !active.control.paused.swap(true, Ordering::AcqRel) {
-                        self.voice_hold = true;
-                    }
+                self.capture_voice_reply_goal();
+                if let Some(active) = &self.active
+                    && !active.control.paused.swap(true, Ordering::AcqRel)
+                {
+                    self.voice_hold = true;
                 }
                 if self.audio.import_pcm(&pcm).is_err() {
                     self.release_voice_hold();
@@ -367,10 +370,11 @@ impl Actor {
                     return Ok(());
                 }
                 self.drop_pending_speech();
-                if let Some(active) = &self.active {
-                    if !active.control.paused.swap(true, Ordering::AcqRel) {
-                        self.voice_hold = true;
-                    }
+                self.capture_voice_reply_goal();
+                if let Some(active) = &self.active
+                    && !active.control.paused.swap(true, Ordering::AcqRel)
+                {
+                    self.voice_hold = true;
                 }
                 if self.audio.start_recording().is_err() {
                     self.release_voice_hold();
@@ -426,6 +430,7 @@ impl Actor {
             }
             UiCommand::PauseGoal { goal_id } => {
                 self.voice_hold = false;
+                self.voice_reply_goal = None;
                 if let Some(active) = self.active.as_ref().filter(|a| a.id == goal_id) {
                     active.control.paused.store(true, Ordering::Release);
                     active.control.abort_request.store(true, Ordering::Release);
@@ -457,6 +462,7 @@ impl Actor {
             }
             UiCommand::CancelGoal { goal_id } => {
                 self.voice_hold = false;
+                self.voice_reply_goal = None;
                 self.drop_pending_speech();
                 if let Some(active) = self.active.as_ref().filter(|a| a.id == goal_id) {
                     active.control.cancelled.store(true, Ordering::Release);
@@ -473,14 +479,17 @@ impl Actor {
                 } else {
                     let mut store = self.store.lock().map_err(|_| "goal store unavailable")?;
                     let g = store.goal(&goal_id)?;
-                    store.transition_goal(
-                        &goal_id,
-                        g.revision,
-                        GoalStatus::Cancelled,
-                        now_ms()?,
-                    )?;
+                    let updated = store.cancel_future_work(&goal_id, g.revision, now_ms()?)?;
                     drop(store);
-                    self.phase(&goal_id, GoalPhase::Cancelled, "Đã hủy.");
+                    if updated.status == GoalStatus::NeedsReconciliation {
+                        self.phase(&goal_id,GoalPhase::NeedsReconciliation,"Đã dừng các bước mới. Thao tác trước đó chưa rõ kết quả; cần đối chiếu trước khi tiếp tục.");
+                    } else {
+                        self.phase(
+                            &goal_id,
+                            GoalPhase::Cancelled,
+                            "Đã hủy các bước chưa thực hiện.",
+                        );
+                    }
                 }
             }
             UiCommand::AddFolder {
@@ -579,6 +588,13 @@ impl Actor {
         Ok(())
     }
     fn submit(&mut self, text: String) -> Result<()> {
+        self.submit_with_voice_reply(text, None)
+    }
+    fn submit_with_voice_reply(
+        &mut self,
+        text: String,
+        voice_reply_goal: Option<&str>,
+    ) -> Result<()> {
         if text.trim().is_empty()
             || text.len() > MAX_INPUT_BYTES
             || self.locked
@@ -597,21 +613,52 @@ impl Actor {
                 .iter()
                 .find(|g| g.id == active.id)
                 .map(|g| g.status);
-            if phase != Some(GoalPhase::WaitingInput) {
+            if phase != Some(GoalPhase::WaitingInput)
+                && !(phase == Some(GoalPhase::Paused)
+                    && voice_reply_goal == Some(active.id.as_str()))
+            {
                 return Err("another goal is active".into());
             }
-            active
+            use sha2::{Digest, Sha256};
+            let digest = format!("{:x}", Sha256::digest(text.as_bytes()));
+            let store = self.store.lock().map_err(|_| "goal store unavailable")?;
+            store.record_pending_input(&active.id, &digest, now_ms()?)?;
+            if active
                 .input
-                .try_send(GoalInput::UserText { text: text.clone() })?;
+                .try_send(GoalInput::UserText { text: text.clone() })
+                .is_err()
+            {
+                store.consume_pending_input(&active.id, &digest)?;
+                return Err("goal input queue unavailable".into());
+            }
+            drop(store);
             self.user_message(text);
+            let id = active.id.clone();
+            self.phase(
+                &id,
+                GoalPhase::Running,
+                "Đã nhận thông tin bổ sung; đang cập nhật bước tiếp theo.",
+            );
             return Ok(());
         }
-        self.user_message(text.clone());
-        self.start_goal(new_id("goal")?, text)
+        self.start_goal(new_id("goal")?, text.clone())?;
+        self.user_message(text);
+        Ok(())
     }
     fn start_goal(&mut self, id: String, objective: String) -> Result<()> {
         if self.active.is_some() {
             return Err("only one orchestrator is admitted".into());
+        }
+        {
+            let store = self.store.lock().map_err(|_| "goal store unavailable")?;
+            match store.goal(&id) {
+                Ok(g) if g.objective == objective => {}
+                Ok(_) => return Err("goal identity conflict".into()),
+                Err(nora_store::StoreError::NotFound(_)) => {
+                    store.create_goal(&id, &objective, now_ms()?)?;
+                }
+                Err(e) => return Err(e.into()),
+            }
         }
         let control = Arc::new(GoalControl::default());
         control.session_locked.store(self.locked, Ordering::Release);
@@ -685,7 +732,9 @@ impl Actor {
                 kind,
                 text,
             } => self.notice(&goal_id, kind, &text, None),
-            RunnerEvent::Finished(outcome) => self.finished(&outcome),
+            // Reap/join is the authoritative final boundary. A channel event
+            // can arrive just before the worker actually exits.
+            RunnerEvent::Finished(_) => {}
         }
     }
     fn reap(&mut self) {
@@ -746,6 +795,18 @@ impl Actor {
             }
         }
     }
+    fn capture_voice_reply_goal(&mut self) {
+        self.voice_reply_goal = self
+            .active
+            .as_ref()
+            .filter(|a| {
+                self.snapshot
+                    .goals
+                    .iter()
+                    .any(|g| g.id == a.id && g.status == GoalPhase::WaitingInput)
+            })
+            .map(|a| a.id.clone());
+    }
     fn audio_event(&mut self, event: AudioEvent) {
         match event {
             AudioEvent::Transcript(text) => {
@@ -753,10 +814,15 @@ impl Actor {
                 self.snapshot.voice_status =
                     "Microphone đang tắt. Giữ Ctrl+Shift+Space để nói.".into();
                 self.publish(RuntimeEvent::Transcript { text: text.clone() });
+                let reply_goal = self.voice_reply_goal.take();
                 let control = self.voice_control(&text);
                 self.release_voice_hold();
-                if !control && self.submit(text).is_err() {
-                    self.error("Có goal đang chạy. Bạn có thể hỏi trạng thái, tạm dừng hoặc hủy goal trước khi gửi yêu cầu mới.");
+                if !control
+                    && self
+                        .submit_with_voice_reply(text.clone(), reply_goal.as_deref())
+                        .is_err()
+                {
+                    self.publish(RuntimeEvent::InputRejected{text,message:"Câu nói chưa được gửi. Kiểm tra trạng thái mục tiêu hoặc gửi lại phần thông tin bổ sung.".into()});
                 }
             }
             AudioEvent::Speaking { notice_id: _ } => self.snapshot.speaking = true,
@@ -766,6 +832,7 @@ impl Actor {
             }
             AudioEvent::SpeechSkipped { notice_id } => self.skip_speech(&notice_id),
             AudioEvent::Error(message) => {
+                self.voice_reply_goal = None;
                 self.snapshot.mic = MicState::Off;
                 self.snapshot.speaking = false;
                 self.snapshot.voice_status =
@@ -788,8 +855,47 @@ impl Actor {
             self.drop_pending_speech();
             return true;
         }
-        let Some(id) = self.active.as_ref().map(|a| a.id.clone()) else {
+        let recognized = matches!(
+            text.as_str(),
+            "hủy goal"
+                | "huỷ goal"
+                | "hủy tác vụ"
+                | "huỷ tác vụ"
+                | "hủy nhiệm vụ"
+                | "hủy mục tiêu"
+                | "huỷ mục tiêu"
+                | "tạm dừng"
+                | "tạm dừng goal"
+                | "tạm dừng mục tiêu"
+                | "tiếp tục"
+                | "tiếp tục goal"
+                | "tiếp tục mục tiêu"
+                | "đến đâu rồi"
+                | "đang làm đến đâu"
+                | "trạng thái"
+                | "xong chưa"
+        );
+        if !recognized {
             return false;
+        }
+        let candidates: Vec<_> = self
+            .snapshot
+            .goals
+            .iter()
+            .filter(|g| g.status.can_resume())
+            .collect();
+        let id = if let Some(active) = &self.active {
+            active.id.clone()
+        } else if candidates.len() == 1 {
+            candidates[0].id.clone()
+        } else {
+            self.assistant_message(if candidates.is_empty() {
+                "Chưa có mục tiêu đang chờ tiếp tục.".into()
+            } else {
+                "Có nhiều mục tiêu đang chờ. Hãy chọn mục tiêu trong cửa sổ để tiếp tục hoặc hủy."
+                    .into()
+            });
+            return true;
         };
         let command = match text.as_str() {
             "hủy goal" | "huỷ goal" | "hủy tác vụ" | "huỷ tác vụ" | "hủy nhiệm vụ"
@@ -979,11 +1085,18 @@ impl Actor {
             return;
         };
         let channel = if speech { "speech" } else { "surface" };
-        if let Ok(now) = now_ms() {
-            if let Ok(store) = self.store.lock() {
-                let _ =
-                    store.acknowledge(&pending.goal_id, &pending.key, channel, now as f64 / 1000.0);
-            }
+        let acknowledged = now_ms()
+            .ok()
+            .and_then(|now| {
+                self.store.lock().ok().and_then(|store| {
+                    store
+                        .acknowledge(&pending.goal_id, &pending.key, channel, now as f64 / 1000.0)
+                        .ok()
+                })
+            })
+            .is_some();
+        if !acknowledged {
+            return;
         }
         if speech {
             pending.speech = true;
@@ -991,10 +1104,10 @@ impl Actor {
             pending.surface = true;
         }
         if pending.surface && (pending.speech || !pending.speech_required) {
-            if let Some(reminder) = pending.reminder.take() {
-                if let Ok(mut broker) = self.broker.lock() {
-                    let _ = broker.dismiss_reminder(&reminder);
-                }
+            if let Some(reminder) = pending.reminder.take()
+                && let Ok(mut broker) = self.broker.lock()
+            {
+                let _ = broker.dismiss_reminder(&reminder);
             }
             self.pending.remove(id);
         }
@@ -1009,10 +1122,10 @@ impl Actor {
         if let Some(pending) = self.pending.get_mut(id) {
             pending.speech_required = false;
             if pending.surface {
-                if let Some(reminder) = pending.reminder.take() {
-                    if let Ok(mut broker) = self.broker.lock() {
-                        let _ = broker.dismiss_reminder(&reminder);
-                    }
+                if let Some(reminder) = pending.reminder.take()
+                    && let Ok(mut broker) = self.broker.lock()
+                {
+                    let _ = broker.dismiss_reminder(&reminder);
                 }
                 self.pending.remove(id);
             }

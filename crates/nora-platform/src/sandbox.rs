@@ -89,6 +89,7 @@ pub struct SandboxLease {
     pub scratch_dir: PathBuf,
     pub profile_folder: Option<PathBuf>,
     pub parent_pid: u32,
+    pub parent_creation_filetime: u64,
     pub created_unix_ms: u64,
 }
 
@@ -619,6 +620,7 @@ impl Lease {
                 scratch_dir: scratch.to_path_buf(),
                 profile_folder: None,
                 parent_pid,
+                parent_creation_filetime: crate::process_creation_filetime(parent_pid)?,
                 created_unix_ms,
             },
             system_dir,
@@ -1289,6 +1291,7 @@ mod tests {
             scratch_dir: scratch,
             profile_folder: None,
             parent_pid: std::process::id(),
+            parent_creation_filetime: crate::process_creation_filetime(std::process::id()).unwrap(),
             created_unix_ms: 0,
         };
         assert!(cleanup_lease_with_system(&metadata, &system).is_err());
