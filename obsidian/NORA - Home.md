@@ -16,6 +16,7 @@ Một trợ lý giọng nói tiếng Việt chạy nền trên máy tính: nhậ
 
 ## Bản đồ ghi chú
 
+- [[NORA - Workflow and Repositories]] — ba vòng workflow, upstream repos và phần NORA cần tự xây.
 - [[NORA - Rust Architecture Research]] — đánh giá Rust/native engines, UI và benchmark tài nguyên; mới là đề xuất.
 - [[NORA - Novelty and Production Plan]] — phương án Giữ Ý, VNG problem fit, demo, scope và roadmap mới.
 - [[NORA - Novelty Ground Truths]] — facts/decisions/hypotheses bổ sung, liên kết bộ 43 records.
