@@ -195,7 +195,11 @@ pub fn run_audio_worker(request_path: &Path) -> Result<()> {
             assets.verify_asr()?;
             let verification_ms = begin.elapsed().as_secs_f64() * 1000.0;
             let loading = Instant::now();
-            let mut engine = nora_audio::WhisperEngine::load(assets.asr(), MAX_ASR_SAMPLES, 2)?;
+            let threads = std::thread::available_parallelism()
+                .map(|n| n.get().min(8))
+                .unwrap_or(2);
+            let mut engine =
+                nora_audio::WhisperEngine::load(assets.asr(), MAX_ASR_SAMPLES, threads)?;
             let loaded_ms = loading.elapsed().as_secs_f64() * 1000.0;
             let inference = Instant::now();
             let transcript = engine.transcribe_16khz(&pcm, "vi")?;

@@ -355,11 +355,11 @@ impl Store {
         let tx = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
-        let future:i64=tx.query_row("SELECT COUNT(*) FROM goals WHERE status IN ('queued','running','verifying') AND (updated_ms>?1 OR revision=9223372036854775807)",[now_ms],|r|r.get(0))?;
+        let future:i64=tx.query_row("SELECT COUNT(*) FROM goals WHERE status IN ('queued','running','verifying','waiting_approval') AND (updated_ms>?1 OR revision=9223372036854775807)",[now_ms],|r|r.get(0))?;
         if future != 0 {
             return Err(StoreError::Conflict);
         }
-        let count=tx.execute("UPDATE goals SET status='waiting_input',revision=revision+1,updated_ms=?1 WHERE status IN ('queued','running','verifying')",[now_ms])?;
+        let count=tx.execute("UPDATE goals SET status='waiting_input',revision=revision+1,updated_ms=?1 WHERE status IN ('queued','running','verifying','waiting_approval')",[now_ms])?;
         tx.commit()?;
         Ok(count)
     }
@@ -1038,6 +1038,24 @@ mod tests {
         );
         assert!(s.goal_effects("goal").unwrap().is_empty());
         assert!(s.list_goals(129).is_err());
+    }
+    #[test]
+    fn crash_during_approval_wait_requires_resume_and_preserves_undispatched_effect() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("approval.sqlite");
+        {
+            let mut s = Store::open(&path).unwrap();
+            let g = running(&mut s);
+            s.prepare_effect("effect", &g.id, g.revision, &"a".repeat(64), 2)
+                .unwrap();
+            s.transition_goal(&g.id, g.revision, GoalStatus::WaitingApproval, 3)
+                .unwrap();
+        }
+        let mut s = Store::open(path).unwrap();
+        assert_eq!(s.recover_abandoned_goals(4).unwrap(), 1);
+        assert_eq!(s.goal("goal").unwrap().status, GoalStatus::WaitingInput);
+        assert_eq!(s.effect("effect").unwrap().status, EffectStatus::Prepared);
+        assert_eq!(s.recover_abandoned_goals(5).unwrap(), 0);
     }
     #[test]
     fn foreign_view_or_legacy_trigger_is_not_adopted() {

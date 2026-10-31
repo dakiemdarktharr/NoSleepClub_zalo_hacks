@@ -44,6 +44,33 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Rust MSVC target unavailable' }
     }
     $env:GGML_NATIVE='OFF'
+    if ($IsWindows -and -not $CoreOnly -and $Action -ne 'Format') {
+        # The pinned sys build forwards GGML_* but does not track every flag as
+        # a rerun dependency. Retire a stale scalar/native cache after upgrades.
+        $noraTargetRoot=[IO.Path]::GetFullPath((Join-Path $noraRepositoryRoot 'target'))
+        $noraStaleProfiles=@()
+        foreach ($noraProfile in @('debug','release')) {
+            $noraNativeBuild=Join-Path $noraTargetRoot "x86_64-pc-windows-msvc/$noraProfile/build"
+            if (Test-Path -LiteralPath $noraNativeBuild) {
+                foreach ($noraBuildDir in Get-ChildItem -LiteralPath $noraNativeBuild -Directory -Filter 'whisper-rs-sys-*') {
+                    $noraCache=Join-Path $noraBuildDir.FullName 'out/build/CMakeCache.txt'
+                    if ((Test-Path -LiteralPath $noraCache) -and
+                        ((Select-String -LiteralPath $noraCache -Quiet -Pattern '^GGML_AVX2:BOOL=OFF$') -or
+                         (Select-String -LiteralPath $noraCache -Quiet -Pattern '^GGML_NATIVE:BOOL=ON$'))) { $noraStaleProfiles+=$noraProfile; break }
+                }
+            }
+        }
+        if ($noraStaleProfiles.Count -gt 0) {
+            if (-not $noraTargetRoot.StartsWith($noraRepositoryRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -or
+                ((Get-Item -LiteralPath $noraTargetRoot).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Refusing clean outside ordinary workspace target' }
+            foreach($noraStaleProfile in $noraStaleProfiles){
+                $noraCleanArgs=@('clean','-p','whisper-rs-sys','--target','x86_64-pc-windows-msvc')
+                if($noraStaleProfile -eq 'release'){$noraCleanArgs+='--release'}
+                & cargo @noraCleanArgs
+                if ($LASTEXITCODE -ne 0) { throw 'Could not invalidate stale native profile' }
+            }
+        }
+    }
     [string[]]$noraFeatures=@()
     if (-not $CoreOnly) { $noraFeatures+= '--all-features' }
     switch ($Action) {

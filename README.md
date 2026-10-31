@@ -2,14 +2,16 @@
 
 **Natural-language Orchestration, Reasoning & Action** — đọc “Nô-ra”, gọi “Nora ơi”.
 
-NORA là định hướng sản phẩm trợ lý giọng nói tiếng Việt chạy nền trên máy tính: nhận một yêu cầu, chọn cách thực thi phù hợp, làm việc trong quyền được cấp và báo tiến độ khi có điều đáng nói.
+NORA là trợ lý giọng nói tiếng Việt chạy nền trên Windows: nhận yêu cầu, thực hiện các công cụ được hỗ trợ trong quyền đã cấp, giữ goal qua checkpoint và báo tiến độ khi có điều đáng nói.
 
-**Trạng thái: bản tích hợp Rust đang được kiểm chứng, ngày 01/11/2026.** Có11 crates: desktop/tray/PTT tiếng Việt, Responses API (`gpt-6-luna`, `xhigh`), goal/checkpoint/effect ledger, broker app/folder, cùng voice workers local trong Windows AppContainer. Chưa chứng nhận production hoặc đạt trần2GB cho toàn sản phẩm. Xem [phạm vi và cách chạy](docs/production-integration.md); số đo foundation bên dưới chỉ áp dụng cho mốc cũ.
+**Trạng thái: unsigned validation candidate, ngày 01/11/2026.** Có 11 crates: desktop/tray/PTT tiếng Việt, Responses API (`gpt-6-luna`, `xhigh`), goal/checkpoint/effect ledger, broker app/folder và voice workers local trong Windows AppContainer. Xem [phạm vi/cách chạy](docs/production-integration.md), [kết quả kiểm chứng mới nhất](docs/validation.md) và [quyết định tích hợp](docs/adr/0006-integrated-rust-runtime.md). Mốc foundation bên dưới là lịch sử; kết quả một máy không chứng nhận production trên mọi laptop.
 
 ## Đọc từ đây
 
 | Tài liệu | Nội dung |
 |---|---|
+| [Desktop integration](docs/production-integration.md) | Bản chạy thật, setup assets, quyền, lệnh kiểm chứng và các giới hạn hiện tại |
+| [Validation mới nhất](docs/validation.md) | Test, API thật, whole-app voice/resource receipts và các release gates còn mở |
 | [Rust foundation đã xây](docs/rust-foundation.md) | Phạm vi 5 crates, build/run, native dependencies, tối ưu, kiểm tra và phần còn thiếu |
 | [Số đo thực tế](docs/benchmarks/2026-11-01-windows.json) | Component RAM/timing, FP32 waveform comparison và giới hạn phép đo |
 | [Workflow và repositories](docs/strategy/workflow-and-repositories.md) | Voice/goal/update loops, repos chính, ứng viên, phần tự xây và đường LifeMate |
@@ -22,7 +24,7 @@ NORA là định hướng sản phẩm trợ lý giọng nói tiếng Việt ch�
 | [Báo cáo nghiên cứu](docs/report-vi.md) | Kết luận, kiến trúc, lựa chọn nền tảng và điểm chưa biết |
 | [LifeMate 2026](docs/lifemate-2026.md) | Đề thi, hợp đồng đầu ra, mốc thời gian và giới hạn công khai |
 | [Kiến trúc](docs/architecture.md) | Desktop, voice, goal runtime, adapters, memory |
-| [Ngân sách client nhẹ](docs/lightweight-client.md) | Mục tiêu 2 GB RAM, GPU 4 GB, SSD 15 GB; chưa có benchmark toàn sản phẩm |
+| [Ngân sách client nhẹ](docs/lightweight-client.md) | Thiết kế ngân sách; số đo tích hợp mới nằm trong validation |
 | [Chính sách cập nhật](docs/progress-policy.md) | Khi nào nói, hiện card hoặc giữ im lặng |
 | [Quyền và bảo mật](docs/security-permissions.md) | App/folder grants, approval, isolation, prompt injection |
 | [Lộ trình và release gates](docs/production-roadmap.md) | Đường từ reference core đến beta và production |
@@ -31,7 +33,7 @@ NORA là định hướng sản phẩm trợ lý giọng nói tiếng Việt ch�
 | [Ground truths](ground-truths.json) | Facts, observations, decisions và câu hỏi tách riêng |
 | [Ghi chú Obsidian](obsidian/NORA%20-%20Home.md) | Bộ note Markdown có wikilinks |
 
-## Build Rust foundation
+## Build và chạy Rust desktop
 
 Rust pin 1.99.1. Windows native build cần MSVC C++ tools, CMake/Ninja và PowerShell 7 đã cài. Default/core tests không cần model, microphone hoặc paid API.
 
@@ -39,12 +41,15 @@ Rust pin 1.99.1. Windows native build cần MSVC C++ tools, CMake/Ninja và Powe
 ./scripts/Build-Rust.ps1 -Action Test
 ./scripts/Build-Rust.ps1 -Action Clippy
 ./scripts/Build-Rust.ps1 -Action Release
+./scripts/Prepare-VoiceAssets.ps1 -Destination D:/nora-assets
+./scripts/New-NoraPortable.ps1 -Executable ./target/x86_64-pc-windows-msvc/release/nora-app.exe -AssetSource D:/nora-assets -Destination D:/NORA
+# Điền D:/NORA/config/.env.local rồi chạy D:/NORA/Launch-Nora.cmd.
 ./target/x86_64-pc-windows-msvc/release/nora.exe replay examples/progress-events.jsonl
 ```
 
 Core portable: `cargo test --locked --workspace`. [Hướng dẫn native inference](docs/rust-foundation.md) và [asset manifests](assets/manifests/README.md) chỉ rõ models/runtime cần cung cấp riêng. Không có Python interpreter trong Rust runtime; ONNX Runtime, whisper.cpp và SQLite vẫn là native dependencies.
 
-Validation local: **84 Rust tests passed**, format/Clippy passed; 9 replay events khớp Python reference. Cargo audit sau cập nhật ZIP 9.0.0: 0 vulnerability advisories theo RustSec snapshot đã ghi, giữ 1 warning unmaintained qua tokenizer. Đây không phải security certification hoặc kiểm thử toàn sản phẩm. [Validation receipt](docs/validation.md).
+Validation hiện tại: **188 Rust tests passed**, Clippy `-D warnings` và release build; kiểm chứng tích hợp dùng API thật và assets đã hash. Cargo audit trên graph tích hợp ghi 0 vulnerability advisories và 4 unmaintained warnings trong snapshot đã lưu. Đây không phải security certification. Chi tiết phạm vi và các phép đo nằm trong [validation receipt](docs/validation.md).
 
 ## Chạy Python reference core
 
@@ -64,9 +69,9 @@ Reference validation: **21 tests passed** và replay 9 events. Python được g
 
 Windows-first: UI/tray → Rust supervisor/permission broker → Rust goal/audio runtime và typed tools. LLM/worker roles dùng Responses API; một orchestrator và các lượt nghiên cứu công khai tách biệt, có giới hạn chung. [ADR-0005](docs/adr/0005-rust-client-proposal.md) ghi quyết định nền tảng. Audio theo STT → agent → TTS; push-to-talk/hotkey, chưa bật wake word.
 
-Tauri UI vẫn là ứng viên cần benchmark với native UI. State primitives hiện dùng Rust/SQLite; không có LangGraph/Temporal runtime dependency. Không cần cloud hosting để truy cập app/folder local.
+Bản hiện tại chọn native egui; không có browser thường trú, local LLM hoặc Python interpreter trong runtime. State dùng Rust/SQLite, không có LangGraph/Temporal dependency. Không cần cloud hosting để truy cập app/folder local; LLM và public research dùng API có thể tính phí.
 
-Hướng khác biệt đang kiểm chứng: **NORA Giữ Ý**, giữ mục tiêu/tham số và tiếp tục phần hợp lệ khi nội dung bên ngoài có xung đột hoặc chỉ dẫn độc hại. Đây là giả thuyết sản phẩm/workflow, chưa có algorithm novelty hoặc kết quả vượt baseline. Alpha scope: voice/text, scoped file/note, research và synthetic merchant workflow. CLI note đã có write/readback thật; full Giữ Ý, OA/order và các adapters khác vẫn chưa tích hợp.
+Hướng khác biệt đang kiểm chứng: **NORA Giữ Ý**, giữ mục tiêu/tham số qua gián đoạn và không cho nội dung bên ngoài tự cấp quyền. Bản desktop đã có original-goal checkpoints, follow-up input journal, exact approvals, effect receipts và phục hồi an toàn. Chưa có bằng chứng algorithm novelty hoặc vượt baseline; OA/order, arbitrary GUI automation và official contest submission adapter vẫn chưa tích hợp.
 
 ## Công khai và dữ liệu cuộc thi
 

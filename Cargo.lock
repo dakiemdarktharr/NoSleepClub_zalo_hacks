@@ -2638,6 +2638,7 @@ version = "0.1.0"
 dependencies = [
  "eframe",
  "global-hotkey",
+ "png",
  "rfd",
  "serde",
  "serde_json",

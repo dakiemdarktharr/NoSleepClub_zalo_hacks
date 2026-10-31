@@ -3,7 +3,7 @@ title: NORA - Home
 created: 2026-10-31
 updated: 2026-11-01
 tags: [nora, nosleepclub, zalo-ai-challenge, research]
-status: rust-foundation
+status: desktop-validation-candidate
 ---
 
 # NORA
@@ -12,10 +12,11 @@ status: rust-foundation
 
 Một trợ lý giọng nói tiếng Việt chạy nền trên máy tính: nhận một yêu cầu, chọn task flow phù hợp, làm trong quyền được cấp, kiểm chứng kết quả và chỉ cập nhật khi có thay đổi đáng biết. Cảm hứng JARVIS/FRIDAY ở phong cách tương tác và sự chủ động có giới hạn.
 
-**Trạng thái ngày 01/11/2026:** đã có Rust workspace 5 crates, 84 Rust tests qua, native Silero/VieNeu probes và FP32 waveform comparison. Chưa có ứng dụng production, whole-product hardware benchmark, installer hoặc official LifeMate submission. [[NORA - Rust Foundation]] ghi phạm vi bàn giao và số đo.
+**Trạng thái ngày 01/11/2026:** bản desktop Rust 11 crates, tray/PTT, LLM API `gpt-6-luna`/`xhigh`, broker quyền và AppContainer voice workers. 188 tests và Clippy đã qua; kiểm chứng API/giọng nói/tài nguyên mới ở [[NORA - Desktop Integration 2026-11-01]]. Đây là unsigned validation candidate, chưa phải chứng nhận production hoặc official LifeMate submission. [[NORA - Rust Foundation]] là mốc lịch sử 5 crates.
 
 ## Bản đồ ghi chú
 
+- [[NORA - Desktop Integration 2026-11-01]] — bản chạy, API thật, đo tài nguyên và các release gates còn mở.
 - [[NORA - Workflow and Repositories]] — ba vòng workflow, upstream repos và phần NORA cần tự xây.
 - [[NORA - Rust Foundation]] — mã đã triển khai, build/test, model manifests, phép đo và production gates.
 - [[NORA - Rust Architecture Research]] — đánh giá Rust/native engines, UI và benchmark tài nguyên; mới là đề xuất.
@@ -33,7 +34,7 @@ Một trợ lý giọng nói tiếng Việt chạy nền trên máy tính: nhậ
 
 ## Hướng sản phẩm
 
-Windows-first user-session tray app. UI → Rust permission broker/supervisor → Rust goal/audio hosts → typed app/file adapters; LLM/worker roles dự kiến dùng API. Tauri/native UI còn cần benchmark. Cascade STT → agent → TTS; hotkey/push-to-talk trước wake word. Foundation hiện dùng Rust/SQLite, không có Python resident workers hoặc LangGraph dependency; desktop/LLM/broker chưa tích hợp.
+Windows-first user-session tray app. Native egui UI → Rust permission broker/supervisor → Rust goal/audio hosts → typed app/file adapters; LLM/worker roles dùng Responses API. Cascade STT → agent → TTS; hotkey/push-to-talk, chưa có wake word. Runtime dùng Rust/SQLite, không cần Python resident worker, browser thường trú hoặc LangGraph dependency.
 
 Một prompt tạo một goal có acceptance checks. Thiếu quyền thì nhánh cần quyền chờ; không mất yêu cầu gốc. Một orchestrator mặc định; workers chỉ khi nhánh độc lập có ích. Độ phức tạp task và rủi ro hành động là hai trục riêng.
 

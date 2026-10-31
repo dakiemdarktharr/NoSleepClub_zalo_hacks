@@ -175,6 +175,13 @@ impl DesktopState {
         matches!(self.snapshot.mic, MicState::Off | MicState::Unavailable)
     }
 
+    pub fn can_cancel_voice(&self) -> bool {
+        matches!(
+            self.snapshot.mic,
+            MicState::Recording | MicState::Transcribing
+        )
+    }
+
     pub fn goal_accepts_input(&self) -> bool {
         self.snapshot.active_goal.as_ref().is_none_or(|id| {
             self.snapshot.goals.iter().any(|g| {
@@ -441,6 +448,34 @@ mod tests {
             text: state.input.clone(),
         });
         assert!(state.input.is_empty());
+    }
+
+    #[test]
+    fn cancel_voice_is_available_during_capture_and_asr_without_consuming_goal_or_draft() {
+        let mut state = DesktopState::new(AppSnapshot {
+            active_goal: Some("goal".into()),
+            goals: vec![GoalView::new(
+                "goal",
+                "Tóm tắt tài liệu",
+                GoalPhase::Running,
+            )],
+            ..Default::default()
+        });
+        state.input = "Bản nháp đang viết".into();
+        assert!(!state.can_cancel_voice());
+        for mic in [MicState::Recording, MicState::Transcribing] {
+            state.snapshot.mic = mic;
+            assert!(state.can_cancel_voice());
+            assert!(!state.can_start_recording());
+            assert!(!state.can_import_audio());
+            state.accepted_command(&UiCommand::CancelVoice);
+            assert_eq!(state.snapshot.mic, mic);
+            assert_eq!(state.snapshot.active_goal.as_deref(), Some("goal"));
+            assert_eq!(state.snapshot.goals[0].status, GoalPhase::Running);
+            assert_eq!(state.input, "Bản nháp đang viết");
+        }
+        state.snapshot.mic = MicState::Unavailable;
+        assert!(!state.can_cancel_voice());
     }
 
     #[test]

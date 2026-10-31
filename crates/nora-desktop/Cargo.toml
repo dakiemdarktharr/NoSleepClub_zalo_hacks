@@ -16,6 +16,7 @@ eframe = { version = "=0.37.0", default-features = false, features = ["glow", "a
 rfd = { version = "=0.17.2", default-features = false }
 tray-icon = { version = "=0.26.1", default-features = false }
 global-hotkey = "=0.9.0"
+png = "=0.18.1"
 
 [dev-dependencies]
 serde_json.workspace = true

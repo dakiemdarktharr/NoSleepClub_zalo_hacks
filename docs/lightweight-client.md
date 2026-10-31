@@ -1,6 +1,6 @@
 # NORA trên laptop phổ thông: ngân sách tài nguyên
 
-Ngày cập nhật: 2026-10-31. **User requirement accepted; implementation và benchmark chưa thực hiện.** Mục tiêu thị trường là laptop khoảng 15–25 triệu đồng; giá bán không được dùng thay cho kiểm tra CPU, RAM, GPU và driver thực tế.
+Kế hoạch nền ngày 2026-10-31. **Đã có bản tích hợp Rust và phép đo synthetic toàn ứng dụng ngày 01/11; xem [validation mới nhất](validation.md).** Những bảng “chưa triển khai” bên dưới là trạng thái tại vòng thiết kế, không phải bản desktop hiện tại. Mục tiêu thị trường là laptop khoảng 15–25 triệu đồng; giá bán không được dùng thay cho kiểm tra CPU, RAM, GPU và driver thực tế.
 
 ## Phạm vi ngân sách
 

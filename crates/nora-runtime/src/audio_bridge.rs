@@ -140,6 +140,29 @@ mod native {
                 self.cancel_native();
             }
         }
+        /// Withdraw an obsolete question/approval without stopping other notices
+        /// or recording an acknowledgement for audio that was never played.
+        pub fn cancel_notice(&mut self, notice_id: &str) {
+            while let Some(index) = self.speech.iter().position(|(id, _)| id == notice_id) {
+                if let Some((id, _)) = self.speech.remove(index) {
+                    self.skipped.push_back(id);
+                }
+            }
+            if self.speaker.as_ref().is_some_and(|(id, _)| id == notice_id)
+                && let Some((id, mut speaker)) = self.speaker.take()
+            {
+                self.skipped.push_back(id);
+                let _ = speaker.stop();
+            }
+            if self
+                .native
+                .as_ref()
+                .is_some_and(|p| matches!(&p.kind, Kind::Tts(id) if id == notice_id))
+            {
+                self.skipped.push_back(notice_id.to_owned());
+                self.cancel_native();
+            }
+        }
         pub fn enqueue(&mut self, notice_id: String, text: &str) {
             if self.quiet || self.recorder.is_some() {
                 self.skipped.push_back(notice_id);
@@ -430,6 +453,7 @@ impl AudioBridge {
     }
     pub fn cancel_recording(&mut self) {}
     pub fn stop_speech(&mut self) {}
+    pub fn cancel_notice(&mut self, _notice_id: &str) {}
     pub fn enqueue(&mut self, _id: String, _text: &str) {}
     pub fn import_pcm(&mut self, _pcm: &[f32]) -> Result<()> {
         Err("this build has no native voice support".into())

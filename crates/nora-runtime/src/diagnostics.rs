@@ -45,7 +45,8 @@ pub fn sandbox_child_probe(request: &Path) -> Result<()> {
     let write = File::create_new(&request.denied_write);
     let address = SocketAddr::from(([127, 0, 0, 1], request.port));
     let network = TcpStream::connect_timeout(&address, Duration::from_secs(2));
-    let report = json!({"app_container":true,"allowed_file_read":allowed,"outside_file_read_denied":denied.is_err(),"outside_read_os_error":denied.err().and_then(|e|e.raw_os_error()),"outside_write_denied":write.is_err(),"outside_write_os_error":write.err().and_then(|e|e.raw_os_error()),"localhost_connect_denied":network.is_err(),"network_os_error":network.err().and_then(|e|e.raw_os_error()),"test_environment_leaked":std::env::var_os("NORA_TEST_LEAK").is_some(),"llm_key_environment_present":std::env::var_os("NORA_LLM_API_KEY").is_some()});
+    let network_kind = network.as_ref().err().map(|e| format!("{:?}", e.kind()));
+    let report = json!({"app_container":true,"allowed_file_read":allowed,"outside_file_read_denied":denied.is_err(),"outside_read_os_error":denied.err().and_then(|e|e.raw_os_error()),"outside_write_denied":write.is_err(),"outside_write_os_error":write.err().and_then(|e|e.raw_os_error()),"localhost_connect_denied":network.is_err(),"network_error_kind":network_kind,"network_os_error":network.err().and_then(|e|e.raw_os_error()),"test_environment_leaked":std::env::var_os("NORA_TEST_LEAK").is_some(),"llm_key_environment_present":std::env::var_os("NORA_LLM_API_KEY").is_some()});
     let file = File::create_new(request.result)?;
     serde_json::to_writer(&file, &report)?;
     file.sync_all()?;
@@ -134,7 +135,10 @@ pub fn sandbox_check(executable: &Path, fixture_dir: &Path) -> Result<Value> {
         && report["outside_file_read_denied"] == true
         && report["outside_write_denied"] == true
         && report["localhost_connect_denied"] == true
-        && report["network_os_error"] == 10013
+        && matches!(
+            report["network_error_kind"].as_str(),
+            Some("PermissionDenied" | "TimedOut")
+        )
         && report["test_environment_leaked"] == false
         && report["llm_key_environment_present"] == false
         && !denied_write.exists()

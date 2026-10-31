@@ -33,6 +33,8 @@ pub enum UiCommand {
     },
     StartRecording,
     StopRecording,
+    /// Discard capture/ASR without submitting or cancelling a durable goal.
+    CancelVoice,
     ImportAudio {
         path: PathBuf,
     },
@@ -44,6 +46,9 @@ pub enum UiCommand {
         goal_id: String,
     },
     CancelGoal {
+        goal_id: String,
+    },
+    ShowResult {
         goal_id: String,
     },
     SetQuiet {
@@ -269,6 +274,8 @@ impl ChatMessage {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum NoticeKind {
+    Question,
+    Approval,
     Milestone,
     Finding,
     Blocker,

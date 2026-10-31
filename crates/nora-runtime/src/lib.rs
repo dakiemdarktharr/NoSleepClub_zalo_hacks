@@ -12,6 +12,7 @@ pub mod live_check;
 pub mod runner;
 pub mod tools;
 pub mod voice;
+pub mod voice_check;
 pub mod wav;
 
 pub type Error = Box<dyn std::error::Error + Send + Sync>;

@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "as_of_local": "2026-11-01",
+  "timezone": "Asia/Saigon",
+  "status": "unsigned_validation_candidate",
+  "scope": "Windows real native desktop plus synthetic imported speech, exact paid Responses API, AppContainer ASR/TTS and local software playback. No microphone, personal audio or competition data.",
+  "build": {
+    "target": "x86_64-pc-windows-msvc",
+    "rust": "1.99.1",
+    "lock_sha256": "f1421061e55ee5ae4400be148da9cce12096781c25dd197223fc211f69795d73",
+    "binary_sha256": "d65584f0a69807b577f0d10925cd7b0af6d73bc909c9d286899dbc1b7086e519",
+    "native_backend": "CPU",
+    "whisper_cpu_profile": {
+      "GGML_NATIVE": false,
+      "GGML_AVX": true,
+      "GGML_AVX2": true,
+      "asr_max_threads": 8
+    },
+    "working_tree_build_after_parent": "79e3d189d4e2f6e08a4c0ac692fc58ae75481b0d"
+  },
+  "host": {
+    "cpu": "AMD Ryzen AI 5 340 w/ Radeon 840M",
+    "cores": 6,
+    "logical_processors": 12,
+    "os_visible_ram_bytes": 16418648064,
+    "os": "Windows 11 Home Single Language 10.0.26200",
+    "dedicated_gpu": "NVIDIA GeForce RTX 5050 Laptop GPU",
+    "dedicated_gpu_memory_mib": 8151,
+    "nvidia_driver": "577.13",
+    "physical_4gb_gpu_tested": false
+  },
+  "limits": {
+    "root_job_commit_bytes": 2000000000,
+    "native_job_commit_bytes": 1700000000,
+    "gpu_target_bytes": 4000000000,
+    "installed_disk_target_bytes": 15000000000,
+    "scope_note": "NORA application budget, not total Windows RAM. Approved external user applications and remote model servers excluded and must be reported separately."
+  },
+  "checks": {
+    "windows_all_features_rust_tests_passed": 188,
+    "format_passed": true,
+    "clippy_deny_warnings_passed": true,
+    "release_build_passed": true,
+    "powershell_scripts_parsed": 4,
+    "assets_verified_files": 16,
+    "assets_logical_bytes": 1177282839,
+    "small_asset_real_download_roundtrip_passed": true
+  },
+  "api": {
+    "model": "gpt-6-luna",
+    "reasoning_effort": "xhigh",
+    "per_goal_input_ceiling": 96000,
+    "per_goal_output_ceiling": 12000,
+    "per_goal_call_ceiling": 24,
+    "paid": true,
+    "automatic_retries": false,
+    "scenarios": [
+      {
+        "durable_result": true,
+        "scenario": "calculator",
+        "status": "completed",
+        "tools_used": [
+          "calculate"
+        ],
+        "usage": {
+          "calls": 2,
+          "input_tokens": 1889,
+          "output_tokens": 27,
+          "unresolved_input_tokens": 0,
+          "unresolved_output_tokens": 0
+        }
+      },
+      {
+        "durable_result": true,
+        "scenario": "approved_note",
+        "status": "completed",
+        "tools_used": [
+          "create_note"
+        ],
+        "usage": {
+          "calls": 2,
+          "input_tokens": 2295,
+          "output_tokens": 665,
+          "unresolved_input_tokens": 0,
+          "unresolved_output_tokens": 0
+        }
+      },
+      {
+        "durable_result": true,
+        "scenario": "missing_input_then_cancel",
+        "status": "cancelled",
+        "tools_used": [],
+        "usage": {
+          "calls": 1,
+          "input_tokens": 920,
+          "output_tokens": 68,
+          "unresolved_input_tokens": 0,
+          "unresolved_output_tokens": 0
+        }
+      },
+      {
+        "durable_result": true,
+        "scenario": "public_research_then_approved_note",
+        "status": "completed",
+        "tools_used": [
+          "create_note",
+          "research_public"
+        ],
+        "usage": {
+          "calls": 4,
+          "input_tokens": 27490,
+          "output_tokens": 2660,
+          "unresolved_input_tokens": 0,
+          "unresolved_output_tokens": 0
+        }
+      }
+    ],
+    "restarted_answer_recovered": true,
+    "initial_48000_input_ceiling_run": "Research and approved note receipt succeeded; final response reservation was refused. Retained as a failed run, not counted as a successful journey."
+  },
+  "voice_followup": {
+    "asr_fixture_transcript_matches": true,
+    "goal_status": "completed",
+    "microphone_opened": false,
+    "original_goal_preserved": true,
+    "passed": true,
+    "synthetic_only": true,
+    "trusted_correction_marker_consumed": true,
+    "usage": {
+      "calls": 2,
+      "input_tokens": 1803,
+      "output_tokens": 85,
+      "unresolved_input_tokens": 0,
+      "unresolved_output_tokens": 0
+    },
+    "wall_ms": 18859.546000000002
+  },
+  "gui_voice": {
+    "fixture_text": "Xin chào, tôi là Nora.",
+    "fixture_duration_seconds": 1.68,
+    "fixture_kind": "locally generated synthetic TTS WAV",
+    "asr_transcript_matches": true,
+    "goal_status": "completed",
+    "speech_acknowledgements": 1,
+    "surface_acknowledgements": 1,
+    "goal_admission_from_launch_ms": 14312.736,
+    "final_text_from_launch_ms": 16225.736,
+    "playback_drain_from_launch_ms": 25014.736,
+    "latency_note": "Launch-to-goal includes process startup, verification, sandbox setup and ASR; playback drain is not first sound or proof of human audibility. Single warm-OS-cache run, not a percentile SLO.",
+    "native_leases_after_exit": 0,
+    "native_scratch_directories_after_exit": 0,
+    "own_framebuffer_status": {
+      "scope": "nora_own_framebuffer",
+      "status": "ok",
+      "width": 1120,
+      "height": 760
+    }
+  },
+  "ram": {
+    "schema_version": 1,
+    "scope": "Current process set from NORA Job Object; external approved user applications excluded; GPU measured separately. Sampling can miss short-lived peaks.",
+    "sampling_interval_ms": 20,
+    "samples": 2894,
+    "elapsed_ms": 60029,
+    "sampled_peak_total_working_set_bytes": 1288851456,
+    "sampled_peak_total_private_commit_bytes": 1689206784,
+    "peak_job_commit_counter_bytes": 1702887424,
+    "peak_concurrent_processes": 3,
+    "counter_errors": 0,
+    "sampled_ram_within_limit": true
+  },
+  "gpu": {
+    "schema_version": 1,
+    "scope": "Whole GUI and NORA Job process set; synthetic WAV if selected; external approved user applications and OS excluded. Inspect durable goal/playback results separately.",
+    "gpu_requested_sleep_ms": 100,
+    "gpu_average_sample_interval_ms": 1153.77,
+    "gpu_counter_available": true,
+    "gpu_samples": 53,
+    "gpu_errors": 0,
+    "gpu_peak_dedicated_bytes": 5120000,
+    "gpu_peak_shared_bytes": 33841152,
+    "gpu_observed_within_4gb": true,
+    "gpu_note": "All adapters summed. Lifetime observed Job PIDs are used; PID reuse could overcount. Sampling is not a physical4GB-device certification.",
+    "exit_code": 0,
+    "forced_termination": false,
+    "elapsed_ms": 61156
+  },
+  "disk": {
+    "portable_package_logical_bytes": 1202320731,
+    "synthetic_gui_state_bytes": 118784,
+    "package_plus_test_state_bytes": 1202439515,
+    "developer_build_cache_included": false,
+    "hardlink_sizes_counted_in_full": true,
+    "within_15gb": true,
+    "api_key_contents_copied": false,
+    "not_a_filesystem_quota": true
+  },
+  "sandbox_negative_controls": {
+    "allowed_file_read": true,
+    "app_container": true,
+    "llm_key_environment_present": false,
+    "localhost_connect_denied": true,
+    "native_storage_bytes": 846,
+    "network_error_kind": "TimedOut",
+    "network_os_error": null,
+    "outside_file_read_denied": true,
+    "outside_read_os_error": 5,
+    "outside_write_denied": true,
+    "outside_write_os_error": 5,
+    "parent_positive_file_control": true,
+    "parent_positive_network_control": true,
+    "passed": true,
+    "profile_and_acl_cleanup_succeeded": true,
+    "test_environment_leaked": false
+  },
+  "os_memory_negative_control": {
+    "limit_bytes": 64000000,
+    "allocation_request_bytes": 96000000,
+    "allocation_refused": true,
+    "actual_process_private_commit_bytes": 2760704,
+    "kernel_job_peak_includes_rejected_attempt": true
+  },
+  "rustsec": {
+    "vulnerabilities": 0,
+    "database": {
+      "advisory-count": 1395,
+      "last-commit": "2295466c4e9df26647fd67d8fa1c705ac2fc7f81",
+      "last-updated": "2026-10-30T12:12:39+01:00"
+    },
+    "unmaintained_warnings": [
+      {
+        "package": "paste",
+        "version": "1.0.15",
+        "advisory": "RUSTSEC-2024-0436"
+      },
+      {
+        "package": "zbus_names",
+        "version": "4.3.5",
+        "advisory": "RUSTSEC-2026-0371"
+      },
+      {
+        "package": "zvariant",
+        "version": "5.15.1",
+        "advisory": "RUSTSEC-2026-0370"
+      },
+      {
+        "package": "zvariant_derive",
+        "version": "5.15.1",
+        "advisory": "RUSTSEC-2026-0372"
+      }
+    ],
+    "lock_sha256": "f1421061e55ee5ae4400be148da9cce12096781c25dd197223fc211f69795d73",
+    "coverage_note": "Cargo advisory snapshot only; not native DLL/model/Git-source security certification."
+  },
+  "not_verified": [
+    "live microphone/corpus/WER/critical-slot accuracy",
+    "AEC/far-field, barge-in and real speaker audibility",
+    "physical 4GB GPU and low-memory target-device matrix",
+    "clean-machine install and missing-runtime recovery",
+    "real third-party application launch/GUI task execution",
+    "Zalo OA/OMS or official contest adapter",
+    "long soak and exhaustive crash/effect injection",
+    "exact-build redistribution notices, voice/data rights, signing and secure updates"
+  ]
+}

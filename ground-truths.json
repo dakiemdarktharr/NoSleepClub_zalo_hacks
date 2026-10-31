@@ -460,6 +460,78 @@
       "artifact": "THIRD_PARTY_NOTICES.md",
       "confidence": "high_for_source_foundation_scope",
       "recheck": "at packaging and feature additions"
+    },
+    {
+      "id": "GT048",
+      "type": "observed_local_state",
+      "claim": "Rust desktop tích hợp 11 crates qua188 Windows all-features tests, format, Clippy -D warnings và release build; gồm durable input/result recovery, exact approvals và bounded UI/voice lifecycle.",
+      "artifact": "docs/benchmarks/2026-11-01-integrated.json",
+      "confidence": "high_for_recorded_local_checks",
+      "recheck": "before production release, on code/dependency changes and target-device evaluation"
+    },
+    {
+      "id": "GT049",
+      "type": "observed_local_state",
+      "claim": "GUI+ASR+API+TTS synthetic run đo toàn NORA Job set: peak WS1288851456, concurrent private1689206784, kernel Job peak1702887424 bytes dưới root cap2000000000. Không phải tổng RAM Windows hoặc mọi workload.",
+      "artifact": "docs/benchmarks/2026-11-01-integrated.json",
+      "confidence": "single_host_single_journey_measurement",
+      "recheck": "before production release, on code/dependency changes and target-device evaluation"
+    },
+    {
+      "id": "GT050",
+      "type": "observed_local_state",
+      "claim": "CPU inference run có GPU dedicated sampled5120000/shared33841152 bytes; GPU sampling khoảng1154ms. Host RTX5050Laptop8151MiB; chưa chứng nhận thiết bị GPU vật lý4GB.",
+      "artifact": "docs/benchmarks/2026-11-01-integrated.json",
+      "confidence": "observed_allocation_not_target_device_certification",
+      "recheck": "before production release, on code/dependency changes and target-device evaluation"
+    },
+    {
+      "id": "GT051",
+      "type": "observed_local_state",
+      "claim": "Portable local package1202320731 logical bytes;16 verified assets1177282839 bytes; key template trống và chỉ tham chiếu key file riêng. Hardlinks tính đủ size; development caches không phải runtime dependency.",
+      "artifact": "docs/benchmarks/2026-11-01-integrated.json",
+      "confidence": "high_for_local_packaging_snapshot",
+      "recheck": "before production release, on code/dependency changes and target-device evaluation"
+    },
+    {
+      "id": "GT052",
+      "type": "observed_local_state",
+      "claim": "API thật đúnggpt-6-luna/xhigh qua calculator, approved note/readback, input cancellation, public research→approved note, restart result và spoken follow-up giữ một goal. Budget mẫu/local96k input tokens; lượt48k thất bại cuối budget được giữ riêng.",
+      "artifact": "docs/benchmarks/2026-11-01-integrated.json",
+      "confidence": "high_for_synthetic_live_checks_not_general_completion_rate",
+      "recheck": "before production release, on code/dependency changes and target-device evaluation"
+    },
+    {
+      "id": "GT053",
+      "type": "observed_local_state",
+      "claim": "Native zero-capability AppContainer release probe qua allowed scratch/outside file-write denial/environment filtering/localhost denial với parent positive controls và profile/ACL cleanup.64MB Job từ chối96MB allocation.",
+      "artifact": "docs/benchmarks/2026-11-01-integrated.json",
+      "confidence": "high_for_recorded_negative_controls_not_security_certification",
+      "recheck": "before production release, on code/dependency changes and target-device evaluation"
+    },
+    {
+      "id": "GT054",
+      "type": "observed_local_state",
+      "claim": "Một GUI journey với WAV synthetic1.68s có goal admission14.313s, final text16.226s, software playback drain25.015s từ launch; một speech ack,0 lease/scratch còn lại. Không là first-sound, human audibility, WER hoặc percentile SLO.",
+      "artifact": "docs/benchmarks/2026-11-01-integrated.json",
+      "confidence": "single_warm_os_cache_synthetic_journey",
+      "recheck": "before production release, on code/dependency changes and target-device evaluation"
+    },
+    {
+      "id": "GT055",
+      "type": "observed_local_state",
+      "claim": "Bản tích hợp là unsigned validation candidate; live-mic corpus/AEC, clean-machine, physical4GB GPU matrix, real third-party application journey, soak/crash matrix, exact-build licenses và signed updates chưa qua. Chưa có arbitrary GUI automation, OA/OMS hoặc official contest adapter.",
+      "artifact": "docs/benchmarks/2026-11-01-integrated.json",
+      "confidence": "release_gates_not_validated",
+      "recheck": "before production release, on code/dependency changes and target-device evaluation"
+    },
+    {
+      "id": "GT056",
+      "type": "observed_local_state",
+      "claim": "Cargo audit graph tích hợp ghi0 vulnerability advisories và4 unmaintained warnings paste/zbus_names/zvariant/zvariant_derive theo RustSec snapshot2295466c4e9df26647fd67d8fa1c705ac2fc7f81; không bao phủ đủ native/models/Git-source.",
+      "artifact": "docs/benchmarks/2026-11-01-integrated.json",
+      "confidence": "high_for_pinned_advisory_snapshot",
+      "recheck": "before production release, on code/dependency changes and target-device evaluation"
     }
   ]
 }

@@ -1,13 +1,13 @@
 ---
 title: NORA - Resource Budget
-updated: 2026-10-31
+updated: 2026-11-01
 tags: [nora, constraints, hardware, decisions]
-status: targets-not-benchmarked
+status: integrated-validation-recorded
 ---
 
 # Ngân sách cho NORA trên laptop phổ thông
 
-**User requirement:** laptop khoảng 15–25 triệu đồng; ngân sách riêng NORA **2 GB RAM, GPU 4 GB VRAM, SSD 15 GB**; LLM có thể gọi API. Đây là mục tiêu sản phẩm, chưa phải kết quả đã đạt.
+**User requirement:** laptop khoảng 15–25 triệu đồng; ngân sách riêng NORA **2 GB RAM, GPU 4 GB VRAM, SSD 15 GB**; LLM có thể gọi API. Bản Rust tích hợp đã có synthetic whole-app measurements; số liệu/phạm vi mới nhất ở [[NORA - Desktop Integration 2026-11-01]]. Phần dưới giữ kế hoạch ban đầu; không dùng nó thay kết quả kiểm chứng hoặc chứng nhận mọi laptop.
 
 [[NORA - Home]] · [[NORA - Decisions]] · [[NORA - Open Questions]]
 

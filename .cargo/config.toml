@@ -3,3 +3,9 @@ jobs = 2
 
 [env]
 GGML_NATIVE = { value = "OFF", force = true }
+# Portable x64 baseline guarded at runtime by WhisperEngine. GGML_NATIVE=OFF
+# otherwise disables these defaults in the pinned whisper.cpp CMake build.
+GGML_AVX = { value = "ON", force = true }
+GGML_AVX2 = { value = "ON", force = true }
+GGML_F16C = { value = "ON", force = true }
+GGML_FMA = { value = "ON", force = true }

@@ -4,8 +4,12 @@
 pub mod contracts;
 pub mod state;
 
+#[cfg(any(windows, test))]
+mod diagnostic;
 #[cfg(windows)]
 mod windows;
+
+use std::path::PathBuf;
 
 use thiserror::Error;
 
@@ -19,6 +23,8 @@ pub enum DesktopError {
     Initialization,
     #[error("Chế độ kiểm tra giao diện qua mạng không được phép trong bản chạy này")]
     InspectionDisabled,
+    #[error("Không thể lưu ảnh kiểm tra giao diện NORA vào tệp mới được chọn")]
+    DiagnosticScreenshot,
 }
 
 /// Options are selected by the trusted launcher, never by model output.
@@ -26,6 +32,8 @@ pub enum DesktopError {
 pub struct DesktopOptions {
     pub start_hidden: bool,
     pub close_to_tray: bool,
+    /// Opt-in export of NORA's own framebuffer; never an OS desktop capture.
+    pub diagnostic_screenshot: Option<PathBuf>,
 }
 
 impl Default for DesktopOptions {
@@ -33,6 +41,7 @@ impl Default for DesktopOptions {
         Self {
             start_hidden: false,
             close_to_tray: true,
+            diagnostic_screenshot: None,
         }
     }
 }

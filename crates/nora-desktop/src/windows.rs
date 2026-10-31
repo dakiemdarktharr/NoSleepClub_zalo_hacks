@@ -21,6 +21,7 @@ use tray_icon::{
 use crate::{
     DesktopError, DesktopOptions,
     contracts::*,
+    diagnostic::DiagnosticCapture,
     state::{DesktopState, PushToTalkState},
 };
 
@@ -29,6 +30,7 @@ const SURFACE: Color32 = Color32::from_rgb(21, 28, 37);
 const BORDER: Color32 = Color32::from_rgb(43, 54, 67);
 const ACCENT: Color32 = Color32::from_rgb(119, 226, 193);
 const MUTED: Color32 = Color32::from_rgb(152, 167, 185);
+const FOREGROUND: Color32 = Color32::from_rgb(230, 237, 245);
 const WARNING: Color32 = Color32::from_rgb(245, 195, 111);
 
 pub fn run(
@@ -42,6 +44,17 @@ pub fn run(
         || std::env::var_os("EGUI_INSPECTION_ADDR").is_some()
     {
         return Err(DesktopError::InspectionDisabled);
+    }
+    let diagnostic = options
+        .diagnostic_screenshot
+        .as_deref()
+        .map(DiagnosticCapture::prepare)
+        .transpose()?;
+    if options.start_hidden && diagnostic.is_some() {
+        if let Some(capture) = &diagnostic {
+            capture.fail("window_hidden");
+        }
+        return Err(DesktopError::DiagnosticScreenshot);
     }
     let native = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
@@ -62,12 +75,27 @@ pub fn run(
         centered: true,
         ..Default::default()
     };
-    eframe::run_native(
+    let window_diagnostic = diagnostic.clone();
+    let result = eframe::run_native(
         "NORA",
         native,
-        Box::new(move |cc| Ok(Box::new(NoraWindow::new(cc, channels, initial, options)))),
-    )
-    .map_err(|_| DesktopError::Initialization)
+        Box::new(move |cc| {
+            Ok(Box::new(NoraWindow::new(
+                cc,
+                channels,
+                initial,
+                options,
+                window_diagnostic,
+            )))
+        }),
+    );
+    if result.is_err() {
+        if let Some(capture) = &diagnostic {
+            capture.fail("initialization_failed");
+        }
+        return Err(DesktopError::Initialization);
+    }
+    diagnostic.map_or(Ok(()), |capture| capture.finish())
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -119,6 +147,7 @@ struct NoraWindow {
     ptt: PushToTalkState,
     notice_candidates: Vec<String>,
     minimized: bool,
+    diagnostic: Option<DiagnosticCapture>,
 }
 
 impl NoraWindow {
@@ -127,6 +156,7 @@ impl NoraWindow {
         channels: UiChannels,
         initial: AppSnapshot,
         options: DesktopOptions,
+        diagnostic: Option<DiagnosticCapture>,
     ) -> Self {
         configure_style(&cc.egui_ctx);
         let wake_context = cc.egui_ctx.clone();
@@ -154,6 +184,7 @@ impl NoraWindow {
             ptt: PushToTalkState::default(),
             notice_candidates: Vec::new(),
             minimized: false,
+            diagnostic,
         };
         if value.options.start_hidden && value.tray.is_some() {
             value.hide(&cc.egui_ctx);
@@ -169,7 +200,10 @@ impl NoraWindow {
                 self.state.accepted_command(&command);
                 if matches!(
                     command,
-                    UiCommand::StopRecording | UiCommand::WindowHidden | UiCommand::Quit
+                    UiCommand::StopRecording
+                        | UiCommand::CancelVoice
+                        | UiCommand::WindowHidden
+                        | UiCommand::Quit
                 ) {
                     self.ptt.stopped();
                 }
@@ -477,7 +511,7 @@ impl NoraWindow {
             for notice in self.state.notices.iter().rev().take(6).rev() {
                 ui.add_space(10.0);
                 let card=egui::Frame::new().stroke(Stroke::new(1.0, BORDER)).corner_radius(10).inner_margin(12).show(ui, |ui| {
-                    ui.label(RichText::new(&notice.title).strong().color(match notice.kind { NoticeKind::Blocker | NoticeKind::Permission => WARNING, _ => ACCENT }));
+                    ui.label(RichText::new(&notice.title).strong().color(match notice.kind { NoticeKind::Blocker | NoticeKind::Permission | NoticeKind::Question | NoticeKind::Approval => WARNING, _ => ACCENT }));
                     if !notice.detail.is_empty() { ui.add(egui::Label::new(&notice.detail).wrap()); }
                 });
                 if !self.hidden && ui.clip_rect().contains_rect(card.response.rect) && !self.state.notice_was_shown(&notice.id) && !self.notice_candidates.contains(&notice.id) && self.notice_candidates.len()<MAX_NOTICES {
@@ -571,6 +605,9 @@ impl NoraWindow {
                                 self.send(UiCommand::StartRecording);
                             }
                         }
+                    }
+                    if self.state.can_cancel_voice() && ui.button("Hủy nhận diện").clicked() {
+                        self.send(UiCommand::CancelVoice);
                     }
                     if ui
                         .add_enabled(
@@ -725,6 +762,14 @@ impl NoraWindow {
                         }
                         ui.add_space(8.0);
                         ui.horizontal(|ui| {
+                            if goal.status.terminal()
+                                && ui.button("Xem kết quả").clicked()
+                                && self.send(UiCommand::ShowResult {
+                                    goal_id: goal.id.clone(),
+                                })
+                            {
+                                self.page = Page::Chat;
+                            }
                             if goal.status.can_pause() && ui.button("Tạm dừng").clicked() {
                                 self.send(UiCommand::PauseGoal {
                                     goal_id: goal.id.clone(),
@@ -895,6 +940,12 @@ impl eframe::App for NoraWindow {
             });
         self.folder_dialog(&ctx);
         self.audio_dialog(&ctx);
+        if let Some(capture) = &self.diagnostic {
+            capture.on_frame(
+                &ctx,
+                !self.hidden && !self.minimized && !self.quit_requested,
+            );
+        }
     }
 
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
@@ -902,12 +953,35 @@ impl eframe::App for NoraWindow {
     }
 }
 
-fn configure_style(ctx: &egui::Context) {
-    let mut style = (*ctx.global_style()).clone();
+fn configure_theme(ctx: &egui::Context) {
+    // eframe receives the OS theme after app creation. Pin the preference before
+    // selecting a style so Windows Light cannot replace the customized palette.
+    ctx.set_theme(egui::Theme::Dark);
+    let mut style = (*ctx.style_of(egui::Theme::Dark)).clone();
     style.visuals = egui::Visuals::dark();
     style.visuals.panel_fill = BACKGROUND;
     style.visuals.window_fill = SURFACE;
     style.visuals.extreme_bg_color = BACKGROUND;
+    style.visuals.weak_text_color = Some(MUTED);
+    style.visuals.disabled_alpha = 0.72;
+    style.visuals.widgets.noninteractive.bg_fill = SURFACE;
+    style.visuals.widgets.noninteractive.weak_bg_fill = SURFACE;
+    style.visuals.widgets.noninteractive.bg_stroke = Stroke::new(1.0, BORDER);
+    style.visuals.widgets.noninteractive.fg_stroke = Stroke::new(1.0, FOREGROUND);
+    style.visuals.widgets.inactive.bg_fill = Color32::from_rgb(35, 46, 60);
+    style.visuals.widgets.inactive.weak_bg_fill = Color32::from_rgb(31, 42, 55);
+    style.visuals.widgets.inactive.bg_stroke = Stroke::new(1.0, BORDER);
+    style.visuals.widgets.inactive.fg_stroke = Stroke::new(1.0, FOREGROUND);
+    style.visuals.widgets.hovered.bg_fill = Color32::from_rgb(46, 63, 77);
+    style.visuals.widgets.hovered.weak_bg_fill = Color32::from_rgb(42, 57, 70);
+    style.visuals.widgets.hovered.bg_stroke = Stroke::new(1.0, ACCENT);
+    style.visuals.widgets.hovered.fg_stroke = Stroke::new(1.5, Color32::WHITE);
+    style.visuals.widgets.active.bg_fill = Color32::from_rgb(36, 66, 60);
+    style.visuals.widgets.active.weak_bg_fill = Color32::from_rgb(36, 66, 60);
+    style.visuals.widgets.active.bg_stroke = Stroke::new(1.0, ACCENT);
+    style.visuals.widgets.active.fg_stroke = Stroke::new(1.5, FOREGROUND);
+    style.visuals.widgets.open = style.visuals.widgets.inactive;
+    style.visuals.widgets.open.bg_stroke = Stroke::new(1.0, ACCENT);
     style.visuals.selection.bg_fill = Color32::from_rgb(40, 77, 72);
     style.visuals.selection.stroke = Stroke::new(1.0, ACCENT);
     style.spacing.item_spacing = egui::vec2(8.0, 8.0);
@@ -924,7 +998,11 @@ fn configure_style(ctx: &egui::Context) {
         egui::TextStyle::Heading,
         FontId::new(24.0, FontFamily::Proportional),
     );
-    ctx.set_global_style(style);
+    ctx.set_style_of(egui::Theme::Dark, style);
+}
+
+fn configure_style(ctx: &egui::Context) {
+    configure_theme(ctx);
     // Use the OS-installed font. No Windows font is bundled/redistributed.
     if let Some(windows) = std::env::var_os("WINDIR") {
         let path = PathBuf::from(windows).join("Fonts").join("segoeui.ttf");
@@ -1055,4 +1133,57 @@ fn icon_pixels() -> Vec<u8> {
         }
     }
     rgba
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn contrast(foreground: Color32, background: Color32) -> f64 {
+        fn luminance(color: Color32) -> f64 {
+            let linear = |channel: u8| {
+                let value = f64::from(channel) / 255.0;
+                if value <= 0.04045 {
+                    value / 12.92
+                } else {
+                    ((value + 0.055) / 1.055).powf(2.4)
+                }
+            };
+            0.2126 * linear(color.r()) + 0.7152 * linear(color.g()) + 0.0722 * linear(color.b())
+        }
+        let a = luminance(foreground);
+        let b = luminance(background);
+        (a.max(b) + 0.05) / (a.min(b) + 0.05)
+    }
+
+    #[test]
+    fn light_system_theme_keeps_dark_readable_labels_and_controls() {
+        let ctx = egui::Context::default();
+        ctx.set_theme(egui::ThemePreference::System);
+        configure_theme(&ctx);
+        let mut output = ctx.run_ui(
+            egui::RawInput {
+                system_theme: Some(egui::Theme::Light),
+                ..Default::default()
+            },
+            |_| {},
+        );
+        // A headless style test intentionally does not upload font textures.
+        output.textures_delta.clear();
+        assert_eq!(ctx.system_theme(), Some(egui::Theme::Light));
+        assert_eq!(ctx.theme(), egui::Theme::Dark);
+        let style = ctx.global_style();
+        assert!(style.visuals.dark_mode);
+        assert!(contrast(style.visuals.text_color(), SURFACE) >= 4.5);
+        assert!(contrast(style.visuals.weak_text_color(), BACKGROUND) >= 4.5);
+        for widget in [
+            style.visuals.widgets.inactive,
+            style.visuals.widgets.hovered,
+            style.visuals.widgets.active,
+            style.visuals.widgets.open,
+        ] {
+            assert!(contrast(widget.fg_stroke.color, widget.bg_fill) >= 4.5);
+            assert!(contrast(widget.fg_stroke.color, widget.weak_bg_fill) >= 4.5);
+        }
+    }
 }

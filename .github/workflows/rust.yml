@@ -28,7 +28,8 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: nora-${{ runner.os }}-1.99.1-${{ hashFiles('Cargo.lock') }}
+          key: nora-${{ runner.os }}-1.99.1-${{ hashFiles('Cargo.lock', '.cargo/config.toml') }}
+          restore-keys: nora-${{ runner.os }}-1.99.1-
       - run: cargo fmt --all -- --check
       - run: cargo test --locked --workspace
       - run: cargo clippy --locked --workspace --all-targets -- -D warnings
@@ -43,15 +44,43 @@ jobs:
       - name: Install pinned Rust
         run: rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        id: rust-cache
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: nora-${{ runner.os }}-1.99.1-${{ hashFiles('Cargo.lock') }}
+          key: nora-${{ runner.os }}-1.99.1-${{ hashFiles('Cargo.lock', '.cargo/config.toml') }}
+          restore-keys: nora-${{ runner.os }}-1.99.1-
+      - name: Invalidate restored native build for changed CPU profile
+        if: steps.rust-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          $noraTarget=[IO.Path]::GetFullPath((Join-Path $PWD 'target'))
+          if (-not $noraTarget.StartsWith([IO.Path]::GetFullPath($PWD)+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Target escaped checkout' }
+          cargo clean -p whisper-rs-sys --release --target x86_64-pc-windows-msvc
       - run: ./scripts/Build-Rust.ps1 -Action Test
       - run: ./scripts/Build-Rust.ps1 -Action Clippy
       - run: ./scripts/Build-Rust.ps1 -Action Release
+      - name: Verify real Windows confinement and memory refusal
+        shell: pwsh
+        run: |
+          $noraValidation=Join-Path $PWD 'target/nora-ci-validation'
+          New-Item -ItemType Directory -Path (Join-Path $noraValidation 'bin') -ErrorAction Stop | Out-Null
+          $noraExe=Join-Path $noraValidation 'bin/nora-app.exe'
+          Copy-Item -LiteralPath 'target/x86_64-pc-windows-msvc/release/nora-app.exe' -Destination $noraExe
+          $noraConfig=Join-Path $noraValidation 'app.json'
+          @{state_dir=(Join-Path $noraValidation 'state');asset_root=(Join-Path $noraValidation 'unused-assets');llm_config=(Join-Path $noraValidation 'unused.env');quiet=$true;public_research=$false;max_recording_seconds=30} | ConvertTo-Json | Set-Content -LiteralPath $noraConfig
+          $env:NORA_TEST_LEAK='synthetic-not-a-secret'
+          foreach($noraProbe in @('resource','sandbox')) {
+            $noraReport=Join-Path $noraValidation "$noraProbe.json"
+            $noraFlag=if($noraProbe -eq 'resource'){'--resource-probe'}else{'--sandbox-check'}
+            $noraProcess=Start-Process -FilePath $noraExe -ArgumentList @($noraFlag,'--config',('"'+$noraConfig+'"')) -WindowStyle Hidden -Wait -PassThru -RedirectStandardOutput $noraReport -RedirectStandardError (Join-Path $noraValidation "$noraProbe.stderr.txt")
+            if($noraProcess.ExitCode -ne 0){throw "$noraProbe failed"}
+            $noraReceipt=Get-Content -LiteralPath $noraReport -Raw | ConvertFrom-Json
+            if($noraProbe -eq 'resource' -and -not $noraReceipt.allocation_refused){throw 'Memory negative control failed'}
+            if($noraProbe -eq 'sandbox' -and -not $noraReceipt.passed){throw 'AppContainer negative controls failed'}
+          }
       - name: Publish unsigned Windows validation binaries
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -59,9 +88,14 @@ jobs:
           path: |
             target/x86_64-pc-windows-msvc/release/nora-app.exe
             target/x86_64-pc-windows-msvc/release/nora.exe
+            target/nora-ci-validation/resource.json
+            target/nora-ci-validation/sandbox.json
+            LICENSE
+            THIRD_PARTY_NOTICES.md
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 90
 
 # CI uses generated synthetic fixtures; no voice model, private dataset,
 # microphone, credentials or paid API is required. Real-model probes are opt-in.
-# Artifacts contain binaries only: no API keys, user state or model assets.
+# Artifacts contain binaries and synthetic validation receipts, without API
+# keys, user state, native scratch contents or model assets.

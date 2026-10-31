@@ -31,9 +31,45 @@ fn run() -> Result<()> {
     let mut config = AppConfig::defaults(&executable)?;
     let mut command = None;
     let mut metrics = None;
+    let mut import_audio = None;
+    let mut ui_snapshot = None;
+    let mut voice_fixture = None;
+    let mut exit_after = None;
     let mut index = 0;
     while index < args.len() {
         match args[index].as_str() {
+            "--voice-check" if index + 1 < args.len() => {
+                if command.replace("--voice-check").is_some() {
+                    return Err("select one diagnostic command".into());
+                }
+                voice_fixture = Some(PathBuf::from(&args[index + 1]));
+                index += 2;
+            }
+            "--ui-snapshot" if index + 1 < args.len() => {
+                if ui_snapshot
+                    .replace(PathBuf::from(&args[index + 1]))
+                    .is_some()
+                {
+                    return Err("select one UI snapshot".into());
+                }
+                index += 2;
+            }
+            "--import-audio" if index + 1 < args.len() => {
+                if import_audio
+                    .replace(PathBuf::from(&args[index + 1]))
+                    .is_some()
+                {
+                    return Err("select one input WAV".into());
+                }
+                index += 2;
+            }
+            "--exit-after" if index + 1 < args.len() => {
+                let seconds = args[index + 1].parse::<u64>()?;
+                if !(1..=600).contains(&seconds) || exit_after.replace(seconds).is_some() {
+                    return Err("diagnostic deadline must be1..=600 seconds".into());
+                }
+                index += 2;
+            }
             "--metrics" if index + 1 < args.len() => {
                 if metrics.replace(PathBuf::from(&args[index + 1])).is_some() {
                     return Err("select one metrics destination".into());
@@ -53,12 +89,18 @@ fn run() -> Result<()> {
             }
             "--help" => {
                 println!(
-                    "NORA Windows desktop assistant\n  nora-app [--config APP.json] [--metrics NEW.json]\n  nora-app --doctor [--config APP.json]\n  nora-app --api-probe [--config APP.json]\n  nora-app --live-check [--config APP.json]\n  nora-app --sandbox-check [--config APP.json]\n  nora-app --resource-probe\nAPI probe/live check are explicit billable requests."
+                    "NORA Windows desktop assistant\n  nora-app [--config APP.json] [--metrics NEW.json]\n    [--import-audio INPUT.wav] [--ui-snapshot NEW.png] [--exit-after SECONDS]\n  nora-app --doctor [--config APP.json]\n  nora-app --api-probe [--config APP.json]\n  nora-app --live-check [--config APP.json]\n  nora-app --voice-check SYNTHETIC_NORA.wav [--config APP.json]\n  nora-app --sandbox-check [--config APP.json]\n  nora-app --resource-probe\nAPI/live/voice checks are billable. Voice check expects the synthetic Xin chao toi la Nora fixture. Imported speech is recognized locally; its transcript is sent to the configured LLM."
                 );
                 return Ok(());
             }
             _ => return Err("unsupported command or missing arguments".into()),
         }
+    }
+    #[cfg(windows)]
+    if command.is_some()
+        && (import_audio.is_some() || exit_after.is_some() || ui_snapshot.is_some())
+    {
+        return Err("UI audio/deadline options require desktop mode".into());
     }
     #[cfg(windows)]
     let memory_guard = std::sync::Arc::new(nora_platform::BudgetJob::install(
@@ -78,6 +120,16 @@ fn run() -> Result<()> {
         return Err("Windows process metrics required".into());
     }
     match command {
+        Some("--voice-check") => {
+            println!(
+                "{}",
+                nora_runtime::voice_check::run(
+                    &config,
+                    voice_fixture.as_deref().ok_or("missing synthetic WAV")?
+                )?
+            );
+            Ok(())
+        }
         Some("--live-check") => {
             println!("{}", nora_runtime::live_check::run(&config)?);
             Ok(())
@@ -139,7 +191,17 @@ fn run() -> Result<()> {
         None => {
             #[cfg(windows)]
             let _instance = nora_platform::SingleInstance::acquire()?;
-            nora_runtime::backend::AppSession::prepare(config)?.run()
+            let session = nora_runtime::backend::AppSession::prepare(config)?;
+            if let Some(path) = import_audio {
+                session.enqueue(nora_desktop::contracts::UiCommand::ImportAudio { path })?;
+            }
+            if let Some(seconds) = exit_after {
+                session.schedule_quit(seconds)?;
+            }
+            session.run_with_options(nora_desktop::DesktopOptions {
+                diagnostic_screenshot: ui_snapshot,
+                ..Default::default()
+            })
         }
         _ => Err("unsupported command".into()),
     }

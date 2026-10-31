@@ -127,9 +127,12 @@ impl AppSession {
             thread: Some(thread),
         })
     }
-    pub fn run(mut self) -> Result<()> {
+    pub fn run(self) -> Result<()> {
+        self.run_with_options(nora_desktop::DesktopOptions::default())
+    }
+    pub fn run_with_options(mut self, options: nora_desktop::DesktopOptions) -> Result<()> {
         let channels = self.channels.take().ok_or("UI channels already consumed")?;
-        let outcome = nora_desktop::run(channels, self.initial.clone());
+        let outcome = nora_desktop::run_with_options(channels, self.initial.clone(), options);
         self.stop.store(true, Ordering::Release);
         let _ = self.commands.try_send(UiCommand::Quit);
         let backend = self
@@ -140,6 +143,24 @@ impl AppSession {
             .map_err(|_| "supervisor stopped unexpectedly")?;
         outcome?;
         backend
+    }
+    /// Explicit command-line audio import uses the same trusted UI boundary.
+    pub fn enqueue(&self, command: UiCommand) -> Result<()> {
+        self.commands.try_send(command)?;
+        Ok(())
+    }
+    pub fn schedule_quit(&self, seconds: u64) -> Result<()> {
+        if !(1..=600).contains(&seconds) {
+            return Err("diagnostic deadline out of range".into());
+        }
+        let commands = self.commands.clone();
+        thread::Builder::new()
+            .name("nora-diagnostic-deadline".into())
+            .spawn(move || {
+                thread::sleep(Duration::from_secs(seconds));
+                let _ = commands.send(UiCommand::Quit);
+            })?;
+        Ok(())
     }
     /// A test driver uses the same bounded command/event boundary as the native
     /// shell; it does not receive filesystem/approval authority from model JSON.
@@ -194,11 +215,21 @@ struct Active {
 }
 struct PendingNotice {
     goal_id: String,
+    kind: NoticeKind,
     key: String,
     surface: bool,
     speech: bool,
     speech_required: bool,
     reminder: Option<String>,
+}
+impl PendingNotice {
+    fn delivered(&self) -> bool {
+        if self.speech_required {
+            self.speech
+        } else {
+            self.surface
+        }
+    }
 }
 struct Actor {
     config: AppConfig,
@@ -399,6 +430,19 @@ impl Actor {
                     self.error("Chưa nhận được câu nói đủ rõ. Yêu cầu chưa được gửi.");
                 }
             },
+            UiCommand::CancelVoice => {
+                if !matches!(
+                    self.snapshot.mic,
+                    MicState::Recording | MicState::Transcribing
+                ) {
+                    return Ok(());
+                }
+                self.audio.cancel_recording();
+                self.voice_reply_goal = None;
+                self.release_voice_hold();
+                self.snapshot.mic = MicState::Off;
+                self.snapshot.voice_status = "Đã hủy thu/nhận diện; chưa gửi câu nói này.".into();
+            }
             UiCommand::StopSpeech => {
                 self.audio.stop_speech();
                 self.snapshot.speaking = false;
@@ -459,6 +503,19 @@ impl Actor {
                     }
                     self.start_goal(goal_id, goal.objective)?;
                 }
+            }
+            UiCommand::ShowResult { goal_id } => {
+                if self.locked {
+                    return Err("session is locked".into());
+                }
+                let result = self
+                    .store
+                    .lock()
+                    .map_err(|_| "goal store unavailable")?
+                    .result(&goal_id)?;
+                self.assistant_message(
+                    result.unwrap_or_else(|| "Mục tiêu này chưa có kết quả cuối được lưu.".into()),
+                );
             }
             UiCommand::CancelGoal { goal_id } => {
                 self.voice_hold = false;
@@ -632,8 +689,9 @@ impl Actor {
                 return Err("goal input queue unavailable".into());
             }
             drop(store);
-            self.user_message(text);
             let id = active.id.clone();
+            self.withdraw_questions(&id);
+            self.user_message(text);
             self.phase(
                 &id,
                 GoalPhase::Running,
@@ -722,9 +780,33 @@ impl Actor {
                 phase,
                 detail,
             } => self.phase(&goal_id, phase, &detail),
-            RunnerEvent::AssistantText { goal_id: _, text } => self.assistant_message(text),
-            RunnerEvent::Preview(preview) => self.publish(RuntimeEvent::Preview(preview)),
+            RunnerEvent::AssistantText { goal_id, text } => {
+                self.assistant_message(text.clone());
+                if self
+                    .snapshot
+                    .goals
+                    .iter()
+                    .any(|g| g.id == goal_id && g.status == GoalPhase::WaitingInput)
+                {
+                    self.notice(&goal_id, NoticeKind::Question, &text, None);
+                }
+            }
+            RunnerEvent::Preview(preview) => {
+                self.notice_internal(
+                    &preview.goal_id,
+                    NoticeKind::Approval,
+                    &format!(
+                        "{} Kiểm tra đề xuất trong cửa sổ và xác nhận để tiếp tục.",
+                        preview.title
+                    ),
+                    None,
+                    None,
+                    Some(format!("approval-{}", preview.id)),
+                );
+                self.publish(RuntimeEvent::Preview(preview));
+            }
             RunnerEvent::ClearPreview { preview_id } => {
+                self.withdraw_notice(&format!("approval-{preview_id}"));
                 self.publish(RuntimeEvent::ClearPreview { id: preview_id })
             }
             RunnerEvent::Notice {
@@ -743,6 +825,7 @@ impl Actor {
             match active.thread.join() {
                 Ok(outcome) => self.finished(&outcome),
                 Err(_) => {
+                    self.withdraw_questions(&active.id);
                     self.phase(
                         &active.id,
                         GoalPhase::NeedsReconciliation,
@@ -756,6 +839,7 @@ impl Actor {
         }
     }
     fn finished(&mut self, outcome: &RunOutcome) {
+        self.withdraw_questions(&outcome.goal_id);
         let already = self.snapshot.goals.iter().any(|g| {
             g.id == outcome.goal_id
                 && g.status == outcome.phase
@@ -774,7 +858,7 @@ impl Actor {
         } else if !already
             && matches!(
                 outcome.phase,
-                GoalPhase::Failed | GoalPhase::NeedsReconciliation
+                GoalPhase::Failed | GoalPhase::NeedsReconciliation | GoalPhase::WaitingInput
             )
         {
             self.notice(
@@ -986,6 +1070,17 @@ impl Actor {
         reminder: Option<String>,
         override_kind: Option<EventKind>,
     ) {
+        self.notice_internal(goal_id, kind, text, reminder, override_kind, None);
+    }
+    fn notice_internal(
+        &mut self,
+        goal_id: &str,
+        kind: NoticeKind,
+        text: &str,
+        reminder: Option<String>,
+        override_kind: Option<EventKind>,
+        notice_id: Option<String>,
+    ) {
         if text.trim().is_empty() || self.pending.len() >= 64 {
             return;
         }
@@ -993,6 +1088,8 @@ impl Actor {
             return;
         };
         let event_kind = override_kind.unwrap_or(match kind {
+            NoticeKind::Question => EventKind::InputRequired,
+            NoticeKind::Approval => EventKind::PermissionRequired,
             NoticeKind::Completion => EventKind::GoalCompleted,
             NoticeKind::Permission => EventKind::PermissionRequired,
             NoticeKind::Blocker => EventKind::BlockerMaterial,
@@ -1005,7 +1102,11 @@ impl Actor {
             "{:x}",
             Sha256::digest(format!("{goal_id}\0{kind:?}\0{text}").as_bytes())
         );
-        let id = if override_kind == Some(EventKind::StatusRequested) {
+        let id = if let Some(id) = notice_id {
+            id
+        } else if override_kind == Some(EventKind::StatusRequested)
+            || matches!(kind, NoticeKind::Question | NoticeKind::Approval)
+        {
             new_id("status").unwrap_or_else(|_| format!("status-{now}"))
         } else {
             reminder
@@ -1055,6 +1156,8 @@ impl Actor {
                 &id,
                 kind,
                 match kind {
+                    NoticeKind::Question => "Cần thêm thông tin",
+                    NoticeKind::Approval => "Cần bạn xác nhận",
                     NoticeKind::Completion => "Hoàn thành",
                     NoticeKind::Permission => "Cần quyền truy cập",
                     NoticeKind::Blocker => "Cần bạn xem lại",
@@ -1072,6 +1175,7 @@ impl Actor {
             id,
             PendingNotice {
                 goal_id: goal_id.into(),
+                kind,
                 key,
                 surface: decision.surface == Surface::None,
                 speech: !needs_speech,
@@ -1103,13 +1207,33 @@ impl Actor {
         } else {
             pending.surface = true;
         }
-        if pending.surface && (pending.speech || !pending.speech_required) {
+        // A hidden tray window must not retain successfully spoken notices
+        // forever. Retire on the selected channel, without forging the other.
+        if pending.delivered() {
             if let Some(reminder) = pending.reminder.take()
                 && let Ok(mut broker) = self.broker.lock()
             {
                 let _ = broker.dismiss_reminder(&reminder);
             }
             self.pending.remove(id);
+        }
+    }
+    fn withdraw_notice(&mut self, id: &str) {
+        self.audio.cancel_notice(id);
+        self.pending.remove(id);
+    }
+    fn withdraw_questions(&mut self, goal_id: &str) {
+        let ids: Vec<_> = self
+            .pending
+            .iter()
+            .filter(|(_, p)| {
+                p.goal_id == goal_id
+                    && matches!(p.kind, NoticeKind::Question | NoticeKind::Approval)
+            })
+            .map(|(id, _)| id.clone())
+            .collect();
+        for id in ids {
+            self.withdraw_notice(&id);
         }
     }
     fn drop_pending_speech(&mut self) {
@@ -1250,4 +1374,41 @@ fn launch_approved(launch: ApprovedLaunch) -> Result<Value> {
     Ok(
         json!({"pid":pid,"spawn_verified":true,"verification":"process_handle_alive","user_application_outside_nora_job":true}),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn background_speech_retires_without_fabricating_surface_delivery() {
+        let mut p = PendingNotice {
+            goal_id: "g".into(),
+            kind: NoticeKind::Reminder,
+            key: "k".into(),
+            surface: false,
+            speech: false,
+            speech_required: true,
+            reminder: None,
+        };
+        assert!(!p.delivered());
+        p.surface = true;
+        assert!(
+            !p.delivered(),
+            "visible text must not retire audio still in flight"
+        );
+        p.surface = false;
+        p.speech = true;
+        assert!(
+            p.delivered(),
+            "spoken reminder must not wait for a hidden window"
+        );
+        assert!(!p.surface);
+        p.speech_required = false;
+        assert!(
+            !p.delivered(),
+            "quiet/skipped audio needs actual surface acknowledgement"
+        );
+        p.surface = true;
+        assert!(p.delivered());
+    }
 }

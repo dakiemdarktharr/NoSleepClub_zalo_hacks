@@ -2,6 +2,8 @@
 
 Mục tiêu: người dùng nắm được công việc mà không nghe một luồng log. Policy nhận **domain events đã xác thực**, chọn surface và thời điểm; renderer diễn đạt ngắn sau đó. Lời model tự báo không đủ làm event verified.
 
+Bản tích hợp Rust hiện đã có hàng đợi bounded, TTS drain acknowledgement, quiet mode và câu hỏi/xác nhận có thể đọc thành tiếng. Thông báo đã đọc xong được giải phóng cả khi cửa sổ đang ẩn; không ghi giả rằng người dùng đã thấy card. Câu hỏi được trả lời hoặc preview đã đóng sẽ hủy phần audio tương ứng còn chờ. Chỉ kết quả cuối tạo completion narration; lời chào ngắn không sinh thêm hai câu tiến độ. Các mục nói về Python reference bên dưới là phạm vi lịch sử, không phải toàn bộ runtime hiện tại.
+
 ## Event contract
 
 Các trường chính: `event_id`, `goal_id`, `kind`, `occurred_at`, `milestone_key`, `summary`, `evidence_refs`, `verified`, source registry refs và sensitivity. Production bổ sung producer identity, sequence, TTL, policy version và trạng thái goal liên quan. Schema đề xuất ở [event.schema.json](../schemas/event.schema.json).
@@ -12,7 +14,7 @@ Planner không tự chứng nhận completion. Verifier xuất event khi accepta
 
 | Event | Timeline | Audio | Điều kiện |
 |---|---|---|---|
-| Goal accepted | Goal card | Một câu với việc dài | Nói ý định/deliverable, không bịa ETA |
+| Goal accepted | Goal card | Mặc định im lặng | Milestone chỉ nói khi có ích; không bịa ETA |
 | Worker started | Gộp milestone | Có chọn lọc | Worker thực sự chạy và việc phân công đáng biết |
 | Sources milestone | Số unique sources + refs | Theo milestone | Nguồn đã đọc, liên quan và dedup; search hits không tính |
 | Material finding | Có | Ngắn | Đổi quyết định/kết quả/phạm vi |
@@ -24,7 +26,7 @@ Planner không tự chứng nhận completion. Verifier xuất event khi accepta
 | Heartbeat không đổi | Không | Im lặng | Không “vẫn đang làm” định kỳ |
 | User hỏi “xong chưa?” | State hiện tại | Trả lời | Không cần chờ milestone mới |
 
-Số nguồn nên thể hiện cả chất lượng: “Đã đối chiếu 8 tài liệu chính thức, một trang API chưa đọc được.” Nhiều URL dẫn cùng nghiên cứu không phải nhiều bằng chứng độc lập. Source count là dữ kiện phụ, kết luận hữu ích mới là mục tiêu.
+Số nguồn nên thể hiện cả chất lượng và phạm vi. Runtime hiện đếm URL HTTPS duy nhất do provider trả trong source/citation metadata; đó không phải bằng chứng đã đọc toàn văn hoặc các nghiên cứu độc lập. Không gọi search hits là tài liệu đã đối chiếu. Source count là dữ kiện phụ, kết luận hữu ích mới là mục tiêu.
 
 ## Quy tắc thời điểm
 

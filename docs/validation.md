@@ -1,8 +1,57 @@
 # Validation receipt — 01/11/2026
 
-Phạm vi hiện tại: **Rust foundation, local native probes và offline reference policies**, không phải voice/app end-to-end acceptance. [Implementation scope](rust-foundation.md) và [measurement receipt](benchmarks/2026-11-01-windows.json).
+Phạm vi mới nhất: **bản desktop Rust tích hợp, API thật và synthetic voice journey**, unsigned validation candidate. [Phạm vi/cách chạy](production-integration.md), [ADR tích hợp](adr/0006-integrated-rust-runtime.md) và [receipt JSON](benchmarks/2026-11-01-integrated.json). Các phần foundation/reference bên dưới là lịch sử.
 
-## Rust foundation — kiểm tra 01/11/2026
+## Desktop integration — kết quả mới nhất 01/11/2026
+
+Windows x64 MSVC, Rust 1.99.1: **188 tests passed**, format, Clippy toàn workspace/all-targets/all-features với `-D warnings`, release build passed. Bốn script PowerShell parse thành công. Tests có mock Responses server, goal steering/recovery, exact one-use approval, revoke/stale sessions, cap-std containment và Windows junction, arithmetic/resource bounds, bounded UI queues/draft recovery, notice lifecycle, native model data paths và crash khi chờ duyệt. Đây không phải independent security audit.
+
+Paid API thật dùng đúng **`gpt-6-luna`, `xhigh`**, không fallback hoặc tự retry:
+
+| Hành trình | Kết quả | API calls / input / output tokens |
+|---|---|---|
+| Tính `(17*23)+11` bằng tool | 402; kết quả bền vững | 2 / 1.889 / 27 |
+| Tạo note có exact preview/approval | Ghi mới, đọc lại đúng nội dung | 2 / 2.295 / 665 |
+| Thiếu thời gian nhắc việc | Hỏi lại; hủy không tạo reminder | 1 / 920 / 68 |
+| Public research → note có duyệt | Query đúng topic được duyệt; metadata nguồn thật; note ghi/readback | 4 / 27.490 / 2.660 |
+| Câu trả lời giọng nói vào goal đang chờ | Giữ một goal; transcript đúng fixture; marker được consume | 2 / 1.803 / 85 |
+| GUI → ASR → API → TTS | Goal completed, một surface và một speech ack | 1 / 844 / 62 |
+
+Đóng/mở supervisor khôi phục kết quả 402 từ local store. Những API checks đầu tiên và lượt lỗi được giữ riêng, không tính là lượt qua. Lượt research ban đầu với trần 48.000 input tokens đã có note receipt nhưng bị từ chối request trả lời cuối do reservation không vừa. Cấu hình mẫu/local được đặt **96.000 input tokens/goal**; vẫn giữ 24 calls, 12.000 output tokens, timeout 60 giây, output mỗi response tối đa 2.048. Đây là thay đổi trần chi phí API; không tăng trần RAM. App không tự tăng budget hoặc giấu failure.
+
+### Phép đo toàn ứng dụng
+
+Máy đo: Windows 11 Home build 26200; Ryzen AI 5 340, 6 cores/12 threads; RAM khả dụng phần cứng khoảng 16 GB; RTX 5050 Laptop **8.151 MiB**, kèm Radeon 840M. Models chạy **CPU**. Đây không phải kiểm thử trên máy tổng RAM 2 GB hoặc GPU vật lý 4 GB.
+
+| Chỉ số | Quan sát ở lượt GUI release cuối |
+|---|---:|
+| Tổng working set đỉnh của process set trong NORA Job | 1.288.851.456 bytes |
+| Tổng private commit đỉnh đồng thời | 1.689.206.784 bytes |
+| Kernel Job peak commit counter | 1.702.887.424 bytes |
+| Số process đồng thời lớn nhất | 3 |
+| GPU dedicated / shared peak được sample | 5.120.000 / 33.841.152 bytes |
+| Package local gồm EXE, 16 assets, config template, notices | 1.202.320.731 bytes |
+| Package + post-run synthetic state snapshot | 1.202.439.515 bytes |
+
+RAM được sample 20 ms từ **Job PID set thực tế**, cộng đồng thời từng process, không cộng các lifetime peak rời nhau. Có 2.894 samples, 0 counter errors; bao gồm child native và các helper trong job. GPU có 53 samples, khoảng **1.154 ms/sample** do Windows counter, 0 errors, cộng các adapters. Sampling có thể bỏ sót peak ngắn. Root Job cap là **2.000.000.000 bytes commit**, child native cap **1.700.000.000**; đó không phải một working-set quota. External user applications đã được duyệt, Windows và máy chủ LLM có footprint riêng. NORA không spawn browser để loại khỏi phép đo.
+
+WAV synthetic “Xin chào, tôi là Nora.” dài 1,68 giây, được tạo từ preset TTS; **không mở microphone**. Từ launch: goal admission/transcript khoảng **14.313 ms**, final text **16.226 ms**, software playback drain **25.015 ms**. ASR dùng tối đa 8 threads và build AVX2; mốc 2 threads trước đó cần khoảng 29 giây tới admission. Đây là hai lượt riêng trên OS cache không flush, không phải A/B có kiểm soát hoặc percentile SLO. Latency còn cao cho hội thoại tức thời; không gọi kết quả này là realtime chất lượng production. Drain không chứng minh người dùng nghe được âm thanh. Một completion speech ack, không còn ba lần narration cho lời chào. Lease/scratch còn lại sau thoát: 0. Framebuffer riêng 1120×760 đã xem, theme tiếng Việt đọc được; không chụp desktop hoặc cửa sổ key editor.
+
+### Confinement, assets và dependency review
+
+Release AppContainer probe thật qua: đọc scratch được phép, ngoài scope đọc/ghi bị OS error 5, môi trường test/API-key không lọt, localhost không kết nối được; parent positive file/network controls qua; profile/ACL cleanup qua. Network failure ở host này là `TimedOut`, không bịa socket error 10013. Probe RAM thật: job 64 MB từ chối allocation 96 MB; kernel peak có thể tính cả attempt bị từ chối, nên receipt ghi riêng actual process counters.
+
+Asset setup xác minh **16 files, 1.177.282.839 bytes**, download thật lại pinned config/voice catalog/ORT archive và kiểm hash. Tensors lớn được hardlink từ bản đã verify cho setup roundtrip. Portable packaging đã chạy; `--doctor` xác minh cả VAD/ASR/TTS và LLM config mà không gọi mạng. Template key trống; package local tham chiếu file key riêng, không sao chép key. Không có weights/DLL/recordings/API keys trong GitHub source commit. Hardlink vẫn tính đủ logical bytes; developer toolchains/build caches không nằm trong runtime package. Disk là snapshot/bounded setup, chưa phải filesystem quota.
+
+Cargo audit0.22.2: **0 vulnerability advisories, 4 unmaintained warnings**: `paste 1.0.15`, `zbus_names 4.3.5`, `zvariant 5.15.1`, `zvariant_derive 5.15.1`. Không suppress warnings. RustSec DB `2295466c4e9df26647fd67d8fa1c705ac2fc7f81`, 1.395 advisories, snapshot 30/10/2026. Lock SHA-256 `f1421061e55ee5ae4400be148da9cce12096781c25dd197223fc211f69795d73`. Không bao phủ đủ native DLL/models/Git-source vulnerabilities hoặc cấp quyền redistribution.
+
+### Những gate còn mở
+
+Chưa chứng nhận **production-ready**: chưa có representative Vietnamese live-mic corpus/WER/critical-slot accuracy, AEC/far-field/barge-in, human audibility, physical 4 GB GPU/target-laptop matrix, clean-machine/missing-runtime recovery, long soak/exhaustive crash injection, real third-party app launch workflow, full third-party/voice/data redistribution clearance, signed installer/update. Bản hiện tại mở EXE đã đăng ký và duyệt, không điều khiển GUI bất kỳ. Chưa có Zalo OA/OMS integration hoặc official contest submission adapter. “Giữ Ý” chưa có kết quả vượt matched baseline. Intent/claim guards là heuristics có receipts, không phải semantic proof.
+
+CI Windows/Linux của commit `79e3d1` đã qua; commit đó có trước các sửa SIMD/sandbox/UI cuối. Kết quả CI của source mới được dẫn qua GitHub Actions/PR, không suy ra từ kết quả local.
+
+## Lịch sử Rust foundation — kiểm tra 01/11/2026
 
 - Windows x64 MSVC, Rust 1.99.1: `Build-Rust.ps1 -Action Test` với workspace all features: **84 tests passed** — core 27, audio 19, store 13, CLI 9, VieNeu 16. Không mở microphone, gọi paid API hoặc tải weights trong tests.
 - `Build-Rust.ps1 -Action Clippy`: workspace/all-targets/all-features, `-D warnings` passed. `Format` passed; `Release` build passed. GNU check có giới hạn native Whisper linking được ghi trong crate README; MSVC là Windows native path đã xác minh.

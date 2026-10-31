@@ -1,6 +1,8 @@
 //! Windows native-audio confinement. A fresh, zero-capability AppContainer SID
 //! gets RX only on explicitly staged binary/model roots and M on one scratch
-//! directory. The worker inherits only NUL input and its diagnostic log handles,
+//! directory through its Package SID. Windows permits AppContainer access to
+//! explicitly granted Medium-IL resources; no resource relabel/elevation is used.
+//! The worker inherits only NUL input and its diagnostic log handles,
 //! starts suspended, enters a one-process/1.7GB job, then resumes. There is no
 //! unsandboxed fallback. The parent must meter scratch/profile storage and keep
 //! the returned lease in trusted state for cleanup after a parent crash.
@@ -268,12 +270,6 @@ pub fn spawn_with_lease(
         lease.grant(root, "(OI)(CI)(RX)")?;
     }
     lease.grant(&checked.work_dir, "(OI)(CI)(M)")?;
-    run_icacls(
-        &system_dir,
-        &checked.work_dir,
-        "/setintegritylevel",
-        "(OI)(CI)L",
-    )?;
     persist(&lease.metadata)?;
 
     // A pinned log handle, not merely its path, is retained for the bound check.
@@ -323,7 +319,16 @@ pub fn spawn_with_lease(
     let executable = wide(checked.executable.as_os_str())?;
     let working = wide(checked.work_dir.as_os_str())?;
     let mut command = command_line(&checked.executable, &request.args)?;
-    let environment = environment_block(&windows_dir, &system_dir, &checked.work_dir)?;
+    // Windows' AppContainer startup requires LOCALAPPDATA to locate package
+    // redirection. Copy only this path, never the caller's arbitrary variables.
+    let local_appdata = PathBuf::from(
+        std::env::var_os("LOCALAPPDATA")
+            .ok_or_else(|| invalid("LOCALAPPDATA is required for AppContainer startup"))?,
+    )
+    .canonicalize()?;
+    require_local(&local_appdata)?;
+    let environment =
+        environment_block(&windows_dir, &system_dir, &checked.work_dir, &local_appdata)?;
     let job = native_job()?;
     // SAFETY: native output struct supports a zero initial state.
     let mut info: PROCESS_INFORMATION = unsafe { zeroed() };
@@ -724,17 +729,6 @@ fn cleanup_lease_with_system(metadata: &SandboxLease, system_dir: &Path) -> io::
             first_error.get_or_insert(error);
         }
     }
-    require_local(&metadata.scratch_dir)?;
-    if metadata.scratch_dir.exists()
-        && let Err(error) = run_icacls(
-            system_dir,
-            &metadata.scratch_dir,
-            "/setintegritylevel",
-            "(OI)(CI)M",
-        )
-    {
-        first_error.get_or_insert(error);
-    }
     // SAFETY: the validated unique profile belongs to this lease. No global
     // network/loopback state is changed. Cleanup failure is returned, not hidden.
     let status = unsafe { DeleteAppContainerProfile(name.as_ptr()) };
@@ -1009,7 +1003,7 @@ fn system_directories() -> io::Result<(PathBuf, PathBuf)> {
 }
 
 fn run_icacls(system_dir: &Path, path: &Path, operation: &str, entry: &str) -> io::Result<()> {
-    if !matches!(operation, "/grant" | "/remove:g" | "/setintegritylevel") {
+    if !matches!(operation, "/grant" | "/remove:g") {
         return Err(invalid("ACL operation"));
     }
     let mut command = Command::new(system_dir.join("icacls.exe"));
@@ -1034,7 +1028,10 @@ fn run_icacls(system_dir: &Path, path: &Path, operation: &str, entry: &str) -> i
                 return if status.success() {
                     Ok(())
                 } else {
-                    Err(io::Error::other("native sandbox ACL operation failed"))
+                    Err(io::Error::other(format!(
+                        "native sandbox ACL {operation} failed: {}",
+                        status.code().unwrap_or(-1)
+                    )))
                 };
             }
             Ok(None) => {}
@@ -1103,9 +1100,18 @@ fn environment_block(
     windows_dir: &Path,
     system_dir: &Path,
     scratch: &Path,
+    local_appdata: &Path,
 ) -> io::Result<Vec<u16>> {
     let mut entries = std::collections::BTreeMap::new();
     entries.insert("PATH", system_dir);
+    entries.insert("LOCALAPPDATA", local_appdata);
+    entries.insert(
+        "SystemDrive",
+        windows_dir
+            .ancestors()
+            .last()
+            .ok_or_else(|| invalid("Windows drive root"))?,
+    );
     entries.insert("SystemRoot", windows_dir);
     entries.insert("TEMP", scratch);
     entries.insert("TMP", scratch);
@@ -1206,11 +1212,12 @@ mod tests {
             Path::new("C:/Windows"),
             Path::new("C:/Windows/System32"),
             Path::new("D:/scratch"),
+            Path::new("C:/Users/synthetic/AppData/Local"),
         )
         .unwrap();
         let text = String::from_utf16(&env).unwrap();
         assert!(!text.contains("KEY") && !text.contains("USERPROFILE") && !text.contains("PROXY"));
-        assert_eq!(text.split('\0').filter(|s| !s.is_empty()).count(), 4);
+        assert_eq!(text.split('\0').filter(|s| !s.is_empty()).count(), 6);
         assert!(env.ends_with(&[0, 0]));
     }
     #[test]

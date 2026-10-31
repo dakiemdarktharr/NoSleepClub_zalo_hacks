@@ -513,10 +513,6 @@ impl<M: Model> Engine<M> {
             GoalPhase::Running,
             "Đang thực hiện yêu cầu.",
         )?;
-        self.notice(
-            NoticeKind::Milestone,
-            "Đã nhận mục tiêu; tôi sẽ chỉ thực hiện thao tác trong quyền bạn cấp.",
-        )?;
         if self.recovered_steering {
             self.phase(
                 GoalStatus::WaitingInput,
@@ -634,14 +630,8 @@ impl<M: Model> Engine<M> {
                     goal_id: self.request.goal_id.clone(),
                     text: text.clone(),
                 })?;
-                self.notice(
-                    NoticeKind::Completion,
-                    if self.effects.is_empty() {
-                        "Đã trả lời yêu cầu; không ghi file hoặc mở ứng dụng."
-                    } else {
-                        "Đã hoàn tất mục tiêu với receipts kiểm chứng."
-                    },
-                )?;
+                // The supervisor publishes the actual final answer once after
+                // joining this worker. Avoid a second generic completion voice.
                 return Ok(text);
             }
             if response.tool_calls.len() > 8 {
