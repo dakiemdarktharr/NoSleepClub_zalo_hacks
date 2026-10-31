@@ -1,0 +1,36 @@
+[package]
+name = "nora-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Inspectable Rust tools and offline validation for the NORA foundation"
+
+[[bin]]
+name = "nora"
+path = "src/main.rs"
+
+[features]
+default = []
+onnx = ["dep:ort", "nora-audio/onnx", "nora-vieneu/onnx"]
+whisper = ["nora-audio/whisper"]
+g2p = ["nora-vieneu/g2p"]
+
+[dependencies]
+nora-core = { path = "../nora-core" }
+nora-audio = { path = "../nora-audio" }
+nora-vieneu = { path = "../nora-vieneu" }
+nora-store = { path = "../nora-store" }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+cap-std.workspace = true
+thiserror.workspace = true
+ort = { workspace = true, optional = true }
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

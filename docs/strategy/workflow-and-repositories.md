@@ -1,6 +1,6 @@
 # NORA: workflow đầy đủ và bản đồ repositories
 
-**Đối chiếu ngày 31/10/2026. Trạng thái: proposed implementation, chưa tích hợp.** Tài liệu này mô tả phương án client Rust trong ADR-0005; không coi đề xuất đó đã thay thế các ADR trước. Repo hiện chỉ có Python policy reference, tests, research/design artifacts; chưa có Cargo workspace hoặc desktop voice app.
+**Thiết kế đối chiếu ngày 31/10/2026; implementation cập nhật 01/11/2026.** ADR-0005 đã chấp nhận hướng Rust cho foundation. Repo hiện có Cargo workspace 5 crates, Cargo.lock, audio/native hosts, VieNeu Rust port và state/policy primitives. [Bản đồ đã xây và chưa xây](../rust-foundation.md) là nguồn trạng thái hiện tại; các vòng workflow đầy đủ dưới đây vẫn cần tích hợp desktop/LLM/broker.
 
 ## 1. Cấu trúc tổng thể: ba vòng phối hợp
 
@@ -121,7 +121,7 @@ Ngân sách 2 GB tính toàn cây process, WebView/browser/native hosts; GPU và
 
 ## 10. Repositories chính dự kiến dùng
 
-Đây là **danh sách phụ thuộc chính ở mức thiết kế**, chưa có Cargo.lock hoặc integration. Dùng crates/bindings/model artifacts có version pin, không clone/ghép toàn bộ mọi repo. Repo con và model packs phải audit license riêng; danh sách không phải toàn bộ transitive dependency graph.
+Đây là **bản đồ upstream của thiết kế**, gồm cả phần đã dùng và phần chưa tích hợp. Cargo.lock hiện pin foundation thực tế; Tauri, Tokio/reqwest cho app integration và direct Windows adapter vẫn là phần sau. Dùng crates/bindings/model artifacts, không clone/ghép toàn bộ mọi repo. Model packs audit license riêng; danh sách không phải toàn bộ transitive dependency graph.
 
 | Lớp | Repository | Vai trò trong phương án Rust |
 |---|---|---|
@@ -134,7 +134,7 @@ Ngân sách 2 GB tính toàn cây process, WebView/browser/native hosts; GPU và
 | ASR engine | [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp) | Whisper large-v3-turbo quantized và CPU/GPU backend cần đo |
 | Rust ASR bindings | [whisper-rs trên Codeberg](https://codeberg.org/tazz4843/whisper-rs) | Rust host cho whisper.cpp; pin version tương thích |
 | ONNX engine/bindings | [microsoft/onnxruntime](https://github.com/microsoft/onnxruntime), [pykeio/ort](https://github.com/pykeio/ort) | Silero/VieNeu native inference từ Rust; vẫn có C/C++ libraries |
-| TTS reference/assets | [pnnbao97/VieNeu-TTS](https://github.com/pnnbao97/VieNeu-TTS) | v3 Turbo graphs/reference behavior; host port Rust chưa làm |
+| TTS reference/assets | [pnnbao97/VieNeu-TTS](https://github.com/pnnbao97/VieNeu-TTS) | v3 Turbo graphs/reference behavior; host Rust đã port preset FP32 CPU path, còn quality/full SDK gates |
 | Phonemizer/tokenizer | [pnnbao97/sea-g2p](https://github.com/pnnbao97/sea-g2p), [huggingface/tokenizers](https://github.com/huggingface/tokenizers) | Text/phoneme/token mapping giữ behavior TTS |
 | Async runtime | [tokio-rs/tokio](https://github.com/tokio-rs/tokio) | Async I/O, scheduling/cancellation; không tự thành durable goal engine |
 | HTTP clients | [seanmonstar/reqwest](https://github.com/seanmonstar/reqwest) | LLM/OA/API traffic qua broker policy; chưa chốt LLM provider/model |
@@ -161,7 +161,7 @@ CaMeL/Fides/Task Shield/RTBAS là prior art thiết kế/evaluation, không ph�
 
 ## 12. Phần cần tự xây trong repo NORA
 
-Modules dự kiến, chưa có Cargo workspace: core contracts/router; durable goal engine; broker/IPC/grants; Giữ Ý/provenance/data-flow rules; effect verifier/reconciliation; notification policy/outbox; Rust audio/TTS host; adapters; OA token gateway; LifeMate adapter; eval/release tooling.
+Foundation đã có core contracts/router, resource/permission types, SQLite goal/effect transitions, notification policy/acknowledgements, Rust audio/TTS host và CLI verifier. Còn phải tích hợp supervisor/scheduler, broker/IPC/grants enforcement, Giữ Ý/provenance/data-flow runtime, production outbox, LLM/app adapters, OA gateway, LifeMate adapter và release tooling. Có primitives không đồng nghĩa các vòng sản phẩm đã chạy end-to-end.
 
 Không repo upstream nào hiểu thay mình domain authority của merchant, quyền user, semantics đúng của external effect hoặc lúc nào nên nói. Đây là phần sản phẩm và trách nhiệm vận hành của NORA. Port policy Python phải giữ behavioral tests, không bỏ kiểm tra chỉ để claim Rust nhanh/nhẹ.
 

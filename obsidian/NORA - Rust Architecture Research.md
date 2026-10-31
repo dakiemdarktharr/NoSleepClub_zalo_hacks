@@ -1,14 +1,14 @@
 ---
 project: NORA
 type: architecture-research
-updated: 2026-10-31
-status: proposed-not-benchmarked
+updated: 2026-11-01
+status: research-with-foundation-followup
 tags: [nora, rust, hardware, architecture]
 ---
 
 # NORA — Rust và ngân sách phần cứng
 
-**Khuyến nghị:** ưu tiên Rust cho mã ứng dụng phân phối tới laptop, giữ inference engines đã kiểm nghiệm qua bindings. Bản cài có thể không cần Python; whisper.cpp/ONNX Runtime vẫn là native dependencies. Chưa port, chưa benchmark và chưa chốt thay thế kiến trúc trước.
+**Cập nhật 01/11:** hướng Rust đã được chấp nhận cho foundation, host/policy/state/audio đã port và có component measurements. Xem [[NORA - Rust Foundation]]. Nội dung nghiên cứu bên dưới là baseline ngày 31/10; chưa có whole-product A/B hoặc chứng nhận hardware budget. whisper.cpp/ONNX Runtime vẫn là native dependencies, Python không nằm trong hướng runtime mới.
 
 ## Facts đã đối chiếu
 

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "sea-g2p-e825173",
+  "files": [
+    {
+      "path": "sea_g2p.bin",
+      "bytes": 62829820,
+      "sha256": "4346e690d0711ebc5231e7a42c5c88aaf6e40377e894b4617c018fd81c6f4096"
+    }
+  ]
+}

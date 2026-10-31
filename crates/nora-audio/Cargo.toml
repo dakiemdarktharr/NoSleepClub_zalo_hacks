@@ -1,0 +1,30 @@
+[package]
+name = "nora-audio"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Bounded Rust audio front-end and optional native speech inference for NORA"
+
+[features]
+default = []
+onnx = ["dep:ort", "dep:ndarray"]
+whisper = ["dep:whisper-rs"]
+capture = ["dep:cpal"]
+
+[dependencies]
+thiserror.workspace = true
+serde.workspace = true
+rubato = "=0.16.2"
+ndarray = { workspace = true, optional = true }
+ort = { workspace = true, optional = true }
+whisper-rs = { version = "=0.16.0", default-features = false, optional = true }
+cpal = { version = "=0.16.0", optional = true }
+
+[lints]
+workspace = true
+
+[[example]]
+name = "silero_smoke"
+required-features = ["onnx"]

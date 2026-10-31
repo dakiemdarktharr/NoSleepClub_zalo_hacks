@@ -1,14 +1,14 @@
 ---
 project: NORA
 type: workflow-and-dependency-plan
-updated: 2026-10-31
+updated: 2026-11-01
 status: proposed-not-integrated
 tags: [nora, workflow, rust, repositories]
 ---
 
 # NORA — Workflow và repositories
 
-NORA có ba vòng phối hợp: nhận/trả giọng nói; thực thi goal có checkpoint; chọn updates từ trusted runtime events. Đây là phương án Rust đang đề xuất, chưa phải app đã tích hợp. Repo hiện vẫn chỉ có Python policy reference và tài liệu.
+NORA có ba vòng phối hợp: nhận/trả giọng nói; thực thi goal có checkpoint; chọn updates từ trusted runtime events. Rust foundation hiện có 5 crates và Cargo.lock; xem [[NORA - Rust Foundation]] để phân biệt code đã xây với phần còn cần tích hợp. Ba vòng đầy đủ dưới đây chưa phải app end-to-end.
 
 ## Luồng chính
 

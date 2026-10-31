@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "silero-vad-reviewed-2026-11-01",
+  "files": [
+    {
+      "path": "silero_vad.onnx",
+      "bytes": 2327524,
+      "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+[build]
+jobs = 2
+
+[env]
+GGML_NATIVE = { value = "OFF", force = true }

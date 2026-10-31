@@ -1,13 +1,13 @@
 ---
 title: NORA - Ground Truths
-updated: 2026-10-31
+updated: 2026-11-01
 tags: [nora, ground-truths, evidence]
 status: provenance-aware
 ---
 
 # Ground truths, decisions và unknowns
 
-Ngày kiểm tra **31/10/2026**, Asia/Saigon. Nhãn từng record quyết định cách đọc: facts có nguồn khác với design decisions, observations, hypotheses và open questions. Trạng thái có thể đổi; kiểm tra lại theo cột recheck trong JSON gốc.
+External research đối chiếu **31/10/2026**, local implementation observations cập nhật **01/11/2026**, Asia/Saigon. Nhãn từng record quyết định cách đọc: facts có nguồn khác với decisions, observations, hypotheses và open questions. JSON hiện có 47 records; bảng này giữ nhóm nền ban đầu, [[NORA - Novelty Ground Truths]] và [[NORA - Rust Foundation]] ghi các phần bổ sung.
 
 Liên quan: [[NORA - Home]] · [[NORA - Decisions]] · [[NORA - Open Questions]].
 
@@ -31,13 +31,13 @@ Liên quan: [[NORA - Home]] · [[NORA - Decisions]] · [[NORA - Open Questions]]
 | GT014 — `observed_local_state` | Lần đọc trang Zalo TTS trong nghiên cứu chỉ trả shell/cookie; chưa xác minh được API production/quota/giá. | [V15](https://developers.zalo.me/docs/api/ai-text-to-speech) |
 | GT015 — `verified_external_fact` | Model Vietnamese Zipformer trong catalog được xếp offline; microphone/simulated streaming không xác nhận native streaming. | [V10](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/zipformer-transducer-models.html), [V16](https://k2-fsa.github.io/sherpa/onnx/pretrained_models/) |
 | GT016 — `design_decision` | Tên codename: NORA, Natural-language Orchestration, Reasoning & Action; đọc Nô-ra. | [artifact](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/report-vi.md) |
-| GT017 — `design_decision` | Windows-first Tauri/Rust broker/Python worker; cascade voice; hotkey baseline; một orchestrator mặc định. | [artifact](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/adr/0001-windows-local-first.md) |
+| GT017 — `design_decision` | Windows-first Rust app/control/audio foundation được chấp nhận; LLM worker roles dùng API. UI/OS broker vẫn cần tích hợp. | [ADR-0005](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/codex/rust-foundation/docs/adr/0005-rust-client-proposal.md) |
 | GT018 — `design_decision` | Chỉ thông báo từ trusted events/evidence; giữ im lặng với technical logs/heartbeat không đổi. | [artifact](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/adr/0002-evidence-gated-updates.md) |
-| GT019 — `observed_local_state` | Reference core hiện là router/notification simulation dùng Python standard library, chưa có microphone, LLM integration hoặc desktop automation. | [artifact](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/tree/main/src/nora_policy) |
-| GT020 — `observed_local_state` | Nghiên cứu chưa chạy Vietnamese audio benchmark, official LifeMate evaluator hoặc production security audit. | [artifact](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/research/methodology.md) |
+| GT019 — `observed_local_state` | Có 5 Rust crates và Python reference; chưa có desktop voice loop, LLM integration hoặc OS broker enforcement. | [[NORA - Rust Foundation]] |
+| GT020 — `observed_local_state` | Có Silero/VieNeu probes và one-phrase waveform check; chưa có Vietnamese quality corpus, real-model ASR benchmark, official evaluator hoặc production security audit. | [[NORA - Rust Foundation]] |
 | GT021 — `hypothesis` | Tên Nora ơi có thể phù hợp để gọi bằng tiếng Việt, nhưng FAR/FRR và hiệu quả theo giọng chưa được kiểm nghiệm. | [artifact](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/research/voice-desktop.md) |
 | GT022 — `open_question` | LifeMate có cho phép hosted APIs/Internet/external models nào và có runtime/hardware limit cụ thể gì? | [Z02](https://challenge.zalo.ai/portal/lifemate), [Z04](https://dl-challenge.zalo.ai/zalo-ai-challenge-regulations-vi.pdf) |
-| GT023 — `open_question` | Chọn persistent LangGraph saver/storage nào đủ phù hợp cho Windows production? SQLite saver được tài liệu mô tả cho development không tự chứng minh production support. | [A01](https://docs.langchain.com/oss/python/langgraph/durable-execution), [A16](https://docs.langchain.com/oss/python/langgraph/checkpointers) |
+| GT023 — `open_question` | Rust/SQLite cần thêm single-instance ownership, WAL/backpressure, migration và crash/external-effect gates nào trước production? Câu hỏi LangGraph saver trước đã được thay hướng bởi ADR-0005. | [[NORA - Rust Foundation]] |
 | GT024 — `verified_external_fact` | AppContainer có file/network/process/window isolation; Job Objects quản lý nhóm tiến trình và resource limits, cần security limits riêng cho process. | [P01](https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-isolation), [P02](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects) |
 
 Không biến model summary hoặc một demo thành sự thật đã được kiểm chứng. Các mục tiêu p95 latency, cỡ mẫu và model recommendations hiện là đề xuất thử nghiệm. Code/license của model, weights và training-data rights phải được audit riêng.

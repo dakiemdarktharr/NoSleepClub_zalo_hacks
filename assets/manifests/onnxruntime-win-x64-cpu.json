@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "onnxruntime-win-x64-cpu-1.31.1",
+  "files": [
+    {
+      "path": "onnxruntime.dll",
+      "bytes": 17253728,
+      "sha256": "cb2fa518b18356617f6f9f460c012501da2819ec7e5c1d80bd8f5de20492db0c"
+    }
+  ]
+}

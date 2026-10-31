@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-31",
+  "as_of": "2026-11-01",
   "timezone": "Asia/Saigon",
   "purpose": "A provenance-aware record; decisions and hypotheses are deliberately distinct from verified external facts.",
   "records": [
@@ -169,9 +169,9 @@
     {
       "id": "GT017",
       "type": "design_decision",
-      "claim": "Windows-first Tauri/Rust broker/Python worker; cascade voice; hotkey baseline; một orchestrator mặc định.",
-      "artifact": "docs/adr/0001-windows-local-first.md",
-      "confidence": "proposed_stack_not_benchmarked",
+      "claim": "Windows-first Rust application foundation accepted per user request: Rust goal/audio/control, native inference bindings, API LLM worker roles; UI/OS broker integration pending.",
+      "artifact": "docs/adr/0005-rust-client-proposal.md",
+      "confidence": "accepted_foundation_not_production_certification",
       "recheck": "after vertical slice"
     },
     {
@@ -185,16 +185,16 @@
     {
       "id": "GT019",
       "type": "observed_local_state",
-      "claim": "Reference core hiện là router/notification simulation dùng Python standard library, chưa có microphone, LLM integration hoặc desktop automation.",
-      "artifact": "src/nora_policy",
+      "claim": "Repo hiện có 5 Rust crates cho core/audio/VieNeu/store/CLI và Python reference; chưa có desktop voice loop, LLM integration hoặc OS broker enforcement.",
+      "artifact": "docs/rust-foundation.md",
       "confidence": "high_for_repository_scope",
       "recheck": "on implementation changes"
     },
     {
       "id": "GT020",
       "type": "observed_local_state",
-      "claim": "Nghiên cứu chưa chạy Vietnamese audio benchmark, official LifeMate evaluator hoặc production security audit.",
-      "artifact": "docs/research/methodology.md",
+      "claim": "Đã chạy Silero/VieNeu component probes và one-phrase FP32 numerical comparison; chưa có Vietnamese quality corpus, Whisper real-model benchmark, official LifeMate evaluator hoặc production security audit.",
+      "artifact": "docs/validation.md",
       "confidence": "high_for_session_scope",
       "recheck": "when measurements exist"
     },
@@ -220,13 +220,10 @@
     {
       "id": "GT023",
       "type": "open_question",
-      "claim": "Chọn persistent LangGraph saver/storage nào đủ phù hợp cho Windows production? SQLite saver được tài liệu mô tả cho development không tự chứng minh production support.",
-      "sources": [
-        "A01",
-        "A16"
-      ],
+      "claim": "Rust/SQLite còn cần kiểm chứng single-instance ownership, WAL/backpressure, migration và crash/external-effect gates nào trước production? Câu hỏi LangGraph saver cũ đã được thay hướng bởi ADR-0005.",
       "confidence": "unknown_pending_spike",
-      "recheck": "before durable alpha"
+      "recheck": "before production integration and release",
+      "artifact": "docs/rust-foundation.md"
     },
     {
       "id": "GT024",
@@ -431,6 +428,38 @@
       ],
       "confidence": "evidence_gap_not_proof_of_absence",
       "recheck": "authorized interviews/operational data"
+    },
+    {
+      "id": "GT044",
+      "type": "observed_local_state",
+      "claim": "Windows MSVC release foundation qua 84 Rust tests, format/Clippy; 21 Python reference tests và 9-event replay JSON parity. Không chứng minh end-to-end product acceptance.",
+      "artifact": "docs/validation.md",
+      "confidence": "high_for_recorded_local_checks",
+      "recheck": "on code/toolchain/dependency changes"
+    },
+    {
+      "id": "GT045",
+      "type": "observed_local_state",
+      "claim": "Một final-binary CPU VieNeu FP32+G2P run có peak WS 1160454144 bytes, first PCM chunk 407.6691ms sau load; không gồm ASR/UI/browser/children/GPU và không chứng nhận toàn NORA 2GB.",
+      "artifact": "docs/benchmarks/2026-11-01-windows.json",
+      "confidence": "single_component_measurement_not_general_SLO",
+      "recheck": "on full integration and target-device matrix"
+    },
+    {
+      "id": "GT046",
+      "type": "observed_local_state",
+      "claim": "Cargo audit0.22.2 trên lockfile sau ZIP9.0.0 ghi 0 vulnerability advisories và 1 unmaintained warning paste1.0.15 qua tokenizer; không scan đủ native binaries/models/Git source.",
+      "artifact": "docs/benchmarks/2026-11-01-windows.json",
+      "confidence": "high_for_pinned_RustSec_snapshot",
+      "recheck": "before release and on dependency/advisory changes"
+    },
+    {
+      "id": "GT047",
+      "type": "observed_local_state",
+      "claim": "Rust runtime không cần Python interpreter; VieNeu graphs/weights giữ nguyên và inference vẫn qua ORT/whisper.cpp. Repo chỉ commit model integrity manifests, không có weights/DLL/audio; redistribution rights vẫn cần audit.",
+      "artifact": "THIRD_PARTY_NOTICES.md",
+      "confidence": "high_for_source_foundation_scope",
+      "recheck": "at packaging and feature additions"
     }
   ]
 }

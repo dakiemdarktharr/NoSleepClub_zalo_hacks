@@ -1,6 +1,6 @@
 # Kiến trúc đề xuất
 
-Trạng thái: **proposed implementation**, chưa có desktop build hoặc integration production. Các quyết định được giải thích trong [ADR](adr/0001-windows-local-first.md).
+Trạng thái cập nhật 01/11/2026: **Rust foundation đã triển khai; desktop/product integration vẫn proposed**. [ADR-0005](adr/0005-rust-client-proposal.md) thay Python resident goal/audio workers của thiết kế ban đầu bằng Rust. Xem [phạm vi code thực tế](rust-foundation.md); các mô tả Python/LangGraph dưới đây giữ để giải thích phương án cũ, không phải dependencies của bản Rust.
 
 Ràng buộc mới của user: **2 GB RAM cho NORA, hỗ trợ card 4 GB VRAM, SSD 15 GB; LLM có thể dùng API**. [ADR-0004](adr/0004-lightweight-client.md) và [thiết kế client nhẹ](lightweight-client.md) đề xuất native/ONNX audio và giới hạn process/model residency. Đây là target cần đo; Python/audio framework dưới đây là hướng ban đầu, không phải bộ runtime đã chốt đạt ngân sách.
 
@@ -24,7 +24,7 @@ flowchart LR
 
 UI hiển thị mic state, transcript, goal progress, permission cards, preview, evidence và kill switch. Không giữ connector secrets hoặc generic shell. Remote content không được có quyền core. Tauri capabilities chỉ hạn chế WebView → core; mã Rust/sidecar vẫn cần được tin cậy hoặc cô lập riêng. [Tauri security](https://v2.tauri.app/security/capabilities/)
 
-Rust broker là ranh giới hành động: xác thực caller, kiểm tra grant hiện tại, validate schema/target, khóa approval với preview, kiểm tra budget/cancel, thực thi adapter và trả receipt. Python worker điều phối nhưng không được `eval` model output, cài package từ lệnh model hoặc lách broker qua generic filesystem/shell tools.
+Rust broker dự kiến là ranh giới hành động: xác thực caller, kiểm tra grant hiện tại, validate schema/target, khóa approval với preview, kiểm tra budget/cancel, thực thi adapter và trả receipt. Rust goal workers không được thực thi model output như mã, cài package từ lệnh model hoặc lách broker qua generic filesystem/shell tools. Foundation mới có typed primitives, chưa enforce ranh giới OS này.
 
 Trong threat model bản đầu, audio/goal sidecar là mã first-party được review và ký; tách process không tự tạo security sandbox. Plugin hoặc mã không tin cậy cần containment thật trước khi hỗ trợ. Spike AppContainer/restricted-token phù hợp cho worker không cần desktop access; adapter UI được giữ trong broker có quyền giới hạn vì AppContainer window isolation cản can thiệp app khác. Job Objects giúp giới hạn resource/thu hồi process tree, không tự thay thế security limits. [AppContainer isolation](https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-isolation), [Job Objects](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects)
 

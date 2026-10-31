@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "validated_on": "2026-11-01",
+  "timezone": "Asia/Saigon",
+  "scope": "Component validation only. One process; no ASR model, GUI/browser, LLM API, child-tree accounting or GPU measurements. Not a 2GB NORA or production certification.",
+  "host": {
+    "os": "Windows 11 Home Single Language x64",
+    "cpu": "AMD Ryzen AI 5 340 w/ Radeon 840M",
+    "physical_cores": 6,
+    "logical_processors": 12,
+    "execution_provider": "ONNX Runtime CPU",
+    "device_gpu_tested": false
+  },
+  "build": {
+    "rust": "1.99.1",
+    "target": "x86_64-pc-windows-msvc",
+    "profile": "release",
+    "all_features": true,
+    "binary_bytes": 10540544,
+    "binary_sha256": "803396eae1204d26f59657c36acb8fdd6bf94558fd244175906d8321612e3a92",
+    "lock_sha256": "62b8e94c168080c8bb663ece718d2941e8bb1e37ea28cdf1a52e42439f0424b4",
+    "native_runtime": "ONNX Runtime CPU 1.31.1",
+    "ort_crate": "2.0.0-rc.15",
+    "zip_crate": "9.0.0"
+  },
+  "method": {
+    "script": "scripts/Measure-Process.ps1",
+    "fresh_process_per_workload": true,
+    "os_file_cache_flushed": false,
+    "memory_sampling_ms": 5,
+    "memory_metrics": "sampled OS peak working set, sampled OS peak process commit charge and sampled current private bytes; these are distinct counters",
+    "ort_global_intra_threads": 2,
+    "ort_global_inter_threads": 1,
+    "ort_spinning": false,
+    "ort_telemetry": false,
+    "timing": "first_audio_ms starts after model/G2P/graph load and ends when the first PCM callback is ready; no speaker/playback timing",
+    "trials": "One final-binary sample per workload. Earlier smoke/repeat results are not a statistical latency distribution."
+  },
+  "asset_catalogs": [
+    "assets/manifests/vieneu-v3-turbo-fp32.json",
+    "assets/manifests/silero-vad.json",
+    "assets/manifests/sea-g2p.json",
+    "assets/manifests/onnxruntime-win-x64-cpu.json"
+  ],
+  "phrase": "Xin chào, tôi là Nora.",
+  "measurements": {
+    "tts": {
+      "process_measurement": {
+        "scope": "One process; children/GPU are not metered. Never use this alone to certify complete NORA hardware requirements.",
+        "wall_ms": 5914.7125,
+        "sampled_peak_working_set_bytes": 1160454144,
+        "sampled_os_peak_process_commit_charge_bytes": 1179000832,
+        "sampled_peak_private_bytes": 1178947584,
+        "sampling_interval_ms": 5,
+        "samples": 207,
+        "valid_memory_sample": true,
+        "exit_code": 0,
+        "timed_out": false
+      },
+      "workload": {
+        "audio_seconds": 1.68,
+        "first_audio_ms": 407.6691,
+        "greedy": true,
+        "loaded_ms": 4517.742,
+        "options": {
+          "chunk_frames": 25,
+          "frame_cap": true,
+          "max_new_frames": 48,
+          "repetition_window": 64,
+          "sampling": {
+            "repetition_penalty": 1.2000000476837158,
+            "temperature": 0.0,
+            "top_k": 25,
+            "top_p": 0.949999988079071
+          },
+          "seed": 0
+        },
+        "phonemes": "sˈin tʃˈaː2w, t̪ˈoj lˌaː2 nˈɔːɹə.",
+        "played_audio": false,
+        "samples": 80640,
+        "scope": "VieNeu CPU + native G2P only; no ASR,GUI,browser or LLM",
+        "stats": {
+          "emitted_samples": 80640,
+          "generated_frames": 21,
+          "native_streaming": true,
+          "sample_rate": 48000,
+          "stop_reason": "eos"
+        },
+        "synthesis_ms": 1120.2911,
+        "voice": "Hải Đăng"
+      }
+    },
+    "vad": {
+      "process_measurement": {
+        "scope": "One process; children/GPU are not metered. Never use this alone to certify complete NORA hardware requirements.",
+        "wall_ms": 244.1909,
+        "sampled_peak_working_set_bytes": 46047232,
+        "sampled_os_peak_process_commit_charge_bytes": 31485952,
+        "sampled_peak_private_bytes": 31485952,
+        "sampling_interval_ms": 5,
+        "samples": 13,
+        "valid_memory_sample": true,
+        "exit_code": 0,
+        "timed_out": false
+      },
+      "workload": {
+        "backend": "ONNX Runtime CPU",
+        "frames": 32,
+        "inference_ms": 6.0799,
+        "last_probability": 0.003625333309173584,
+        "loaded_ms": 175.1131,
+        "scope": "real Silero inference on silence; not recognition-quality evaluation"
+      }
+    },
+    "pcm": {
+      "process_measurement": {
+        "scope": "One process; children/GPU are not metered. Never use this alone to certify complete NORA hardware requirements.",
+        "wall_ms": 129.4282,
+        "sampled_peak_working_set_bytes": 5275648,
+        "sampled_os_peak_process_commit_charge_bytes": 1552384,
+        "sampled_peak_private_bytes": 1552384,
+        "sampling_interval_ms": 5,
+        "samples": 4,
+        "valid_memory_sample": true,
+        "exit_code": 0,
+        "timed_out": false
+      },
+      "workload": {
+        "checksum": 125000.0,
+        "elapsed_ms": 60.9241,
+        "iterations": 1000000,
+        "pcm_capacity_bytes": 16384,
+        "samples_processed": 512000000,
+        "scope": "PCM ring only; no models, GUI, browser or LLM loaded"
+      }
+    }
+  },
+  "reference_comparison": {
+    "scope": "One preset phrase, greedy FP32 ONNX host/codec numerical check; not human voice quality or full SDK feature parity",
+    "source_blobs": {
+      "vieneu/_v3_turbo_engine/onnx_runtime_lite.py": "e7f1db482348df446640a6ea4f85fd2fbb6ad1fc",
+      "vieneu/_v3_turbo_engine/rep_history.py": "2b9078e711bdd462888ec09f880d987730b78c06",
+      "vieneu_utils/core_utils.py": "b534786b33a1c3d5b9a37531f297e4f09a66b3ec"
+    },
+    "ort_version": "1.31.1",
+    "numpy_version": "2.4.6",
+    "voice": "Hải Đăng",
+    "source_phonemes": "Rust frontend output; G2P is not independently compared here",
+    "unused_denoiser_initialization_disabled": true,
+    "rust_samples": 80640,
+    "reference_samples": 80640,
+    "reference_chunk_lengths": [
+      15360,
+      15360,
+      23040,
+      23040,
+      3840
+    ],
+    "same_length": true,
+    "all_finite": true,
+    "max_abs_difference": 0.0,
+    "rmse": 0.0,
+    "max_abs_tolerance": 0.001,
+    "rmse_tolerance": 0.0001,
+    "numerical_check_passed": true,
+    "reference_load_seconds": 4.285927599994466,
+    "reference_synthesis_seconds": 1.1441828999959398
+  },
+  "reference_comparison_previous_smoke": {
+    "max_abs_difference": 1.7881393432617188E-06,
+    "rmse": 9.689993191314232E-08,
+    "same_length": true,
+    "samples": 80640,
+    "scope": "Same phrase/preset/graphs and greedy configuration on the earlier release build; not an independent quality sample."
+  },
+  "validation": {
+    "rust_tests_passed": 84,
+    "rust_test_scope": "Windows MSVC workspace --all-features; default cargo test targets",
+    "rust_clippy": "workspace --all-targets --all-features -D warnings passed",
+    "rust_format": "passed",
+    "rust_release": "passed",
+    "python_reference_tests": 21,
+    "replay_events_compared_equal": 9,
+    "model_quality_corpus": "not_run",
+    "microphone_or_speaker_used": false,
+    "github_actions_status": "See live GitHub checks; local results do not imply a remote CI pass."
+  },
+  "rustsec": {
+    "tool": "cargo-audit 0.22.2",
+    "date": "2026-11-01",
+    "exit_code": 0,
+    "database": {
+      "advisory-count": 1395,
+      "last-commit": "2295466c4e9df26647fd67d8fa1c705ac2fc7f81",
+      "last-updated": "2026-10-30T18:12:39+07:00"
+    },
+    "lock_sha256": "62b8e94c168080c8bb663ece718d2941e8bb1e37ea28cdf1a52e42439f0424b4",
+    "vulnerability_advisories": 0,
+    "retained_warnings": [
+      {
+        "id": "RUSTSEC-2024-0436",
+        "package": "paste",
+        "version": "1.0.15",
+        "kind": "unmaintained",
+        "dependency_path": "tokenizers 0.22.2 -> nora-vieneu",
+        "scope": "build-time procedural macro"
+      }
+    ],
+    "fixed_before_handoff": [
+      "RUSTSEC-2026-0367",
+      "RUSTSEC-2026-0368",
+      "RUSTSEC-2026-0369"
+    ],
+    "limitation": "Cargo.lock vs RustSec snapshot; not a native-binary, model, Git-source or independent exploit/security audit."
+  },
+  "remaining_gates": [
+    "Whisper model/critical-slot quality and peak load/active memory",
+    "Whole NORA process tree peak RAM and GPU dedicated/shared usage",
+    "ASR/TTS residency, barge-in, native crash and cancellation",
+    "Long/multivoice/noisy Vietnamese corpus and human quality",
+    "Authenticated OS broker, grants/revoke, egress enforcement and real external effect reconciliation",
+    "UI/LLM/app integration, signed installer/update, complete notices/SBOM and production operations"
+  ]
+}

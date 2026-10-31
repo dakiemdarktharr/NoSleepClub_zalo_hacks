@@ -1,6 +1,6 @@
 ---
 title: NORA - Decisions
-updated: 2026-10-31
+updated: 2026-11-01
 tags: [nora, architecture, decisions]
 status: proposed-implementation
 ---
@@ -13,11 +13,11 @@ status: proposed-implementation
 |---|---|---|
 | NORA là codename | Dễ đọc/gọi, gắn orchestration và action | Trademark và wake-word FAR/FRR |
 | Windows user-session tray app | Cần mic, UI và app local | Lifecycle, sleep/lock/resume, packaging |
-| Tauri + Rust broker + Python workers | UI boundary và hệ sinh thái audio/agent | Chi phí hai toolchain, IPC và containment |
+| Rust application/control/audio + native engines | Bỏ Python resident runtime, kiểm soát lifecycle/buffers | Full quality/resource tests, native parser isolation; UI còn cần benchmark |
 | Cascade trước speech-to-speech | Quan sát transcript và critical slots trước action | Useful-response latency và hội thoại |
 | Hotkey/PTT trước custom wake word | Baseline nhanh, consent rõ | Model/data license thương mại, tiếng Việt |
 | Một orchestrator mặc định | Giảm coordination/cost; đơn giản hóa recovery | Ablation tasks có nhánh độc lập |
-| LangGraph để spike local durability | Checkpoint/interrupt/graph | Saver production, crash/replay/effect reconciliation |
+| Rust/SQLite goal/effect primitives | Foundation đã có typed state/revisions/recovery | Supervisor ownership, WAL/backpressure, external effects và crash injection |
 | Scoped broker trước mọi effect | Prompt/MCP roots không enforce quyền | Path/junction/TOCTOU, revocation, preview approvals |
 | Event-gated selective updates | User muốn milestone hữu ích, ít log | Usefulness/omissions/duplicates/interruption |
 | LifeMate adapter riêng desktop adapter | Simulator contract khác OS permissions | Devkit/evaluator và một app thật |

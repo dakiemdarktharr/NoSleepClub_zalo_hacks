@@ -1,0 +1,28 @@
+NORA VieNeu Rust host
+
+The control algorithms in src/heads.rs, src/prompt.rs, src/sampling.rs and
+src/onnx.rs are modified Rust translations/adaptations of the VieNeu-TTS v3
+Turbo CPU reference by Pham Nguyen Ngoc Bao and upstream contributors.
+The original source is licensed under Apache License 2.0; a copy is included
+as LICENSE-APACHE. Modifications include bounded loading/admission, Rust
+tokenization/sampling/state ownership, explicit cancellation/errors, streaming
+callbacks, and lazy codec session selection. NORA is not affiliated with or
+endorsed by the upstream author. Upstream code/weight/data licenses remain
+separate; this crate includes no model weights or voices.
+
+Source reviewed 2026-10-31:
+https://github.com/pnnbao97/VieNeu-TTS
+src/vieneu/_v3_turbo_engine/onnx_runtime_lite.py
+  Git blob e7f1db482348df446640a6ea4f85fd2fbb6ad1fc
+src/vieneu/_v3_turbo_engine/prompt_v3_turbo.py
+  Git blob 5ead9cbcf97e898e9551369a965bbc6d40c6257f
+src/vieneu/_v3_turbo_engine/rep_history.py
+  Git blob 2b9078e711bdd462888ec09f880d987730b78c06
+src/vieneu/_v3_turbo_engine/configuration_v3_turbo.py
+  Git blob 44a69a72d808a3af1a15e016c46d9a879f608de5
+src/vieneu_utils/core_utils.py (frame/syllable-cap rules)
+
+The optional sea-g2p-rs dependency is used through its native Rust API with
+Python bindings disabled. It is pinned to upstream commit
+e825173f235d08ea19315b2b279fb11153b44cea. Its licenses and dictionary rights
+must be included/audited when distributing the final application.
