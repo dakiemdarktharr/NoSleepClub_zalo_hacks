@@ -3,29 +3,434 @@
   "timezone": "Asia/Saigon",
   "purpose": "A provenance-aware record; decisions and hypotheses are deliberately distinct from verified external facts.",
   "records": [
-    {"id":"GT001","type":"verified_external_fact","claim":"LifeMate 2026 nhận audio tiếng Việt, context, conversation history và available app tools có JSON schemas.","sources":["Z02"],"confidence":"high","recheck":"before implementation/submission"},
-    {"id":"GT002","type":"verified_external_fact","claim":"LifeMate output có ordered tool_calls và state_hash lấy từ env.get_state_hash(); agent không được tự bịa state hash.","sources":["Z02"],"confidence":"high","recheck":"with official devkit version"},
-    {"id":"GT003","type":"verified_external_fact","claim":"Portal mô tả sys.ask_missing_info khi thiếu thông tin, và [] khi không installed app nào xử lý được request.","sources":["Z02"],"confidence":"high","recheck":"with official devkit"},
-    {"id":"GT004","type":"verified_external_fact","claim":"Lịch công bố tại ngày kiểm tra ghi nộp solution 16/11/2026 23:59 GMT+7 và private results 23/11/2026 23:59 GMT+7.","sources":["Z01","Z04"],"confidence":"high_for_current_publication","recheck":"before each deadline"},
-    {"id":"GT005","type":"verified_external_fact","claim":"Thể lệ mục 4 giới hạn mục đích sử dụng/phân phối dữ liệu cuộc thi; quyền tham dự không tự cấp quyền dùng dữ liệu thương mại.","sources":["Z04"],"confidence":"high_for_published_terms","recheck":"before data access or product training"},
-    {"id":"GT006","type":"verified_external_fact","claim":"Thể lệ mục 8.2 có điều kiện về công khai mã thi trên diễn đàn chính thức trong thời gian cuộc thi, trừ ngoại lệ được cho phép rõ.","sources":["Z04"],"confidence":"high_for_published_terms","recheck":"before publishing competition code"},
-    {"id":"GT007","type":"verified_external_fact","claim":"openWakeWord công bố code Apache 2.0 nhưng included pretrained models CC BY-NC-SA 4.0.","sources":["V07"],"confidence":"high_for_declared_license","recheck":"before choosing exact model artifact"},
-    {"id":"GT008","type":"verified_external_fact","claim":"openWakeWord README nói hiện chỉ hỗ trợ English; Porcupine supported-language list đã đọc không liệt kê Vietnamese.","sources":["V07","V08"],"confidence":"high_for_documented_support","recheck":"before wake-word integration"},
-    {"id":"GT009","type":"verified_external_fact","claim":"MCP roots là informational; protocol không enforce server chỉ truy cập trong các roots.","sources":["A13"],"confidence":"high","recheck":"on protocol migration"},
-    {"id":"GT010","type":"verified_external_fact","claim":"Tauri capabilities không tự sandbox Rust core hoặc sidecars.","sources":["V01","V02"],"confidence":"high_for_security_boundary","recheck":"on architecture/version change"},
-    {"id":"GT011","type":"verified_external_fact","claim":"Checkpoint/replay không bảo đảm exactly-once external effects; action có thể bị lặp khi completion receipt thất lạc.","sources":["A02","A04"],"confidence":"high_for_documented_failure_semantics","recheck":"per adapter/runtime design"},
-    {"id":"GT012","type":"verified_external_fact","claim":"Windows services không trực tiếp tương tác user từ Vista; UI trợ lý nên chạy trong user session.","sources":["V04"],"confidence":"high","recheck":"on supported OS change"},
-    {"id":"GT013","type":"verified_external_fact","claim":"Windows UI Automation chịu integrity-level/security boundaries; UIAccess không phải shortcut chung để vượt UAC.","sources":["V05"],"confidence":"high_for_OS_constraints","recheck":"per supported app"},
-    {"id":"GT014","type":"observed_local_state","claim":"Lần đọc trang Zalo TTS trong nghiên cứu chỉ trả shell/cookie; chưa xác minh được API production/quota/giá.","sources":["V15"],"confidence":"high_for_access_attempt_only","recheck":"with official developer access"},
-    {"id":"GT015","type":"verified_external_fact","claim":"Model Vietnamese Zipformer trong catalog được xếp offline; microphone/simulated streaming không xác nhận native streaming.","sources":["V10","V16"],"confidence":"high_for_documented_mode","recheck":"for selected model/version"},
-    {"id":"GT016","type":"design_decision","claim":"Tên codename: NORA, Natural-language Orchestration, Reasoning & Action; đọc Nô-ra.","artifact":"docs/report-vi.md","confidence":"decision","recheck":"trademark and wake-word test before launch"},
-    {"id":"GT017","type":"design_decision","claim":"Windows-first Tauri/Rust broker/Python worker; cascade voice; hotkey baseline; một orchestrator mặc định.","artifact":"docs/adr/0001-windows-local-first.md","confidence":"proposed_stack_not_benchmarked","recheck":"after vertical slice"},
-    {"id":"GT018","type":"design_decision","claim":"Chỉ thông báo từ trusted events/evidence; giữ im lặng với technical logs/heartbeat không đổi.","artifact":"docs/adr/0002-evidence-gated-updates.md","confidence":"policy_direction","recheck":"after user evaluation"},
-    {"id":"GT019","type":"observed_local_state","claim":"Reference core hiện là router/notification simulation dùng Python standard library, chưa có microphone, LLM integration hoặc desktop automation.","artifact":"src/nora_policy","confidence":"high_for_repository_scope","recheck":"on implementation changes"},
-    {"id":"GT020","type":"observed_local_state","claim":"Nghiên cứu chưa chạy Vietnamese audio benchmark, official LifeMate evaluator hoặc production security audit.","artifact":"docs/research/methodology.md","confidence":"high_for_session_scope","recheck":"when measurements exist"},
-    {"id":"GT021","type":"hypothesis","claim":"Tên Nora ơi có thể phù hợp để gọi bằng tiếng Việt, nhưng FAR/FRR và hiệu quả theo giọng chưa được kiểm nghiệm.","artifact":"docs/research/voice-desktop.md","confidence":"untested","recheck":"custom licensed wake-word evaluation"},
-    {"id":"GT022","type":"open_question","claim":"LifeMate có cho phép hosted APIs/Internet/external models nào và có runtime/hardware limit cụ thể gì?","sources":["Z02","Z04"],"confidence":"unknown_pending_devkit","recheck":"before provider choice for competition"},
-    {"id":"GT023","type":"open_question","claim":"Chọn persistent LangGraph saver/storage nào đủ phù hợp cho Windows production? SQLite saver được tài liệu mô tả cho development không tự chứng minh production support.","sources":["A01","A16"],"confidence":"unknown_pending_spike","recheck":"before durable alpha"},
-    {"id":"GT024","type":"verified_external_fact","claim":"AppContainer có file/network/process/window isolation; Job Objects quản lý nhóm tiến trình và resource limits, cần security limits riêng cho process.","sources":["P01","P02"],"confidence":"high_for_OS_documentation","recheck":"before containment implementation"}
+    {
+      "id": "GT001",
+      "type": "verified_external_fact",
+      "claim": "LifeMate 2026 nhận audio tiếng Việt, context, conversation history và available app tools có JSON schemas.",
+      "sources": [
+        "Z02"
+      ],
+      "confidence": "high",
+      "recheck": "before implementation/submission"
+    },
+    {
+      "id": "GT002",
+      "type": "verified_external_fact",
+      "claim": "LifeMate output có ordered tool_calls và state_hash lấy từ env.get_state_hash(); agent không được tự bịa state hash.",
+      "sources": [
+        "Z02"
+      ],
+      "confidence": "high",
+      "recheck": "with official devkit version"
+    },
+    {
+      "id": "GT003",
+      "type": "verified_external_fact",
+      "claim": "Portal mô tả sys.ask_missing_info khi thiếu thông tin, và [] khi không installed app nào xử lý được request.",
+      "sources": [
+        "Z02"
+      ],
+      "confidence": "high",
+      "recheck": "with official devkit"
+    },
+    {
+      "id": "GT004",
+      "type": "verified_external_fact",
+      "claim": "Lịch công bố tại ngày kiểm tra ghi nộp solution 16/11/2026 23:59 GMT+7 và private results 23/11/2026 23:59 GMT+7.",
+      "sources": [
+        "Z01",
+        "Z04"
+      ],
+      "confidence": "high_for_current_publication",
+      "recheck": "before each deadline"
+    },
+    {
+      "id": "GT005",
+      "type": "verified_external_fact",
+      "claim": "Thể lệ mục 4 giới hạn mục đích sử dụng/phân phối dữ liệu cuộc thi; quyền tham dự không tự cấp quyền dùng dữ liệu thương mại.",
+      "sources": [
+        "Z04"
+      ],
+      "confidence": "high_for_published_terms",
+      "recheck": "before data access or product training"
+    },
+    {
+      "id": "GT006",
+      "type": "verified_external_fact",
+      "claim": "Thể lệ mục 8.2 có điều kiện về công khai mã thi trên diễn đàn chính thức trong thời gian cuộc thi, trừ ngoại lệ được cho phép rõ.",
+      "sources": [
+        "Z04"
+      ],
+      "confidence": "high_for_published_terms",
+      "recheck": "before publishing competition code"
+    },
+    {
+      "id": "GT007",
+      "type": "verified_external_fact",
+      "claim": "openWakeWord công bố code Apache 2.0 nhưng included pretrained models CC BY-NC-SA 4.0.",
+      "sources": [
+        "V07"
+      ],
+      "confidence": "high_for_declared_license",
+      "recheck": "before choosing exact model artifact"
+    },
+    {
+      "id": "GT008",
+      "type": "verified_external_fact",
+      "claim": "openWakeWord README nói hiện chỉ hỗ trợ English; Porcupine supported-language list đã đọc không liệt kê Vietnamese.",
+      "sources": [
+        "V07",
+        "V08"
+      ],
+      "confidence": "high_for_documented_support",
+      "recheck": "before wake-word integration"
+    },
+    {
+      "id": "GT009",
+      "type": "verified_external_fact",
+      "claim": "MCP roots là informational; protocol không enforce server chỉ truy cập trong các roots.",
+      "sources": [
+        "A13"
+      ],
+      "confidence": "high",
+      "recheck": "on protocol migration"
+    },
+    {
+      "id": "GT010",
+      "type": "verified_external_fact",
+      "claim": "Tauri capabilities không tự sandbox Rust core hoặc sidecars.",
+      "sources": [
+        "V01",
+        "V02"
+      ],
+      "confidence": "high_for_security_boundary",
+      "recheck": "on architecture/version change"
+    },
+    {
+      "id": "GT011",
+      "type": "verified_external_fact",
+      "claim": "Checkpoint/replay không bảo đảm exactly-once external effects; action có thể bị lặp khi completion receipt thất lạc.",
+      "sources": [
+        "A02",
+        "A04"
+      ],
+      "confidence": "high_for_documented_failure_semantics",
+      "recheck": "per adapter/runtime design"
+    },
+    {
+      "id": "GT012",
+      "type": "verified_external_fact",
+      "claim": "Windows services không trực tiếp tương tác user từ Vista; UI trợ lý nên chạy trong user session.",
+      "sources": [
+        "V04"
+      ],
+      "confidence": "high",
+      "recheck": "on supported OS change"
+    },
+    {
+      "id": "GT013",
+      "type": "verified_external_fact",
+      "claim": "Windows UI Automation chịu integrity-level/security boundaries; UIAccess không phải shortcut chung để vượt UAC.",
+      "sources": [
+        "V05"
+      ],
+      "confidence": "high_for_OS_constraints",
+      "recheck": "per supported app"
+    },
+    {
+      "id": "GT014",
+      "type": "observed_local_state",
+      "claim": "Lần đọc trang Zalo TTS trong nghiên cứu chỉ trả shell/cookie; chưa xác minh được API production/quota/giá.",
+      "sources": [
+        "V15"
+      ],
+      "confidence": "high_for_access_attempt_only",
+      "recheck": "with official developer access"
+    },
+    {
+      "id": "GT015",
+      "type": "verified_external_fact",
+      "claim": "Model Vietnamese Zipformer trong catalog được xếp offline; microphone/simulated streaming không xác nhận native streaming.",
+      "sources": [
+        "V10",
+        "V16"
+      ],
+      "confidence": "high_for_documented_mode",
+      "recheck": "for selected model/version"
+    },
+    {
+      "id": "GT016",
+      "type": "design_decision",
+      "claim": "Tên codename: NORA, Natural-language Orchestration, Reasoning & Action; đọc Nô-ra.",
+      "artifact": "docs/report-vi.md",
+      "confidence": "decision",
+      "recheck": "trademark and wake-word test before launch"
+    },
+    {
+      "id": "GT017",
+      "type": "design_decision",
+      "claim": "Windows-first Tauri/Rust broker/Python worker; cascade voice; hotkey baseline; một orchestrator mặc định.",
+      "artifact": "docs/adr/0001-windows-local-first.md",
+      "confidence": "proposed_stack_not_benchmarked",
+      "recheck": "after vertical slice"
+    },
+    {
+      "id": "GT018",
+      "type": "design_decision",
+      "claim": "Chỉ thông báo từ trusted events/evidence; giữ im lặng với technical logs/heartbeat không đổi.",
+      "artifact": "docs/adr/0002-evidence-gated-updates.md",
+      "confidence": "policy_direction",
+      "recheck": "after user evaluation"
+    },
+    {
+      "id": "GT019",
+      "type": "observed_local_state",
+      "claim": "Reference core hiện là router/notification simulation dùng Python standard library, chưa có microphone, LLM integration hoặc desktop automation.",
+      "artifact": "src/nora_policy",
+      "confidence": "high_for_repository_scope",
+      "recheck": "on implementation changes"
+    },
+    {
+      "id": "GT020",
+      "type": "observed_local_state",
+      "claim": "Nghiên cứu chưa chạy Vietnamese audio benchmark, official LifeMate evaluator hoặc production security audit.",
+      "artifact": "docs/research/methodology.md",
+      "confidence": "high_for_session_scope",
+      "recheck": "when measurements exist"
+    },
+    {
+      "id": "GT021",
+      "type": "hypothesis",
+      "claim": "Tên Nora ơi có thể phù hợp để gọi bằng tiếng Việt, nhưng FAR/FRR và hiệu quả theo giọng chưa được kiểm nghiệm.",
+      "artifact": "docs/research/voice-desktop.md",
+      "confidence": "untested",
+      "recheck": "custom licensed wake-word evaluation"
+    },
+    {
+      "id": "GT022",
+      "type": "open_question",
+      "claim": "LifeMate có cho phép hosted APIs/Internet/external models nào và có runtime/hardware limit cụ thể gì?",
+      "sources": [
+        "Z02",
+        "Z04"
+      ],
+      "confidence": "unknown_pending_devkit",
+      "recheck": "before provider choice for competition"
+    },
+    {
+      "id": "GT023",
+      "type": "open_question",
+      "claim": "Chọn persistent LangGraph saver/storage nào đủ phù hợp cho Windows production? SQLite saver được tài liệu mô tả cho development không tự chứng minh production support.",
+      "sources": [
+        "A01",
+        "A16"
+      ],
+      "confidence": "unknown_pending_spike",
+      "recheck": "before durable alpha"
+    },
+    {
+      "id": "GT024",
+      "type": "verified_external_fact",
+      "claim": "AppContainer có file/network/process/window isolation; Job Objects quản lý nhóm tiến trình và resource limits, cần security limits riêng cho process.",
+      "sources": [
+        "P01",
+        "P02"
+      ],
+      "confidence": "high_for_OS_documentation",
+      "recheck": "before containment implementation"
+    },
+    {
+      "id": "GT025",
+      "type": "verified_external_fact",
+      "claim": "OA OAuth v4 documentation requires secret_key for token exchange/refresh despite PKCE; OA admin authorizes specific app/OA permissions, not arbitrary personal inbox access.",
+      "sources": [
+        "VNG05"
+      ],
+      "confidence": "high_for_documented_contract",
+      "recheck": "before integration; provider version changes"
+    },
+    {
+      "id": "GT026",
+      "type": "design_decision",
+      "claim": "For a shared OA application, keep app secret in a backend/BFF; broker single-flight refresh and atomic token rotation. This service does not exist yet.",
+      "artifact": "docs/strategy/nora-guarded-completion-prd.md",
+      "confidence": "proposed_not_implemented",
+      "recheck": "security/authorization spike"
+    },
+    {
+      "id": "GT027",
+      "type": "verified_external_fact",
+      "claim": "Zalo already publishes a Safety Center; its exact launch year was not established from the fetched primary body.",
+      "sources": [
+        "VNG02",
+        "VNG16"
+      ],
+      "confidence": "high_for_existing_program_not_effectiveness",
+      "recheck": "before product comparison"
+    },
+    {
+      "id": "GT028",
+      "type": "verified_external_fact",
+      "claim": "Zalopay publishes a SIMO suspicious-recipient warning pilot; this does not grant NORA access to SIMO/bank data.",
+      "sources": [
+        "VNG03"
+      ],
+      "confidence": "high_for_first_party_description",
+      "recheck": "before integration/availability claims"
+    },
+    {
+      "id": "GT029",
+      "type": "verified_external_fact",
+      "claim": "Official OA Chatbot material already describes rule/flow automation, dynamic backend data and staff routing; generic FAQ/order chatbot is not a defensible novelty by itself.",
+      "sources": [
+        "VNG09"
+      ],
+      "confidence": "high_for_documented_features",
+      "recheck": "before product positioning"
+    },
+    {
+      "id": "GT030",
+      "type": "verified_external_fact",
+      "claim": "VNG annual reporting publicly prioritizes Vietnamese-context AI, reliability and internal productivity; this is corporate strategy, not evidence of a specific broken support workflow.",
+      "sources": [
+        "VNG01",
+        "VNG12"
+      ],
+      "confidence": "high_for_self_reported_strategy",
+      "recheck": "with design-partner discovery"
+    },
+    {
+      "id": "GT031",
+      "type": "verified_external_fact",
+      "claim": "Zalo Help lists bots/emulators/third-party software among reasons for account disabling; unofficial personal-account automation is not the proposed production foundation.",
+      "sources": [
+        "VNG07"
+      ],
+      "confidence": "high_for_published_policy",
+      "recheck": "before any personal-account integration"
+    },
+    {
+      "id": "GT032",
+      "type": "verified_external_fact",
+      "claim": "PHP official archive has 21/10/2026 fixes, a 23/10 follow-up advisory and a 26/10 Windows dependency rebuild; named fixed versions must not be read as clearing all advisories as of31/10.",
+      "sources": [
+        "SEC01"
+      ],
+      "confidence": "high_for_maintainer_advisories",
+      "recheck": "before selecting/deploying runtime versions"
+    },
+    {
+      "id": "GT033",
+      "type": "verified_external_fact",
+      "claim": "OpenAI reports the July2026 HF intrusion occurred during internal cyber evaluation including a research prototype and reduced deployment safeguards; it is not proof all public APIs operate under that setup.",
+      "sources": [
+        "SEC02",
+        "SEC16",
+        "SEC22"
+      ],
+      "confidence": "high_for_attributed_incident_reports",
+      "recheck": "latest incident findings"
+    },
+    {
+      "id": "GT034",
+      "type": "verified_external_fact",
+      "claim": "METR/Redwood August2026 investigation describes unauthorized inter-agent communication and transcript/tool-call spoofing, within limited access/time/scope.",
+      "sources": [
+        "SEC23"
+      ],
+      "confidence": "high_for_reported_findings_with_scope_limits",
+      "recheck": "before broader attribution or completeness claims"
+    },
+    {
+      "id": "GT035",
+      "type": "verified_external_fact",
+      "claim": "FSC statement dated14/10/2026 reports16financial firms and about100000records affected; whether AI was used and whether incidents shared an attacker remained under investigation at that publication.",
+      "sources": [
+        "SEC04"
+      ],
+      "confidence": "high_for_regulator_statement_at_date",
+      "recheck": "before current attribution claims"
+    },
+    {
+      "id": "GT036",
+      "type": "research_observation",
+      "claim": "Reviewed CaMeL/Fides/TaskShield/RTBAS and browser security designs overlap strongly with generic intent checks, provenance and selective approval; no algorithm novelty for NORA has been established.",
+      "sources": [
+        "SEC07",
+        "SEC09",
+        "SEC10",
+        "SEC19",
+        "SEC20",
+        "SEC21"
+      ],
+      "confidence": "high_for_overlap_in_reviewed_sources_not_exhaustive_priority_search",
+      "recheck": "before novelty publication"
+    },
+    {
+      "id": "GT037",
+      "type": "verified_external_fact",
+      "claim": "Original BFCL-VN/TH, Vietnamese Function Calling Test and V-Bench pages already cover Vietnamese tool-use evaluation; NORA must not claim the first Vietnamese tool benchmark.",
+      "sources": [
+        "CMP27",
+        "CMP28",
+        "CMP29",
+        "CMP30",
+        "CMP31"
+      ],
+      "confidence": "high_for_published_scope_not_independently_reproduced_scores",
+      "recheck": "before benchmark design/data use"
+    },
+    {
+      "id": "GT038",
+      "type": "hypothesis",
+      "claim": "NORA GiuY may improve safe full completion and reduce unnecessary interruption on Vietnamese multi-turn cross-app workflows versus a matched critic+confirmation baseline.",
+      "artifact": "docs/strategy/nora-evaluation-plan.md",
+      "confidence": "untested_product_engineering_hypothesis",
+      "recheck": "matched held-out evaluation and merchant discovery"
+    },
+    {
+      "id": "GT039",
+      "type": "hypothesis",
+      "claim": "A user-reviewed redacted support capsule may improve handoff completeness/effort; no support backlog, ROI or ticket reduction has been measured.",
+      "artifact": "docs/strategy/nora-guarded-completion-prd.md",
+      "confidence": "untested",
+      "recheck": "human reviewer pilot and privacy tests"
+    },
+    {
+      "id": "GT040",
+      "type": "design_decision",
+      "claim": "Alpha scope is voice/text, scoped file/note, public research and synthetic merchant workflow; OA+one order source is a separate pilot, and calendar/email/browser each need release gates.",
+      "artifact": "docs/strategy/nora-delivery-roadmap.md",
+      "confidence": "planned_scope",
+      "recheck": "supported adapter matrix before each release"
+    },
+    {
+      "id": "GT041",
+      "type": "observed_local_state",
+      "claim": "The novelty/production planning phase added research and design artifacts only; no desktop voice app, official OA integration, audio/security benchmark or production release was implemented in it.",
+      "artifact": "docs/strategy/2026-10-31-plan.md",
+      "confidence": "high_for_session_scope",
+      "recheck": "after implementation"
+    },
+    {
+      "id": "GT042",
+      "type": "open_question",
+      "claim": "Actual OA/OMS partner access, merchant pain, API/model rules for competition, hardware fit and signing/pilot/release evidence remain unresolved dependencies.",
+      "artifact": "docs/strategy/nora-delivery-roadmap.md",
+      "confidence": "not_validated",
+      "recheck": "milestones M1-M5 and product release gates"
+    },
+    {
+      "id": "GT043",
+      "type": "open_question",
+      "claim": "No public evidence reviewed establishes a specific VNG internal support backlog, loss rate or need for the proposed capsule; do not present such numbers as facts.",
+      "sources": [
+        "VNG01",
+        "VNG08",
+        "VNG12"
+      ],
+      "confidence": "evidence_gap_not_proof_of_absence",
+      "recheck": "authorized interviews/operational data"
+    }
   ]
 }

@@ -16,13 +16,17 @@ Một trợ lý giọng nói tiếng Việt chạy nền trên máy tính: nhậ
 
 ## Bản đồ ghi chú
 
+- [[NORA - Novelty and Production Plan]] — phương án Giữ Ý, VNG problem fit, demo, scope và roadmap mới.
+- [[NORA - Novelty Ground Truths]] — facts/decisions/hypotheses bổ sung, liên kết bộ 43 records.
+- [[NORA - Security Research]] — incidents PHP/HF/Korea và threat model 24 nhóm rủi ro.
+- [[NORA - Resource Budget]] — target 2 GB RAM, GPU 4 GB, disk 15 GB; chưa benchmark.
 - [[NORA - Ground Truths]] — facts có nguồn, observations, decisions và unknowns được phân loại.
 - [[NORA - Decisions]] — kiến trúc đã chọn và lý do.
 - [[NORA - Open Questions]] — các bước cần chứng minh trước khi triển khai.
 - [[NORA - Research Report]] — bản báo cáo đầy đủ để đọc trong vault.
 - [[NORA - Sources]] — bảng nguồn và hạn chế bằng chứng.
 
-[Repo public NoSleepClub_zalo_hacks](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks) · [Báo cáo đầy đủ](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/report-vi.md) · [Lộ trình production](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/production-roadmap.md)
+[Repo public NoSleepClub_zalo_hacks](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks) · [Kế hoạch novelty mới](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/strategy/2026-10-31-plan.md) · [Lộ trình production](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/strategy/nora-delivery-roadmap.md)
 
 ## Hướng sản phẩm
 

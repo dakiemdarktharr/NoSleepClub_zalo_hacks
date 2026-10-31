@@ -10,6 +10,11 @@ NORA là định hướng sản phẩm trợ lý giọng nói tiếng Việt ch�
 
 | Tài liệu | Nội dung |
 |---|---|
+| [Kế hoạch novelty và production](docs/strategy/2026-10-31-plan.md) | NORA Giữ Ý, VNG problem fit, prior art đã loại, demo và quyết định cần kiểm chứng |
+| [PRD mới](docs/strategy/nora-guarded-completion-prd.md) | Flow, quyền app/folder, baseline backlog, OA/order scope và chính sách updates |
+| [Threat model](docs/strategy/nora-security-threat-model.md) | 24 nhóm rủi ro, controls, residual risks và tests cần xây |
+| [Evaluation và roadmap](docs/strategy/nora-evaluation-plan.md) | Safe completion, matched baselines, audio/resource gates; [backlog/milestones](docs/strategy/nora-delivery-roadmap.md) |
+| [Nguồn nghiên cứu novelty](docs/research/novelty-sources.md) | 70 records / 66 URL đã mở hoặc có trích xuất, độ tin cậy và giới hạn |
 | [Báo cáo nghiên cứu](docs/report-vi.md) | Kết luận, kiến trúc, lựa chọn nền tảng và điểm chưa biết |
 | [LifeMate 2026](docs/lifemate-2026.md) | Đề thi, hợp đồng đầu ra, mốc thời gian và giới hạn công khai |
 | [Kiến trúc](docs/architecture.md) | Desktop, voice, goal runtime, adapters, memory |
@@ -41,6 +46,8 @@ Validation ngày 31/10/2026: **21 tests passed** và replay 9 events. Xem [phạ
 Windows-first: Tauri 2 UI/tray → Rust permission broker → Python worker có persistent LangGraph checkpoints → typed app adapters. Audio theo STT → agent → TTS trước; push-to-talk/hotkey trước, wake word tự huấn luyện và audit giấy phép sau. Một orchestrator mặc định; worker song song chỉ xuất hiện khi các nhánh độc lập đáng chi phí.
 
 Đây là quyết định thiết kế cần benchmark, không phải bằng chứng Tauri, LangGraph hay một model giọng nói luôn vượt các lựa chọn khác. Không cần cloud hosting để truy cập app/folder local.
+
+Hướng khác biệt đang kiểm chứng: **NORA Giữ Ý**, giữ mục tiêu/tham số và tiếp tục phần hợp lệ khi nội dung bên ngoài có xung đột hoặc chỉ dẫn độc hại. Đây là giả thuyết sản phẩm/workflow, chưa có algorithm novelty hoặc kết quả vượt baseline. Alpha chỉ gồm voice/text, scoped file/note, research và synthetic merchant workflow; OA + nguồn order là pilot riêng, calendar/email/browser có release gates riêng. Nghiên cứu mới chỉ bổ sung Markdown/source ledgers, chưa triển khai các khả năng này.
 
 ## Công khai và dữ liệu cuộc thi
 
