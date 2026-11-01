@@ -1,6 +1,6 @@
 # Rust desktop integration contracts
 
-Implementation started 2026-11-01 on `codex/production-integration`, parent `3107385f080713775b228bb941f0508ec9cddee4`.
+Implementation started 2026-11-01 from parent `3107385f080713775b228bb941f0508ec9cddee4`. The integrated implementation and subsequent updates are maintained directly on `main`.
 
 This is an implementation contract, not a readiness certificate. Lead owns root manifests/lock, runtime orchestration, packaging, hardware harness and release evidence. Implementers each own one crate directory and coordinate public API changes before changing them. Never read, print, copy or commit `.env.local` from an implementer; only the lead performs opt-in live API tests.
 

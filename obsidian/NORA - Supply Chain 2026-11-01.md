@@ -19,4 +19,4 @@ Exporter giữ nguyên text bytes, loại link/reparse và đường dẫn licen
 
 Gói local có notice bundle: 1.203.779.356 bytes; `redistribution_cleared=false`, vẫn unsigned validation candidate. Không sửa lại benchmark cũ để tránh lẫn package snapshot với phép đo runtime. Chưa chạy thêm voice hoặc build trên máy đang cần dọn RAM.
 
-[Inventory và cách tái tạo](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/codex/production-integration/docs/supply-chain/README.md)
+[Inventory và cách tái tạo](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/supply-chain/README.md)

@@ -2,8 +2,7 @@ name: NORA Rust validation
 
 on:
   push:
-    branches: [main, 'codex/**']
-  pull_request:
+    branches: [main]
 
 permissions:
   contents: read

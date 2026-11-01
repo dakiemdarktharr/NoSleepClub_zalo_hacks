@@ -28,4 +28,4 @@ ZIP nâng 6 → 9.0.0 để xử lý 3 RustSec advisories. Cargo audit cuối: 0
 
 Tiếp theo: mic/PTT/ASR/LLM/action/update loop; supervisor/IPC/OS grants/secret store; Giữ Ý và external-effect reconciliation thật; UI/tray; full-process hardware/quality/security corpus; signed installer/update và operations gates. Native kernel không được preempt giữa call; interrupt audio khác hủy goal.
 
-[Implementation/build guide](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/codex/rust-foundation/docs/rust-foundation.md) · [Measurement receipt](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/codex/rust-foundation/docs/benchmarks/2026-11-01-windows.json) · [[NORA - Home]] · [[NORA - Workflow and Repositories]].
+[Implementation/build guide](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/rust-foundation.md) · [Measurement receipt](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/benchmarks/2026-11-01-windows.json) · [[NORA - Home]] · [[NORA - Workflow and Repositories]].
