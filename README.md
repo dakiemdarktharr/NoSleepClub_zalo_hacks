@@ -12,6 +12,7 @@ NORA là trợ lý giọng nói tiếng Việt chạy nền trên Windows: nhậ
 |---|---|
 | [Desktop integration](docs/production-integration.md) | Bản chạy thật, setup assets, quyền, lệnh kiểm chứng và các giới hạn hiện tại |
 | [Validation mới nhất](docs/validation.md) | Test, API thật, whole-app voice/resource receipts và các release gates còn mở |
+| [SBOM và notice export](docs/supply-chain/README.md) | Graph build Windows, notice hashes, kiểm tra đóng gói và các khoảng trống giấy phép còn mở |
 | [Rust foundation đã xây](docs/rust-foundation.md) | Phạm vi 5 crates, build/run, native dependencies, tối ưu, kiểm tra và phần còn thiếu |
 | [Số đo thực tế](docs/benchmarks/2026-11-01-windows.json) | Component RAM/timing, FP32 waveform comparison và giới hạn phép đo |
 | [Workflow và repositories](docs/strategy/workflow-and-repositories.md) | Voice/goal/update loops, repos chính, ứng viên, phần tự xây và đường LifeMate |

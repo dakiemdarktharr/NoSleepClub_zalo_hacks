@@ -7,7 +7,7 @@ status: provenance-aware
 
 # Ground truths, decisions và unknowns
 
-External research đối chiếu **31/10/2026**, local implementation observations cập nhật **01/11/2026**, Asia/Saigon. Nhãn từng record quyết định cách đọc: facts có nguồn khác với decisions, observations, hypotheses và open questions. JSON hiện có 56 records; bảng này giữ nhóm nền ban đầu, [[NORA - Novelty Ground Truths]], [[NORA - Rust Foundation]] và [[NORA - Desktop Integration 2026-11-01]] ghi các phần bổ sung. GT048–GT056 là quan sát local/API/measurement có phạm vi, không phải chứng nhận production.
+External research đối chiếu **31/10/2026**, local implementation observations cập nhật **01/11/2026**, Asia/Saigon. Nhãn từng record quyết định cách đọc: facts có nguồn khác với decisions, observations, hypotheses và open questions. JSON hiện có 58 records; bảng này giữ nhóm nền ban đầu, [[NORA - Novelty Ground Truths]], [[NORA - Rust Foundation]], [[NORA - Desktop Integration 2026-11-01]] và [[NORA - Supply Chain 2026-11-01]] ghi các phần bổ sung. GT048–GT058 là quan sát local/API/measurement/tooling có phạm vi, không phải chứng nhận production.
 
 Liên quan: [[NORA - Home]] · [[NORA - Decisions]] · [[NORA - Open Questions]].
 

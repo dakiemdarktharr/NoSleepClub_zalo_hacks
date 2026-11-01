@@ -532,6 +532,22 @@
       "artifact": "docs/benchmarks/2026-11-01-integrated.json",
       "confidence": "high_for_pinned_advisory_snapshot",
       "recheck": "before production release, on code/dependency changes and target-device evaluation"
+    },
+    {
+      "id": "GT057",
+      "type": "observed_local_state",
+      "claim": "Offline exporter tạo partial CycloneDX1.6 build BOM cho357 package normal/build Windows của nora-app,251 notice text blobs và18 metadata/packaged-text gaps. Đã validate official schema/formats; không là binary-linkage analysis hoặc legal clearance.",
+      "artifact": "docs/supply-chain/validation.json",
+      "confidence": "high_for_recorded_local_tooling_checks_not_redistribution_clearance",
+      "recheck": "on dependency/packaging changes and before public binary distribution"
+    },
+    {
+      "id": "GT058",
+      "type": "observed_local_state",
+      "claim": "Notice packaging qua5 Python tests (1 symlink test khác bị skip do quyền Windows),4 PowerShell tamper/path/lock/copy controls và tái tạo BOM byte-for-byte. Gói notice local1203779356 bytes, EXE giữ nguyên SHA so với af75472; không build/voice/LLM API test thêm trong pha này.",
+      "artifact": "docs/supply-chain/validation.json",
+      "confidence": "high_for_recorded_local_tooling_checks_not_redistribution_clearance",
+      "recheck": "on dependency/packaging changes and before public binary distribution"
     }
   ]
 }

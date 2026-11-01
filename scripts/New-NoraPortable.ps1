@@ -5,6 +5,7 @@ param(
  [Parameter(Mandatory)][string]$AssetSource,
  [Parameter(Mandatory)][string]$Destination,
  [string]$LlmConfig,
+ [string]$NoticesDirectory,
  [switch]$HardlinkAssets
 )
 $ErrorActionPreference='Stop'
@@ -13,6 +14,7 @@ $noraDestination=[IO.Path]::GetFullPath($Destination)
 $noraSource=[IO.Path]::GetFullPath($AssetSource)
 if(Test-Path -LiteralPath $noraDestination){throw 'Portable destination must be new'}
 if($noraDestination.StartsWith($noraSource+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Destination cannot be nested in source assets'}
+if($NoticesDirectory){& (Join-Path $PSScriptRoot 'Copy-DependencyNotices.ps1') -Source $NoticesDirectory -ValidateOnly | Out-Null}
 & (Join-Path $PSScriptRoot 'Prepare-VoiceAssets.ps1') -Destination $noraSource -VerifyOnly | Out-Null
 foreach($noraDir in @('bin','assets','config','licenses')){[IO.Directory]::CreateDirectory((Join-Path $noraDestination $noraDir)) | Out-Null}
 [IO.File]::Copy([IO.Path]::GetFullPath($Executable),(Join-Path $noraDestination 'bin/nora-app.exe'),$false)
@@ -30,6 +32,7 @@ foreach($noraPack in $noraPacks){
 [IO.File]::Copy((Join-Path $noraRepository '.env.example'),(Join-Path $noraDestination 'config/.env.local'),$false)
 foreach($noraNotice in @('LICENSE','THIRD_PARTY_NOTICES.md')){[IO.File]::Copy((Join-Path $noraRepository $noraNotice),(Join-Path $noraDestination ('licenses/'+$noraNotice)),$false)}
 foreach($noraNotice in @('NOTICE','LICENSE-APACHE')){[IO.File]::Copy((Join-Path $noraRepository ('crates/nora-vieneu/'+$noraNotice)),(Join-Path $noraDestination ('licenses/vieneu-'+$noraNotice)),$false)}
+if($NoticesDirectory){& (Join-Path $PSScriptRoot 'Copy-DependencyNotices.ps1') -Source $NoticesDirectory -Destination (Join-Path $noraDestination 'licenses/cargo') | Out-Null}
 $noraKeyReference=if($LlmConfig){[IO.Path]::GetFullPath($LlmConfig)}else{'config/.env.local'}
 $noraConfig=@{state_dir='state';asset_root='assets';llm_config=$noraKeyReference;quiet=$false;public_research=$false;max_recording_seconds=30}
 [IO.File]::WriteAllText((Join-Path $noraDestination 'app.json'),($noraConfig | ConvertTo-Json))
@@ -37,4 +40,4 @@ $noraConfig=@{state_dir='state';asset_root='assets';llm_config=$noraKeyReference
 [IO.File]::WriteAllText((Join-Path $noraDestination 'README.txt'),"NORA Windows x64 validation candidate.`r`nRun Launch-Nora.cmd. Hold Ctrl+Shift+Space to speak.`r`nLLM key/model: config/.env.local, unless app.json references an existing external private file.`r`nNo key contents were copied. Keep config and state private after use.`r`nRequires AVX2/F16C/FMA, OpenGL3.3-compatible drivers and Microsoft Visual C++ x64 runtime.`r`nUnsigned local package; clean-machine/signing/voice-corpus gates are documented in the source repository.`r`nModel/dictionary/voice and dependency rights remain separate from NORA's MIT license.`r`n")
 $noraTotal=(Get-ChildItem -LiteralPath $noraDestination -File -Recurse | Measure-Object Length -Sum).Sum
 if($noraTotal -gt 15000000000){throw 'Portable package exceeds disk target'}
-[pscustomobject]@{install_directory=$noraDestination;logical_bytes=$noraTotal;within_15gb=($noraTotal -le 15000000000);api_key_contents_copied=$false;model_assets_verified=$true;binary_sha256=(Get-FileHash -LiteralPath (Join-Path $noraDestination 'bin/nora-app.exe')).Hash;distribution_status='unsigned_validation_candidate'} | ConvertTo-Json -Compress
+[pscustomobject]@{install_directory=$noraDestination;logical_bytes=$noraTotal;within_15gb=($noraTotal -le 15000000000);api_key_contents_copied=$false;model_assets_verified=$true;cargo_notices_included=[bool]$NoticesDirectory;redistribution_cleared=$false;binary_sha256=(Get-FileHash -LiteralPath (Join-Path $noraDestination 'bin/nora-app.exe')).Hash;distribution_status='unsigned_validation_candidate'} | ConvertTo-Json -Compress

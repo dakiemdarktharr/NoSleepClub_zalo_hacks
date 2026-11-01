@@ -1,0 +1,56 @@
+{
+  "as_of_local": "2026-11-01",
+  "timezone": "Asia/Saigon",
+  "scope": "Offline dependency and packaging tooling; no local Rust compilation, microphone, voice inference or LLM API calls in this phase.",
+  "rust_runtime_base_commit": "af75472d7d6a19ac09c7cbd760096f1c9207c7ba",
+  "binary_sha256": "d65584f0a69807b577f0d10925cd7b0af6d73bc909c9d286899dbc1b7086e519",
+  "cargo_lock_canonical_lf_sha256": "f1421061e55ee5ae4400be148da9cce12096781c25dd197223fc211f69795d73",
+  "packages": 357,
+  "unique_notice_texts": 251,
+  "notice_text_bytes": 827719,
+  "metadata_or_packaged_text_gaps": 18,
+  "bom_sha256": "9f1c62d09cddd68c76277806c7825e21d27405e5f6cadacf6edb1f5028749979",
+  "license_inventory_sha256": "e90ad761c43495ff42eab7f5cb0ad2715df1d605c197c85d105558404e586bc5",
+  "official_schema_validation": {
+    "passed": true,
+    "standard": "CycloneDX 1.6",
+    "format_checks": true,
+    "remote_resolution_during_validation": false,
+    "schemas": [
+      {
+        "name": "bom-1.6.schema.json",
+        "sha256": "1ebcb88a2c845ecb6ff7bee7aeabdff9422cb0347f3d6875b241bd444b7e098f"
+      },
+      {
+        "name": "jsf-0.82.schema.json",
+        "sha256": "2faf5eb3651f2ae5f46091a131770d8d847bbd121139d19c85fc7051bfa58c46"
+      },
+      {
+        "name": "spdx.schema.json",
+        "sha256": "33863a360fc4d348e183d89c1ca7aa0877f481e7eb55be2d4102a30386188a10"
+      }
+    ]
+  },
+  "local_tests": {
+    "python_passed": 5,
+    "python_skipped": 1,
+    "skip_reason": "Windows did not permit symlink creation",
+    "powershell_controls_passed": [
+      "byte-preserving copy",
+      "tamper rejection before destination writes",
+      "path escape rejection before destination writes",
+      "stale lockfile rejection before destination writes"
+    ],
+    "bom_reproduced_byte_for_byte": true
+  },
+  "portable_logical_bytes": 1203779356,
+  "cargo_notices_included": true,
+  "api_key_contents_copied": false,
+  "redistribution_cleared": false,
+  "not_cleared": [
+    "18 package metadata/text gaps",
+    "native/compiler/std/CRT and ORT binary coverage",
+    "model/data/dictionary/voice rights",
+    "signing/clean-machine/physical-device/live-mic gates"
+  ]
+}

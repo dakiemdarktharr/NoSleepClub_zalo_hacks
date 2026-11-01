@@ -17,6 +17,7 @@ Một trợ lý giọng nói tiếng Việt chạy nền trên máy tính: nhậ
 ## Bản đồ ghi chú
 
 - [[NORA - Desktop Integration 2026-11-01]] — bản chạy, API thật, đo tài nguyên và các release gates còn mở.
+- [[NORA - Supply Chain 2026-11-01]] — partial SBOM, notice export và kiểm tra đóng gói không cần biên dịch.
 - [[NORA - Workflow and Repositories]] — ba vòng workflow, upstream repos và phần NORA cần tự xây.
 - [[NORA - Rust Foundation]] — mã đã triển khai, build/test, model manifests, phép đo và production gates.
 - [[NORA - Rust Architecture Research]] — đánh giá Rust/native engines, UI và benchmark tài nguyên; mới là đề xuất.

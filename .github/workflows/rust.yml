@@ -33,6 +33,8 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo test --locked --workspace
       - run: cargo clippy --locked --workspace --all-targets -- -D warnings
+      - name: Check offline notice tooling
+        run: python3 -m unittest discover -s scripts/tests -v
 
   windows-native:
     runs-on: windows-latest
@@ -62,10 +64,24 @@ jobs:
       - run: ./scripts/Build-Rust.ps1 -Action Test
       - run: ./scripts/Build-Rust.ps1 -Action Clippy
       - run: ./scripts/Build-Rust.ps1 -Action Release
+      - name: Export locked dependency inventory and test notice packaging
+        shell: pwsh
+        run: |
+          python -m unittest discover -s scripts/tests -v
+          if($LASTEXITCODE -ne 0){throw 'Notice exporter tests failed'}
+          ./scripts/tests/Test-DependencyNotices.ps1
+          $noraNoticeDir=Join-Path $PWD ("target/dependency-notices-"+$env:GITHUB_RUN_ID+"-"+$env:GITHUB_RUN_ATTEMPT)
+          python scripts/export_dependency_notices.py --output $noraNoticeDir
+          if($LASTEXITCODE -ne 0){throw 'Notice export failed'}
+          ./scripts/Copy-DependencyNotices.ps1 -Source $noraNoticeDir -ValidateOnly
+          $noraExpected=([IO.File]::ReadAllText((Join-Path $PWD 'docs/supply-chain/windows-build.cdx.json'))).Replace("`r`n","`n")
+          $noraActual=([IO.File]::ReadAllText((Join-Path $noraNoticeDir 'bom.cdx.json'))).Replace("`r`n","`n")
+          if($noraExpected -cne $noraActual){throw 'Committed Windows build inventory is stale'}
+          ('NORA_NOTICE_DIRECTORY='+$noraNoticeDir.Replace('\','/')) | Add-Content -LiteralPath $env:GITHUB_ENV
       - name: Verify real Windows confinement and memory refusal
         shell: pwsh
         run: |
-          $noraValidation=Join-Path $PWD 'target/nora-ci-validation'
+          $noraValidation=Join-Path $PWD ("target/nora-ci-"+$env:GITHUB_RUN_ID+"-"+$env:GITHUB_RUN_ATTEMPT)
           New-Item -ItemType Directory -Path (Join-Path $noraValidation 'bin') -ErrorAction Stop | Out-Null
           $noraExe=Join-Path $noraValidation 'bin/nora-app.exe'
           Copy-Item -LiteralPath 'target/x86_64-pc-windows-msvc/release/nora-app.exe' -Destination $noraExe
@@ -81,6 +97,7 @@ jobs:
             if($noraProbe -eq 'resource' -and -not $noraReceipt.allocation_refused){throw 'Memory negative control failed'}
             if($noraProbe -eq 'sandbox' -and -not $noraReceipt.passed){throw 'AppContainer negative controls failed'}
           }
+          ('NORA_VALIDATION_DIRECTORY='+$noraValidation.Replace('\','/')) | Add-Content -LiteralPath $env:GITHUB_ENV
       - name: Publish unsigned Windows validation binaries
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -88,10 +105,11 @@ jobs:
           path: |
             target/x86_64-pc-windows-msvc/release/nora-app.exe
             target/x86_64-pc-windows-msvc/release/nora.exe
-            target/nora-ci-validation/resource.json
-            target/nora-ci-validation/sandbox.json
+            ${{ env.NORA_VALIDATION_DIRECTORY }}/resource.json
+            ${{ env.NORA_VALIDATION_DIRECTORY }}/sandbox.json
             LICENSE
             THIRD_PARTY_NOTICES.md
+            ${{ env.NORA_NOTICE_DIRECTORY }}
           if-no-files-found: error
           retention-days: 90
 

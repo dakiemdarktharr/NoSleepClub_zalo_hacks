@@ -2,6 +2,8 @@
 
 Phạm vi mới nhất: **bản desktop Rust tích hợp, API thật và synthetic voice journey**, unsigned validation candidate. [Phạm vi/cách chạy](production-integration.md), [ADR tích hợp](adr/0006-integrated-rust-runtime.md) và [receipt JSON](benchmarks/2026-11-01-integrated.json). Các phần foundation/reference bên dưới là lịch sử.
 
+Bổ sung không cần build/voice test: [SBOM và notice packaging](supply-chain/README.md) cho graph build Windows, 357 packages, 251 text blobs và 18 metadata/packaged-text gaps. Schema và tamper/path/lock checks qua; EXE giữ nguyên SHA. Gói mới thêm notice bundle có 1.203.779.356 bytes, chưa được cấp trạng thái redistribution-cleared. Các số đo voice/RAM bên dưới giữ nguyên phạm vi và binary đã kiểm chứng.
+
 ## Desktop integration — kết quả mới nhất 01/11/2026
 
 Windows x64 MSVC, Rust 1.99.1: **188 tests passed**, format, Clippy toàn workspace/all-targets/all-features với `-D warnings`, release build passed. Bốn script PowerShell parse thành công. Tests có mock Responses server, goal steering/recovery, exact one-use approval, revoke/stale sessions, cap-std containment và Windows junction, arithmetic/resource bounds, bounded UI queues/draft recovery, notice lifecycle, native model data paths và crash khi chờ duyệt. Đây không phải independent security audit.
