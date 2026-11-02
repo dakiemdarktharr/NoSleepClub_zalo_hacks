@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-01",
+  "as_of": "2026-11-02",
   "timezone": "Asia/Saigon",
   "purpose": "A provenance-aware record; decisions and hypotheses are deliberately distinct from verified external facts.",
   "records": [
@@ -208,14 +208,13 @@
     },
     {
       "id": "GT022",
-      "type": "open_question",
-      "claim": "LifeMate có cho phép hosted APIs/Internet/external models nào và có runtime/hardware limit cụ thể gì?",
+      "type": "verified_external_fact",
+      "claim": "Rule công khai yêu cầu inference LifeMate offline, không network/external API; công bố giới hạn 30 giây/sample và phần cứng chấm A30, Xeon Gold 6442Y 16-core, RAM 64 GB.",
       "sources": [
-        "Z02",
-        "Z04"
+        "Z02"
       ],
-      "confidence": "unknown_pending_devkit",
-      "recheck": "before provider choice for competition"
+      "confidence": "high_for_public_rule_tab_checked_2026-11-02",
+      "recheck": "before final solution submission or if the portal rules change"
     },
     {
       "id": "GT023",
@@ -548,6 +547,16 @@
       "artifact": "docs/supply-chain/validation.json",
       "confidence": "high_for_recorded_local_tooling_checks_not_redistribution_clearance",
       "recheck": "on dependency/packaging changes and before public binary distribution"
+    },
+    {
+      "id": "GT059",
+      "type": "verified_external_fact",
+      "claim": "LifeMate Evaluation chấm sample gold không rỗng bằng state-hash gate; hash sai hoặc không có call match thì 0, nếu không dùng harmonic mean của tool-call precision/recall. Gold rỗng chỉ được 1 khi submission cũng rỗng, không xét hash. Public leaderboard chỉ xếp hạng theo SLM.",
+      "sources": [
+        "Z02"
+      ],
+      "confidence": "high_for_public_evaluation_and_leaderboard_checked_2026-11-02",
+      "recheck": "before final public submission or if the portal evaluation changes"
     }
   ]
 }

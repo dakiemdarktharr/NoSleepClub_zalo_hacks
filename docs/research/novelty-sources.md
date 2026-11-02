@@ -33,7 +33,7 @@ Các bản fetch có thể chỉ là trích xuất theo giới hạn ký tự. S
 | Korea | SEC04: regulator14/10 vẫn điều tra vai trò AI/common attacker. Không khẳng định AI autonomous bank hack |
 | PHP | SEC01: 21/10 fixes,23/10 follow-up,26/10 Windows rebuild. Không coi named versions là giải quyết mọi advisory |
 
-Official competition và audio/platform nguồn đã có trong [source ledger ban đầu](sources.md), [LifeMate](../lifemate-2026.md) và [lightweight client](../lightweight-client.md); không cộng lại vào con số 66. Portal LifeMate và OA OAuth được parent đối chiếu lại trong lượt tổng hợp. Chưa xác minh exact scoring weights, runtime/API allowances hoặc novelty có điểm riêng.
+Official competition và audio/platform nguồn đã có trong [source ledger ban đầu](sources.md), [LifeMate](../lifemate-2026.md) và [lightweight client](../lightweight-client.md); không cộng lại vào con số 66. Ngày 02/11/2026, portal LifeMate xác nhận công thức state-hash/tool-call F1, rule offline/runtime và public ranking chỉ tính SLM; xem [hồ sơ track](../competition/lifemate-track.md). Chưa thấy tiêu chí cộng điểm riêng cho novelty. Portal không công bố mã evaluator; cách token hóa fuzzy text và cách backend xử lý khác biệt giữa câu mô tả hash với nhánh gold rỗng vẫn cần coi là giới hạn triển khai.
 
 ## Ledgers có claims/caveats
 

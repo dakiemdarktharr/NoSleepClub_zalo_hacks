@@ -1,13 +1,13 @@
 ---
 title: NORA - Ground Truths
-updated: 2026-11-01
+updated: 2026-11-02
 tags: [nora, ground-truths, evidence]
 status: provenance-aware
 ---
 
 # Ground truths, decisions và unknowns
 
-External research đối chiếu **31/10/2026**, local implementation observations cập nhật **01/11/2026**, Asia/Saigon. Nhãn từng record quyết định cách đọc: facts có nguồn khác với decisions, observations, hypotheses và open questions. JSON hiện có 58 records; bảng này giữ nhóm nền ban đầu, [[NORA - Novelty Ground Truths]], [[NORA - Rust Foundation]], [[NORA - Desktop Integration 2026-11-01]] và [[NORA - Supply Chain 2026-11-01]] ghi các phần bổ sung. GT048–GT058 là quan sát local/API/measurement/tooling có phạm vi, không phải chứng nhận production.
+External research đối chiếu **31/10/2026**, local implementation observations cập nhật **01/11/2026**, và LifeMate portal được kiểm tra lại **02/11/2026**, Asia/Saigon. Nhãn từng record quyết định cách đọc: facts có nguồn khác với decisions, observations, hypotheses và open questions. JSON hiện có 59 records; bảng này giữ nhóm nền ban đầu, [[NORA - Novelty Ground Truths]], [[NORA - Rust Foundation]], [[NORA - Desktop Integration 2026-11-01]] và [[NORA - Supply Chain 2026-11-01]] ghi các phần bổ sung. GT048–GT058 là quan sát local/API/measurement/tooling có phạm vi, không phải chứng nhận production.
 
 Liên quan: [[NORA - Home]] · [[NORA - Decisions]] · [[NORA - Open Questions]].
 
@@ -36,8 +36,9 @@ Liên quan: [[NORA - Home]] · [[NORA - Decisions]] · [[NORA - Open Questions]]
 | GT019 — `observed_local_state` | Có 5 Rust crates và Python reference; chưa có desktop voice loop, LLM integration hoặc OS broker enforcement. | [[NORA - Rust Foundation]] |
 | GT020 — `observed_local_state` | Có Silero/VieNeu probes và one-phrase waveform check; chưa có Vietnamese quality corpus, real-model ASR benchmark, official evaluator hoặc production security audit. | [[NORA - Rust Foundation]] |
 | GT021 — `hypothesis` | Tên Nora ơi có thể phù hợp để gọi bằng tiếng Việt, nhưng FAR/FRR và hiệu quả theo giọng chưa được kiểm nghiệm. | [artifact](https://github.com/dakiemdarktharr/NoSleepClub_zalo_hacks/blob/main/docs/research/voice-desktop.md) |
-| GT022 — `open_question` | LifeMate có cho phép hosted APIs/Internet/external models nào và có runtime/hardware limit cụ thể gì? | [Z02](https://challenge.zalo.ai/portal/lifemate), [Z04](https://dl-challenge.zalo.ai/zalo-ai-challenge-regulations-vi.pdf) |
+| GT022 — `verified_external_fact` | Rule công khai yêu cầu inference LifeMate offline, không network/external API; công bố giới hạn 30 giây/sample và phần cứng chấm A30, Xeon Gold 6442Y 16-core, RAM 64 GB. | [Z02](https://challenge.zalo.ai/portal/lifemate) |
 | GT023 — `open_question` | Rust/SQLite cần thêm single-instance ownership, WAL/backpressure, migration và crash/external-effect gates nào trước production? Câu hỏi LangGraph saver trước đã được thay hướng bởi ADR-0005. | [[NORA - Rust Foundation]] |
 | GT024 — `verified_external_fact` | AppContainer có file/network/process/window isolation; Job Objects quản lý nhóm tiến trình và resource limits, cần security limits riêng cho process. | [P01](https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-isolation), [P02](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects) |
+| GT059 — `verified_external_fact` | LifeMate Evaluation chấm sample gold không rỗng bằng state-hash gate; hash sai hoặc không có call match thì 0, nếu không dùng harmonic mean của tool-call precision/recall. Gold rỗng chỉ được 1 khi submission cũng rỗng, không xét hash. Public leaderboard chỉ xếp hạng theo SLM. | [Z02](https://challenge.zalo.ai/portal/lifemate) |
 
 Không biến model summary hoặc một demo thành sự thật đã được kiểm chứng. Các mục tiêu p95 latency, cỡ mẫu và model recommendations hiện là đề xuất thử nghiệm. Code/license của model, weights và training-data rights phải được audit riêng.
