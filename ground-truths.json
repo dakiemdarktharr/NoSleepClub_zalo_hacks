@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-02",
+  "as_of": "2026-11-04",
   "timezone": "Asia/Saigon",
   "purpose": "A provenance-aware record; decisions and hypotheses are deliberately distinct from verified external facts.",
   "records": [
@@ -214,7 +214,11 @@
         "Z02"
       ],
       "confidence": "high_for_public_rule_tab_checked_2026-11-02",
-      "recheck": "before final solution submission or if the portal rules change"
+      "recheck": "before final solution submission or if the portal rules change",
+      "resolution_records": [
+        "GT059",
+        "GT060"
+      ]
     },
     {
       "id": "GT023",
@@ -551,12 +555,1397 @@
     {
       "id": "GT059",
       "type": "verified_external_fact",
+      "claim": "LifeMate inference phải offline, không dùng API/dịch vụ ngoài; public/private test không được người hoặc model ngoài gán nhãn để train/tune.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_authenticated_rule_snapshot",
+      "recheck": "before score claims, model/prompt freeze, submission, or publication",
+      "source_url": "https://challenge.zalo.ai/portal/lifemate"
+    },
+    {
+      "id": "GT060",
+      "type": "verified_external_fact",
+      "claim": "Cấu hình chấm LifeMate: A30, 16 CPU cores Xeon Gold 6442Y, RAM 64 GB; 30 giây/mẫu, tổng model dưới 6B, LLM dưới 5B, context cấu hình không quá 16.384.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_authenticated_rule_snapshot",
+      "recheck": "before score claims, model/prompt freeze, submission, or publication",
+      "source_url": "https://challenge.zalo.ai/portal/lifemate"
+    },
+    {
+      "id": "GT061",
+      "type": "verified_external_fact",
+      "claim": "Mỗi mẫu dùng một ToolEnv nguyên trạng; history đã áp dụng. Không đọc/copy/parse environment files; mọi env.call phải có trong log, state_hash lấy từ SDK.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_portal_and_official_sdk_v3_2_0",
+      "recheck": "before score claims, model/prompt freeze, submission, or publication",
+      "source_url": "https://challenge.zalo.ai/portal/lifemate"
+    },
+    {
+      "id": "GT062",
+      "type": "observed_local_state",
+      "claim": "Đã tải archive chính thức v3.2.0, 876430231 bytes, SHA256 57d371518996ec70d3af86402b7eba61208093c82955b9807a7ab39604b47320; có 1545 train/634 public. WAV header audit 6969 files đều 16 kHz mono PCM16.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_private_local_receipts",
+      "recheck": "before score claims, model/prompt freeze, submission, or publication",
+      "artifact": "docs/lifemate-2026.md"
+    },
+    {
+      "id": "GT063",
+      "type": "observed_local_state",
+      "claim": "Oracle replay 1545 train qua SDK không có call/state mismatch. NORA bridge+SDK với 3541 oracle calls không có result/receipt mismatch. Đây không phải độ chính xác ASR/LLM của NORA.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_sdk_integration_scope_only",
+      "recheck": "before score claims, model/prompt freeze, submission, or publication",
+      "artifact": "docs/lifemate-2026.md"
+    },
+    {
+      "id": "GT064",
+      "type": "observed_local_state",
+      "claim": "Hai lượt nạp LLM trong Job 2 GB thất bại. Lượt 64 GB profile nạp được Qwen nhưng CPU ASR vượt 30 s; chưa có mẫu inference hoàn tất được chấm. GPU ASR candidate đã build, chưa inference thật do host thiếu RAM commit.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "failure_evidence_not_accuracy_measurement",
+      "recheck": "before score claims, model/prompt freeze, submission, or publication",
+      "artifact": "docs/lifemate-2026.md"
+    },
+    {
+      "id": "GT065",
+      "type": "design_decision",
+      "claim": "Người dùng chọn desktop giữ 2 GB + LLM API; bản thi offline được dùng cấu hình A30/64 GB của BTC. Chỉ commit/push main sau khi đạt 100% thực; không dùng oracle/unit test pass để thay điều kiện này.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "explicit_user_decision_2026_11_02",
+      "recheck": "before score claims, model/prompt freeze, submission, or publication",
+      "artifact": "docs/lifemate-2026.md"
+    },
+    {
+      "id": "GT066",
+      "type": "observed_local_state",
+      "claim": "Contest Windows Job có KILL_ON_JOB_CLOSE, handle process-lifetime và không breakaway. Probe với tiến trình giả đã xác nhận cleanup child/grandchild khi supervisor exit bình thường và abrupt; chưa phải crash-test native model.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_recorded_os_probe_scope",
+      "recheck": "before score claims, model/prompt freeze, submission, or publication",
+      "artifact": "crates/nora-platform/tests/contest_lifecycle.rs"
+    },
+    {
+      "id": "GT067",
+      "type": "observed_local_state",
+      "claim": "LifeMate/platform 25 Rust tests qua, gồm 6 workflow tests, 3 lifecycle tests và CLI preflight; 16 Python LifeMate tests qua; targeted Clippy all-targets/features -D warnings và release build qua. Model staging verify hashes và không chứa dataset/keys.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_local_non_model_checks",
+      "recheck": "before score claims, model/prompt freeze, submission, or publication",
+      "artifact": "docs/lifemate-2026.md"
+    },
+    {
+      "id": "GT068",
+      "type": "open_question",
+      "claim": "Độ chính xác NORA end-to-end, 100% development/holdout/public, thời gian trên A30 và offline Docker chưa được chứng minh. Public package không có gold; public 100% cần điểm BTC, private score chưa biết.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "not_yet_verified",
+      "recheck": "before score claims, model/prompt freeze, submission, or publication",
+      "artifact": "docs/lifemate-2026.md"
+    },
+    {
+      "id": "GT069",
+      "type": "verified_external_fact",
+      "claim": "Hai model assets đã pin có size và LFS SHA256 khớp file local; Qwen Q4_K_M last-file-commit 02/03/2026, Whisper Q5_0 01/10/2024, đều trước cutoff 26/10/2026. Đây là file-publication metadata, không phải security hoặc redistribution clearance.",
+      "artifact": "assets/manifests/lifemate-offline.v1.json",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_pinned_hub_metadata_only",
+      "recheck": "when changing exact model assets"
+    },
+    {
+      "id": "GT070",
+      "type": "verified_external_fact",
+      "claim": "Snapshot leaderboard chiều 02/11/2026: TrustedAI dẫn đầu SLM với 96.51; cùng hàng APIs/Others 96.66 để tham khảo. Chỉ SLM dùng xếp hạng; đây không phải điểm NORA và có thể thay đổi.",
+      "source_url": "https://challenge.zalo.ai/portal/lifemate",
+      "observed_as_of": "2026-11-02 afternoon",
+      "confidence": "historical_public_leaderboard_snapshot",
+      "recheck": "before comparing score claims or submitting"
+    },
+    {
+      "id": "GT071",
+      "type": "user_decision",
+      "claim": "Người dùng yêu cầu ngừng model tests trên laptop và cho phép chạy source NORA cùng dataset LifeMate trên Google Colab, chỉ quota GPU miễn phí, rồi sinh JSONL để nộp Public Submissions. Desktop vẫn giữ 2GB + API; không mua compute.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "explicit_user_authorization",
+      "artifact": "docs/lifemate-2026.md",
+      "recheck": "if changing platform, cost, sharing or data scope"
+    },
+    {
+      "id": "GT072",
+      "type": "observed_remote_state",
+      "claim": "Colab đã cấp T4 GPU, UI báo RAM 12.67GB. Source ZIP 109 files được kiểm tra SHA256 trên VM; Linux/CUDA build đang chạy, chưa có inference/score NORA. Notebook dùng source nhúng, không mount Drive; T4 không chứng nhận A30.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_recorded_notebook_and_build_scope_only",
+      "artifact": "docs/lifemate-validation.json",
+      "recheck": "after remote build, inference and actual submission"
+    },
+    {
+      "id": "GT073",
+      "type": "observed_remote_state",
+      "claim": "Lượt Linux đầu build xong llama-server nhưng log cho thấy upstream tải UI assets với fallback latest. Đã sửa helper/Docker recipe tắt cả LLAMA_BUILD_UI và LLAMA_USE_PREBUILT_UI, quarantine cache và xác minh generated asset arrays/native hashes. Bước sửa trên VM đã lưu và đang chờ chạy; chưa được chứng nhận đã pass. Chưa có bằng chứng assets bị xâm phạm.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_logged_provisioning_and_local_patch_only",
+      "artifact": "docs/lifemate-validation.json",
+      "sources": [
+        "https://github.com/ggml-org/llama.cpp/blob/8642541b255bfb5dc39cd351a178be09013a55d6/scripts/ui-assets.cmake"
+      ],
+      "recheck": "after VM relink and before inference/release"
+    },
+    {
+      "id": "GT074",
+      "type": "observed_remote_state",
+      "claim": "Linux/CUDA native servers và Rust release đã build trên Colab T4. Smoke public đầu 3 mẫu: 2 complete, 1 ASR transport failure sau7ms; SDK replay3/3 không mismatch/schema rejection chỉ chứng minh receipt integrity. Chưa có accuracy/entry NORA. Bản sửa pool kết nối, prompt cache và native UI đang kiểm thử lại trên cùng VM; không suy ra A30 hoặc desktop2GB pass.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_preserved_smoke_metrics_only; transport_root_cause_pending_post_fix_verification",
+      "artifact": "docs/lifemate-validation.json",
+      "recheck": "after fix002 smoke, full634 run and actual official score"
+    },
+    {
+      "id": "GT075",
+      "type": "observed_remote_state",
+      "claim": "Candidate fix002 đã qua fmt,16 Linux Rust tests,targeted release Clippy -D warnings và release build. Native llama relink xác nhận0 embedded UI assets. Smoke0023/3 complete trong6.74–8.17s, SDK replay0mismatch/0rejected; có3schema refusals được sửa trong một mẫu. Full634 đã bắt đầu trên T4 miễn phí. Không có official accuracy hoặc NORA submission; smoke pass không chứng minh100%.",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_saved_remote_check_and_smoke_output",
+      "artifact": "docs/lifemate-validation.json",
+      "recheck": "after full634, export verification and organiser score"
+    },
+    {
+      "id": "GT076",
+      "type": "observed_remote_state",
+      "claim": "Public-run-002 giữ được77/634 mẫu trước khi chủ động interrupt vì6lỗi:4hết budget12turns,1decision chưa finish,1LLM request transport/deadline. Có62schema refusals, không thấy ASR transport failure cũ. Không có full public artifact hoặc entry; sau interruptGPUprocess list trống.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_saved_remote_metrics_and_private_train_traces_only",
+      "recheck": "after candidate A/B and independent holdout/organiser score"
+    },
+    {
+      "id": "GT077",
+      "type": "observed_remote_state",
+      "claim": "Baseline fix002 trên30 development samples cố định đạt13.5556% theo train metric mirror,3perfect,9state matches;30/30complete và SDK replay0mismatch. Đây là30/1235 development, không phải fulltrain/holdout/public score. Traces cho thấy ASR sai từ/tên và LLM đoán ID/hỏi sớm/gọi công cụ thừa. Candidate typed decoder đang được đo lại, chưa chứng nhận cải thiện.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-02",
+      "confidence": "high_for_saved_remote_metrics_and_private_train_traces_only",
+      "recheck": "after candidate A/B and independent holdout/organiser score"
+    },
+    {
+      "id": "GT078",
+      "type": "observed_remote_state",
+      "claim": "A/B cùng30development: legacy13.5556%,typed decoder0.8333%,native sampling6.9048%,native greedy sau sửa prompt10%. Typed giảmschema refusals nhưng tăngcalls61→186và2mẫu failed, nên không chọn. Trên cùng10mẫu đầu: legacy/typed/native/native-greedy/no-cache đều0%; bounded-thinking128tokens đạt5%. Đây làdevelopment tuning subsets, không phải holdout/public score.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_hashed_private_remote_results_only",
+      "recheck": "after end-to-end development, untouched holdout and organiser score"
+    },
+    {
+      "id": "GT079",
+      "type": "observed_remote_state",
+      "claim": "PhoWhisper-medium chính thức VinAI revision55a7e3e(2024) đã verify LFS SHA, chuyển bằngpinned converter vớiweights_only=True/local_files_only=True. GGML F16 có763857920params,1533763076bytes,SHA24433822f81ab63826f35b4f6b6202c3724b0b43473700125c54029339ffee63. ThửASR Rust riêng trên30development/32utterances: CERlocal24.5984→20.2386%,medianASR299.72→439.32ms. Normalizationkhôngmởrộngsố; đâykhôngphảiWERchínhthứchoặcaccuracytácvụ.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_hashed_private_remote_results_only",
+      "recheck": "after end-to-end development, untouched holdout and organiser score"
+    },
+    {
+      "id": "GT080",
+      "type": "observed_remote_state",
+      "claim": "PhoWhisper end-to-end trên cùng 30 development: legacy 9,6667%, native greedy 13,2222%. Baseline audio tốt nhất trong các lượt đã chấm vẫn 13,5556%; chưa có full development, holdout hoặc điểm chính thức.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_only",
+      "recheck": "after real audio development run and independent holdout/organiser score"
+    },
+    {
+      "id": "GT081",
+      "type": "observed_remote_state",
+      "claim": "Diagnostic dùng transcript tham chiếu của 30 mẫu development: legacy 15,5556%, native greedy 21,8283%. Đây là phép tách lỗi planner khỏi ASR, không phải độ chính xác voice hoặc submission. SDK replay không mismatch.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_only",
+      "recheck": "after real audio development run and independent holdout/organiser score"
+    },
+    {
+      "id": "GT082",
+      "type": "observed_remote_state",
+      "claim": "Qwen3-ASR-0.6B-hf thực có 782426112 parameters. Trên 32 utterances development, CER local 21,84488% và median sample ASR 1076,99 ms. Không chọn làm default; phép chuẩn hóa local không tương đương chỉ số chính thức.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_only",
+      "recheck": "after real audio development run and independent holdout/organiser score"
+    },
+    {
+      "id": "GT083",
+      "type": "observed_remote_state",
+      "claim": "Colab từ chối kết nối GPU do quota miễn phí sau khi diagnostic Qwen3-4B Q8 dừng ở 8/30 mẫu. Không có score cho lượt này. Theo yêu cầu mới, đã SSH tới lattice: Ryzen 5 4600H, 16092512256 bytes RAM, GTX 1650 4096 MiB, compute 7.5. CUDA 13.0 đã thực thi kernel và đọc lại kết quả 42 thành công; đây chưa phải NORA inference hoặc A30 certification.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_only",
+      "recheck": "after real audio development run and independent holdout/organiser score"
+    },
+    {
+      "id": "GT084",
+      "type": "observed_implementation_test",
+      "claim": "Bộ kiểm tra nguồn ID và số điện thoại chỉ cho phép giá trị đã thấy trong context/history/tool results hoặc lời người dùng; schema examples không phải dữ liệu thật. 21 core tests và Clippy đã qua trên Windows, chưa chạy model Windows. Biết nguồn ID không chứng minh hành động đúng ý định; tác động tới điểm cần đo trên lattice.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_only",
+      "recheck": "after real audio development run and independent holdout/organiser score"
+    },
+    {
+      "id": "GT085",
+      "type": "observed_remote_state",
+      "claim": "Pinned llama-server và whisper-server CUDA đã build xong trên lattice. NORA đã chạy audio thật qua ASR, LLM local và ToolEnv nguyên trạng. Profile v13 nạp LLM toàn GPU nhưng Whisper hết VRAM trước mẫu đầu; profile v14 chuyển còn 24 lớp GPU nạp được cả hai model, nhưng cả 3 mẫu đều lỗi khi hết thời gian xử lý.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_hashed_private_run_receipts_only",
+      "recheck": "after broader development, frozen holdout, resource gates and organiser score"
+    },
+    {
+      "id": "GT086",
+      "type": "observed_remote_state",
+      "claim": "Chuyển vocabulary/output tensor sang CPU giữ được các lớp chính của LLM trên GPU. Profile v15 nạp được pipeline nhưng cả 3 mẫu vẫn lỗi ở khoảng 28,5 giây; log cho thấy prompt hơn 5.000 tokens vượt khả năng xử lý kịp trên GTX 1650. Supervisor dành 1,5 giây trong deadline 30 giây cho receipt; các mốc 28,5 giây không phải bằng chứng elapsed vượt 30 giây.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_hashed_private_run_receipts_only",
+      "recheck": "after broader development, frozen holdout, resource gates and organiser score"
+    },
+    {
+      "id": "GT087",
+      "type": "observed_remote_state",
+      "claim": "Prompt compact và decoder v17 đã được đo trên 3 mẫu development cố định. Qwen3.5-4B có 2 mẫu lỗi; Qwen3-4B Instruct 2507 Q4_K_M có 3/3 mẫu complete trong 20,18–25,20 giây, nhưng 0/3 state matches và điểm tác vụ local 0%. SDK replay cả hai profile không mismatch. Chạy xong hoặc replay hợp lệ không chứng minh hoàn thành đúng nhiệm vụ.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_hashed_private_run_receipts_only",
+      "recheck": "after broader development, frozen holdout, resource gates and organiser score"
+    },
+    {
+      "id": "GT088",
+      "type": "observed_remote_state",
+      "claim": "Profile dense v17 trên GTX 1650 ghi sampled peak RSS 1417113600 bytes, PSS 1326104576 bytes, device GPU 3749707776 bytes và owned-process GPU 3693084672 bytes. Lấy mẫu mỗi giây có thể bỏ lỡ đỉnh ngắn; RSS/PSS Linux không tương đương Windows private commit. Chưa chứng nhận trần RAM 2 GB, release SSD 15 GB, toàn bộ app hoặc A30 từ các số đo này.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_hashed_private_run_receipts_only",
+      "recheck": "after broader development, frozen holdout, resource gates and organiser score"
+    },
+    {
+      "id": "GT089",
+      "type": "observed_remote_state",
+      "claim": "Trên cùng 30 development samples/32 utterances, Whisper large-v3-turbo Q5_0 beam1 có CER local 24,36898%, word-edit 38,78327%, median sample ASR 2550,12 ms; beam5 có CER 29,27949%, word-edit 43,34601%, median 2653,76 ms. Beam5 tốt hơn 6, kém hơn 8 và bằng 18 utterances theo character edits. Giữ default beam1. Chuẩn hóa NFC/lowercase/alphanumeric, không mở rộng số; đây không phải official WER hoặc điểm tác vụ.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_private_receipts_and_logs_only",
+      "recheck": "after final 30-sample score, frozen holdout and organiser score"
+    },
+    {
+      "id": "GT090",
+      "type": "observed_remote_state",
+      "claim": "Native-compact v18 trên 3 development samples đều failed: hai HTTP400 do prompt 6165 và 6461 tokens vượt context6144, một mẫu hết thời gian xử lý. v19 rút gọn native schemas không còn context overflow trong 3 mẫu đã đo nhưng cả 3 đều hết generation deadline. Cả hai profile đạt0% điểm tác vụ local, SDK replay không mismatch; tiến trình exit0 không chứng minh hoàn thành mẫu.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_private_receipts_and_logs_only",
+      "recheck": "after final 30-sample score, frozen holdout and organiser score"
+    },
+    {
+      "id": "GT091",
+      "type": "observed_remote_state",
+      "claim": "Lượt audio thật 30 development dense compact-typed đang chạy trên source remote v19 SHA65cee9bfd1851cecbf48ee4b3f70586dba85ef300990660403d8f6937db46f3d: Qwen3-4B Instruct2507 Q4_K_M, context6144, output CPU, ASR beam1. Chưa có điểm cuối cùng. Các thay đổi local mới hơn gồm test chưa hoàn tất nằm ngoài snapshot remote đã đo; không suy ra local và remote đồng nhất.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_private_receipts_and_logs_only",
+      "recheck": "after final 30-sample score, frozen holdout and organiser score",
+      "historical_status_note": "Pending state recorded earlier on 2026-11-03; final R0 result supersedes it in GT092."
+    },
+    {
+      "id": "GT092",
+      "type": "observed_remote_state",
+      "claim": "R0 lattice-v19-dense-compact-typed-030 đã chấm audio thật 30/1235 development: mean local task score 8,3333333333%, 2 mẫu hoàn hảo, 5 state matches, 0 mẫu lỗi. SDK replay riêng 0 mismatch/0 schema rejection. Sampled peak PSS 3106097152, RSS 3197038592, device GPU 3751804928 bytes; không swap. Source v19 SHA 65cee9bfd1851cecbf48ee4b3f70586dba85ef300990660403d8f6937db46f3d; không phải official/A30 hoặc chứng nhận desktop 2 GB.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_observed_working_tree_only",
+      "recheck": "after prototype checks, broader development, frozen holdout and organiser score"
+    },
+    {
+      "id": "GT093",
+      "type": "observed_remote_state",
+      "claim": "R1 lattice-v19-qwen35-2b-compact-typed-030 dùng Qwen3.5-2B Q4_K_M, full GPU và CPU output off trên cùng source/corpus/ASR/context/mode R0: local score 3%, 0 mẫu hoàn hảo, 8 state matches, 15/30 mẫu lỗi (7 HTTP400, 5 model-turn budget, 2 generation deadlines, 1 call budget). Sampled peak PSS 10495360000, RSS 10583572480, device GPU 2405433344, swap 42696704 bytes. SDK replay riêng pass. Loại profile đã đo; chưa chứng minh nguyên nhân tài nguyên hoặc chất lượng mọi model 2B. Đổi cả model và tensor placement nên chưa là ablation model thuần túy.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_observed_working_tree_only",
+      "recheck": "after prototype checks, broader development, frozen holdout and organiser score"
+    },
+    {
+      "id": "GT094",
+      "type": "observed_local_state",
+      "claim": "Audit router từ vựng trên development không gọi model/API/SDK environment, không đưa gold vào router; gold tool names chỉ dùng hậu kiểm micro recall theo cặp sample-tool. Transcript chuẩn 1235: 2242/2682=83,5943%; ASR thật 30: 55/68=80,8824%. Đã loại hard filter và gỡ tích hợp application mode, giữ module/audit. Đây không phải task accuracy và không đánh giá holdout.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_observed_working_tree_only",
+      "recheck": "after prototype checks, broader development, frozen holdout and organiser score"
+    },
+    {
+      "id": "GT095",
+      "type": "observed_local_state",
+      "claim": "Sau snapshot remote v19, prototype plan.rs executor có kiểu đã được viết cùng 10 unit tests đang chờ compile ở mốc tài liệu, chưa tích hợp LLM hoặc chạy NORA end-to-end. Adapter xLAM đang viết; asset hash đã kiểm tra, chưa smoke hoặc đo accuracy. Không gán kết quả remote v19 cho working tree mới. Target 99% chưa đạt, best audio lịch sử 30 vẫn 13,5556% trên T4/profile khác; holdout 310, public/private score, entry NORA và commit/push chưa thực hiện.",
+      "artifact": "docs/research/nora-architecture-experiments.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_observed_working_tree_only",
+      "recheck": "after prototype checks, broader development, frozen holdout and organiser score",
+      "historical_status_note": "Earlier pending prototype state superseded by source-v21 check/probe observations in GT098."
+    },
+    {
+      "id": "GT096",
+      "type": "observed_remote_state",
+      "claim": "Cache control v20 trên cùng 30 development, cùng Qwen3.5-2B/ASR/native binaries/context/mode với R1 v19: sampled PSS 10495360000 → 1457882112 bytes, RSS 10583572480 → 1548320768, swap 42696704 → 0; device GPU 2405433344 bytes không đổi. Hai knobs cùng thay: cache RAM mặc định 8 GiB → 0, context checkpoints mặc định 32 → 4. Chưa tách tác động riêng từng knob; v19 không có per-process samples để xác định owner peak cũ. Source v20 có prototype chưa dùng trong đường 2B. Chưa chứng nhận hard cap 2 GB, toàn app hoặc A30.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_observed_remote_logs_only",
+      "recheck": "after semantic-router audit, preserved xLAM probe receipts, broader development and frozen holdout"
+    },
+    {
+      "id": "GT097",
+      "type": "observed_remote_state",
+      "claim": "R1 v19 và cache control v20 đều đạt 3% local task score, 8 state matches, 0 mẫu hoàn hảo, 15/30 lỗi; SDK replay riêng pass. 30/30 submission records và toàn bộ bytes JSONL giống nhau, SHA-256 9b15ebbd816997cf8be0eead1cd2bcb395eed6c731c71ec6bbc9d816427e1dd7. Đây là kiểm tra hai lượt cụ thể, chưa chứng minh determinism tổng quát hoặc quan hệ nhân quả giữa swap và các lỗi tác vụ.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_observed_remote_logs_only",
+      "recheck": "after semantic-router audit, preserved xLAM probe receipts, broader development and frozen holdout"
+    },
+    {
+      "id": "GT098",
+      "type": "observed_remote_state",
+      "claim": "Source v21 SHA-256 3f50338d52a84931d8704bfa709ab64c9ee42f42eaf417dd3f331ad3c709766d qua 55 Linux tests, fmt và release all-targets Clippy, gồm 12 plan tests và 6 xLAM parser tests. Typed executor chưa nối LLM/NORA end-to-end. Adapter xLAM skip chat parsing và synthetic call-result-done pass, nhưng 3 audio probe đều lỗi: 2 context overflows, 1 deadline; chưa chạy đủ 30 hoặc có quality score mới. Mốc này dựa trên remote logs đã quan sát; tải receipt probe đầy đủ còn pending.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_observed_remote_logs_only",
+      "recheck": "after semantic-router audit, preserved xLAM probe receipts, broader development and frozen holdout"
+    },
+    {
+      "id": "GT099",
+      "type": "observed_local_state",
+      "claim": "Planning helper export và semantic-router example đang được compile; audit recall 30 development không gọi SDK là bước tiếp theo, chưa có benchmark và không phải task accuracy. Hard lexical filter tiếp tục bị gỡ. Target 99% chưa đạt; best audio lịch sử 30 vẫn 13,5556% trên T4/profile khác; chưa đánh giá holdout hoặc có public/private score, entry NORA hay commit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_observed_remote_logs_only",
+      "recheck": "after semantic-router audit, preserved xLAM probe receipts, broader development and frozen holdout",
+      "historical_status_note": "Earlier pending semantic audit state superseded by completed source-v22 evidence in GT100."
+    },
+    {
+      "id": "GT100",
+      "type": "observed_remote_state",
+      "claim": "Semantic router v22, source b38efadf23c1520b299c89d11f2fad6928ff4635811d189a53178fd92eca746a, đã audit ASR thật 30 development: 52/68 tool cần dùng được giữ (76,4706% micro recall), 18/27 mẫu gold không rỗng giữ đủ tool, fallback 5/30; median 3301 ms, max 4601 ms. Không gold đầu vào, không SDK hoặc hosted API. Loại semantic hard filter như lexical hard filter trước đó; recall không phải task accuracy.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_scoped_observations_only",
+      "recheck": "after PlanTyped probe, broader development, frozen holdout and organiser score"
+    },
+    {
+      "id": "GT101",
+      "type": "observed_local_state",
+      "claim": "Audit riêng train_1696 xác minh 53 file SDK Python khớp archive, một ToolEnv session, 3 validate/call tuần tự: 0 rejects, 3 ok=true, một done=false. Actual results khớp label, calls và state hash khớp oracle cũ. Oracle cũ đếm not result.get(\"ok\"), không đếm accepted no-op done=false; chưa chứng minh SDK/label inconsistency hay task completion. Không đọc environment trực tiếp/get_state, không sửa dữ liệu/scorer hoặc loại mẫu khỏi evaluation. Đây là audit một mẫu, không phải tổng số no-op của corpus.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_scoped_observations_only",
+      "recheck": "after PlanTyped probe, broader development, frozen holdout and organiser score"
+    },
+    {
+      "id": "GT102",
+      "type": "observed_local_state",
+      "claim": "Mục tiêu formal hiện tại là 100% task score, 99% là checkpoint trung gian; goal còn active, cả hai chưa đạt. Probe PlanTyped cho LLM→typed plan→executor mới được chuẩn bị, chưa chạy và chưa có receipt/kết quả task accuracy. Best real-audio lịch sử vẫn 13,5556% trên 30 development/T4/profile khác; chưa holdout, official public/private score, entry NORA hoặc commit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_scoped_observations_only",
+      "recheck": "after PlanTyped probe, broader development, frozen holdout and organiser score",
+      "historical_status_note": "Prepared PlanTyped state later superseded by measured synthetic v23 probe in GT104; goal status remains unreached."
+    },
+    {
+      "id": "GT103",
+      "type": "observed_remote_state",
+      "claim": "Receipt synthetic xLAM v21 đã bảo toàn tại .artifacts/lattice-v21-xlam-format-probe/result.json, SHA-256 9507239810e10a4c3687ec879ab52d6f7ec5767a66663e1e262006a7a5a67288: call→result→done pass, không dataset/SDK, không phải NORA task accuracy. Audio smoke 3 mẫu vẫn ghi thất bại từ remote logs; chưa có full-30 xLAM quality score.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_receipts_and_scoped_observations_only",
+      "recheck": "after PlanTyped probe, broader development, frozen holdout and organiser score"
+    },
+    {
+      "id": "GT104",
+      "type": "observed_remote_state",
+      "claim": "Source v23 481cf947d3ff5996a7fa8168d6e89b5063216af0489092bfde0d3851a4f941df: Qwen3.5-2B và Qwen3-4B Instruct GPU mỗi model sinh một plan riêng rồi dùng lại plan đó cho rain=false/true có kiểm soát; cả hai pass, false chỉ đọc và true mới tạo effect. Elapsed probe gồm init tương ứng 5,5293500423 và 8,1825881004 giây. Không ASR/dataset/SDK/hosted API; chưa phải task accuracy, resource certification hoặc full NORA pipeline.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_synthetic_receipts_and_source_log_only",
+      "recheck": "after v24 runner checks, real SDK/audio development and frozen holdout"
+    },
+    {
+      "id": "GT105",
+      "type": "observed_remote_state",
+      "claim": "Log continue-v23 xác nhận 62 Linux tests pass (51 lib, 1 preflight, 8 workflow, 2 semantic-example), 0 failed; fmt, release Clippy và release build qua. Export ZIP SHA-256 d3d83b976848cf7151dd0bf8bdad672e7a9870e9bf01537b14ff9621c0fa8c46 khớp file và 13 extracted artifacts. Checks chỉ áp dụng source v23, chưa bao phủ thay đổi runner v24 sau đó.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_synthetic_receipts_and_source_log_only",
+      "recheck": "after v24 runner checks, real SDK/audio development and frozen holdout"
+    },
+    {
+      "id": "GT106",
+      "type": "observed_local_state",
+      "claim": "Runner opt-in plan-typed-experimental cho v24 đang tích hợp vào actual LifeMate runner, chưa build/chạy hoặc có task score. Default desktop không đổi. Synthetic v23 pass không thay best real-audio lịch sử 13,5556% trên 30 development, không hoàn thành checkpoint 99% hay formal100%; goal vẫn active/unreached, chưa holdout/public/private score, entry NORA hoặc commit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_synthetic_receipts_and_source_log_only",
+      "recheck": "after v24 runner checks, real SDK/audio development and frozen holdout",
+      "historical_status_note": "Earlier unbuilt runner state superseded by v25 actual smoke failure in GT107; default desktop and goal status unchanged."
+    },
+    {
+      "id": "GT107",
+      "type": "observed_remote_state",
+      "claim": "V25 plan-typed-experimental actual audio/SDK smoke, source 01d115c667c52c6f9a4cab129109cb6b08d060c82c175914e78c83e143d08c7f, dùng Qwen3.5-2B Q4_K_M, Whisper GPU beam1, context 12288: 3 mẫu, 0% local score, 1 state match, 0 perfect, 3 failed. Hai mẫu không hoàn tất decision; một generation deadline sau 7 provenance refusals cho ID chưa được quan sát. SDK replay 0 mismatch/0 schema rejection; batch exit0 không biến failed samples thành thành công. Lượt 30 chưa mở; synthetic v23 vẫn pass phạm vi riêng.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_run_receipts_and_scoped_posthoc_audit",
+      "recheck": "after v26 contract/tests and actual SDK/audio smoke; broader development and frozen holdout remain required"
+    },
+    {
+      "id": "GT108",
+      "type": "observed_remote_state",
+      "claim": "V25 sampled peak RSS 1499197440, PSS 1408026624, device GPU 2457862144, swap 0 bytes; lấy mẫu 1 giây không chứng nhận hard cap 2 GB, toàn app hoặc A30. Archive SHA-256 ead0f9417cd3c9fb5fca0c707b63b3ed7677f2b88de7de8c68ceb7024606aaed và 10 extracted artifacts đã đối chiếu. Chưa có task-quality promotion từ resource/replay passes.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_run_receipts_and_scoped_posthoc_audit",
+      "recheck": "after v26 contract/tests and actual SDK/audio smoke; broader development and frozen holdout remain required"
+    },
+    {
+      "id": "GT109",
+      "type": "observed_local_state",
+      "claim": "Audit post-hoc read-only toàn 30 R0 giữ score 8,3333%: 2 perfect đều là gold actions rỗng của lệnh phủ định/rút lại, 0 nonempty-gold perfect. Trong 5 state matches có 2 F1 zero; state hash có thể khớp khi action/route sai. Một effect đúng chỉ đạt partial score vì lookup query exact-match khác chữ hoa/thường. Primary observed gaps: ASR semantic loss 9, entity/context lookup 7, condition/exception/negation 4. Đây chưa phải causal ablation hoặc calibrated WER. Không sửa gold/scorer/membership hay loại mẫu.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_run_receipts_and_scoped_posthoc_audit",
+      "recheck": "after v26 contract/tests and actual SDK/audio smoke; broader development and frozen holdout remain required"
+    },
+    {
+      "id": "GT110",
+      "type": "observed_local_state",
+      "claim": "V26 xLAM progressive/schema-on-demand đã được viết và đang kiểm tra tests, chưa remote/inference hoặc có score. Hướng này giữ đầy đủ catalog được phép, không hard filter tool. Default desktop không đổi; formal 100%/checkpoint 99% vẫn active/unreached, chưa đánh giá holdout, chưa public/private score, entry NORA hoặc commit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_run_receipts_and_scoped_posthoc_audit",
+      "recheck": "after v26 contract/tests and actual SDK/audio smoke; broader development and frozen holdout remain required",
+      "historical_status_note": "Earlier unmeasured v26 status superseded by paired failed smokes in GT111."
+    },
+    {
+      "id": "GT111",
+      "type": "observed_remote_state",
+      "claim": "V26 source e75d4bfd0a3c04a073597519ab16db93c939faea68c289231f2a99aa575b8c7f paired progressive/full-catalog trên cùng 3 IDs, xLAM-2-3B Q4_K_M, native pins, context 8192, CPU output on và ASR beam1: cả hai 0%, 3 failed, 1 state match; SDK replay 0 mismatch. Progressive thực thi 1 SDK call/mẫu nhưng sai/loop/provenance/unfinished; full 0 calls và 3 generation deadlines. Chưa mở 30 hoặc chứng minh quality gain; chưa suy rộng thống kê từ 3 mẫu. ASR full mẫu 2/3 chậm hơn, chưa gán causal timing advantage cho schema mode.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_run_tokenizer_receipts_and_scoped_test_logs",
+      "recheck": "after pure cancellation test and authorised capacity pilot, actual paired development and frozen holdout"
+    },
+    {
+      "id": "GT112",
+      "type": "observed_local_state",
+      "claim": "V26 Linux checks ghi 85 tests (64 lib, 1 CLI, 18 workflow, 2 semantic-example); core-only Windows log xác nhận 79 tests (61 lib, 18 workflow), Clippy/fmt pass. Hai v26 archive SHA và 10 extracted files/profile đã đối chiếu. Checks/replay/resource passes chưa thay 3/3 failed hoặc chứng nhận quality/hard cap.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_run_tokenizer_receipts_and_scoped_test_logs",
+      "recheck": "after pure cancellation test and authorised capacity pilot, actual paired development and frozen holdout"
+    },
+    {
+      "id": "GT113",
+      "type": "observed_remote_state",
+      "claim": "Exact CPU tokenizer pilot hoàn tất 5096 sequences/model, không truncation; actor full max 7728 tokens với Qwen3.5-2B và 7940 với Qwen3-4B Instruct, mọi full sequence nằm trong 8192 với template/tokenizer pin. Không weights/model-class load/inference/GPU/training, network attempts 0. Độ dài fit chưa chứng minh QLoRA/training vừa VRAM, tốc độ hoặc task accuracy.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_run_tokenizer_receipts_and_scoped_test_logs",
+      "recheck": "after pure cancellation test and authorised capacity pilot, actual paired development and frozen holdout"
+    },
+    {
+      "id": "GT114",
+      "type": "observed_local_state",
+      "claim": "Capacity script QLoRA 20 bước đang chuẩn bị, mới stage base wheels, chưa train hoặc chạy capacity GPU. HTTP timeout/cancellation trên current_thread Tokio được ghi nhận ban đầu là giả thuyết cần kiểm tra. Default desktop không đổi, formal 100%/checkpoint 99% active/unreached; không thay gold/scorer/membership, chưa commit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_run_tokenizer_receipts_and_scoped_test_logs",
+      "recheck": "after pure cancellation test and authorised capacity pilot, actual paired development and frozen holdout",
+      "historical_status_note": "Pure valid-fixture cleanup evidence became available later; see GT115. Native failure causality and training fit remain unmeasured."
+    },
+    {
+      "id": "GT115",
+      "type": "observed_local_state",
+      "claim": "Pure fake-HTTP loopback fixture xác nhận socket cleanup không tiến triển ngoài block_on trên current_thread: valid-v2 control fail EOF assertion (1,13 giây); cùng fixture đổi shared factory new_multi_thread một worker pass (0,11 giây). Test đầu reactor panic là setup không hợp lệ, không dùng làm mechanism evidence. Factory mới phục vụ LocalModel/GpuSpeech; chưa đo actual native GPU/ASR rerun, task accuracy hoặc chứng minh mọi timeout đã sửa. V27/generic Qwen progressive đang chuẩn bị, chưa remote/inference.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_valid_loopback_fixture_control_only",
+      "recheck": "after source-v27 checks and actual paired native/audio rerun",
+      "sources": [
+        "https://tokio.rs/tokio/topics/bridging"
+      ],
+      "historical_status_note": "Fixture proof remains valid; later v27 native observations are in GT116-GT117. No causal/quality promotion."
+    },
+    {
+      "id": "GT116",
+      "type": "observed_remote_state",
+      "claim": "Source v27 64d12e50ce265140505dce4581a6054f77209e79dbe8c81552a9b061a13f7441 actual first3: xLAM full catalog, Qwen3.5-2B progressive greedy và custom sampling đều 0% local score, lần lượt 3/2/1 failed; mỗi profile 1 state match, 0 perfect; SDK replay 0 mismatch. Chưa mở 30 hoặc nâng số failed giảm thành quality gain.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_native_and_preflight_receipts_only",
+      "recheck": "after corrected preflight pilot and properly controlled actual development; no evaluation exclusions"
+    },
+    {
+      "id": "GT117",
+      "type": "observed_remote_state",
+      "claim": "Matched xLAM full-catalog ASR v26 → v27 là 2570,71/5681,06/5587,79 → 2574,02/3401,73/3754,18 ms sau background runtime. Một control 3 mẫu chưa cô lập causal impact; cả hai vẫn 3 generation deadlines/0% score. Pure socket cleanup proof chưa chứng minh mọi native timeout hoặc accuracy đã sửa.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_native_and_preflight_receipts_only",
+      "recheck": "after corrected preflight pilot and properly controlled actual development; no evaluation exclusions"
+    },
+    {
+      "id": "GT118",
+      "type": "observed_local_state",
+      "claim": "V27 Native custom sampling được xác minh từ source đã pin: temperature 0.7, top_p 0.8, presence_penalty 1.5; greedy temperature 0. Model card Qwen3.5-2B revision 15852e8 ghi text non-thinking 1.0/1.0/2.0, còn 0.7/0.8/1.5 ở VL. Chưa đo đúng vendor text preset hoặc isolated-temperature ablation; cả hai Qwen smoke vẫn 0%.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_native_and_preflight_receipts_only",
+      "recheck": "after corrected preflight pilot and properly controlled actual development; no evaluation exclusions"
+    },
+    {
+      "id": "GT119",
+      "type": "observed_remote_state",
+      "claim": "QLoRA capacity v1 dừng preflight do guard nhận nhầm desktop compositor là model cạnh tranh: 0 optimizer steps, chưa load quantized model, chưa loss/gradient parity hoặc capacity measurement. Không kill process/đổi profile/retry trong v1; raw report giữ nguyên và verified interpretation ghi guard-plumbing failure, chưa chứng minh thiếu VRAM. Guard đang sửa, pilot tiếp theo theo active job riêng; chưa khẳng định hoàn tất.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_native_and_preflight_receipts_only",
+      "recheck": "after corrected preflight pilot and properly controlled actual development; no evaluation exclusions",
+      "historical_status_note": "V1 remains a preflight-only failure; later v2 load/backward failure is scoped separately in GT122-GT123."
+    },
+    {
+      "id": "GT120",
+      "type": "observed_remote_state",
+      "claim": "V27 Linux checks 86 tests (65 lib, 1 CLI, 18 workflow, 2 example); Windows core 80 (62 lib + 18 workflow), Clippy/fmt pass theo source scope. Ba v27 ZIP nội dung 10 files/profile đối chiếu với artifacts local. Đây chưa phải task-quality/capacity certification; default desktop không đổi, formal 100%/interim 99% active-unreached, chưa commit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_preserved_native_and_preflight_receipts_only",
+      "recheck": "after corrected preflight pilot and properly controlled actual development; no evaluation exclusions"
+    },
+    {
+      "id": "GT121",
+      "type": "observed_remote_state",
+      "claim": "Ba cặp messages JSON của matched xLAM full-catalog v26/v27 khớp nhau. Task0 server launch v26/v27 là 6,527676/6,895942 s; cộng sample model_ms cho mốc return xấp xỉ 32,390143/32,751803 s, cancel log 38,530698/32,898310 s, khoảng chênh xấp xỉ 6,141/0,147 s. model_ms bọc invocation ngoài launch và mỗi server có clock relative riêng; chưa là deadline instrumentation trực tiếp. Đây là matched single-cohort timing evidence, chưa chứng minh GPU contention, general latency/cancellation guarantee hoặc task-quality gain; cả hai profiles vẫn 0%/3 failed.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_matched_message_equality_and_approximate_log_arithmetic_only",
+      "recheck": "after repeated properly instrumented native controls; formal100/interim99 remain unreached"
+    },
+    {
+      "id": "GT122",
+      "type": "observed_remote_state",
+      "claim": "QLoRA v2 đã load 617 non-MTP tensors, giữ tied FP16 embedding và inject 12 q/v LoRA modules; sau load còn 1745,2 MiB GPU free. Synthetic masked backward fail điều kiện missing/nonfinite gradient gộp chung, chưa biết parameter hoặc phân biệt missing/NaN/Inf. Tiếp đó loading metadata chứa set gây serialization error; raw logs giữ nguyên, evidence được tái dựng. V2 terminal exit1, 0 optimizer steps, chưa parity/training-fit/task-quality, chưa có model-size diagnosis hoặc OOM evidence.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_terminal_logs_exact_source_and_observation_summary",
+      "recheck": "after V3 parameter instrumentation, real capacity/optimizer evidence and separate held-out task evaluation"
+    },
+    {
+      "id": "GT123",
+      "type": "observed_remote_state",
+      "claim": "Compositor resource fallback v2 anchor PID/starttime/UID/comm/driver-name và GPU memory ≤16 MiB; /proc exe chưa independently verified do EACCES, memory vẫn tính baseline, không kill process. Exact reviewed source và terminal stdout/stderr hashes đã đối chiếu; model-load snapshot không chứng minh peak synthetic backward/training capacity.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_terminal_logs_exact_source_and_observation_summary",
+      "recheck": "after V3 parameter instrumentation, real capacity/optimizer evidence and separate held-out task evaluation"
+    },
+    {
+      "id": "GT124",
+      "type": "observed_local_state",
+      "claim": "Development gold/SDK observation audit đã chạy 1235 samples/2811 validate→call theo gold order: 0 rejects, 0 label-result mismatches, 1 done=false, anomalies 0 bytes; không trực tiếp đọc environment, gọi SDK state/hash APIs hoặc model. Shared train rows được JSON-decode để lấy ID rồi lọc outer holdout trước label inspection/ToolEnv; không dùng holdout labels, không nói bytes chưa decode. Summary SHA ce965897983e6e617fc5204aa640af45daa12c5463fd16478ac78a63e1e225b4; actual script SHA 8115a9ebf056f4d65cd92e1224878f684181a08464923a27cdf3ad39bfcc5e7f. Chỉ training-source observation consistency, chưa phải model accuracy/completion proof hoặc evaluation exclusions.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_terminal_logs_exact_source_and_observation_summary",
+      "recheck": "after V3 parameter instrumentation, real capacity/optimizer evidence and separate held-out task evaluation"
+    },
+    {
+      "id": "GT125",
+      "type": "observed_local_state",
+      "claim": "V3 mới chuẩn bị instrumentation CPU, chưa GPU run hoặc parameter diagnosis; separate actor dataset v2 đang làm, chưa hoàn tất. Không đổi active-job field khi cập nhật docs; formal 100%/interim 99% active-unreached. V27 task score vẫn 0%, best real-audio lịch sử 13,5556% trên 30 development; chưa commit/push hoặc production readiness.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_terminal_logs_exact_source_and_observation_summary",
+      "recheck": "after V3 parameter instrumentation, real capacity/optimizer evidence and separate held-out task evaluation",
+      "historical_status_note": "Earlier V3/dataset preparation state superseded by V3 measured diagnostics and runtime-V2 dataset evidence in GT126-GT128."
+    },
+    {
+      "id": "GT126",
+      "type": "observed_remote_state",
+      "claim": "V3 script 886b6c7aff3c9c0fbee0c939665361d631b63b39ba3bdc0139069c05dbf335e6 GPU diagnostic terminal failed, 0 optimizer steps: synthetic 34-token full-masked loss 2,6261706352 finite at scale 128, 0 missing gradients. Bốn layer3 q/v LoRA A/B tensors có 34816 NaNs, 0 Inf; 20 tensors ở layers sau finite, gồm zero gradients. Report ghi đầy đủ, không OOM; CUDA reserved max 2105540608/min GPU free 1662189568 bytes. Chưa tách scale vs FP16/torch fallback cause, chưa full-training fit/parity/task quality. Capacity profile dùng V1 full-schema, không phải dataset V2 runtime.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_V3_diagnostics_and_runtime_V2_artifact_validation",
+      "recheck": "after controlled scale isolation and all-V2 tokenizer/template gates, then separate optimizer/quality evidence"
+    },
+    {
+      "id": "GT127",
+      "type": "observed_local_state",
+      "claim": "Runtime actor dataset V2 compact-typed/full-catalog Qwen3-4B Instruct đã chuẩn bị 3377 train/484 validation records từ 1082/152 actor source IDs; assigned validation evaluation vẫn 153 IDs. train_1696 chỉ quarantine actor trajectory do done=false, giữ nguyên evaluation index/gold/scorer. Outer holdout 310 không vào model examples, 30 baseline IDs validation-only; không model/SDK/training/inference khi generate.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_V3_diagnostics_and_runtime_V2_artifact_validation",
+      "recheck": "after controlled scale isolation and all-V2 tokenizer/template gates, then separate optimizer/quality evidence"
+    },
+    {
+      "id": "GT128",
+      "type": "observed_local_state",
+      "claim": "V2 runtime dataset có 3861 future-poisoning checks và 3861 readback checks, 6 structural tests pass; 115 recorded messages gồm 55 observations/30 traces byte-match với cùng supplied actual ASR. Chưa all-corpus Rust export/token length/EOS/masking hoặc GGUF-HF template parity; V1 tokenizer 5096 đo messages khác, không chứng minh V2 fit 8192. Manifest SHA 9a87a6312389a155d8458c43f7f5d4dbcd215f782493b64dbfb790e9860f2db0, validation SHA 6b407fc708df38b7762c7ae85357c9d9a8c03e41a679ec4add329950e9d2e73f; đây chưa phải model quality.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_V3_diagnostics_and_runtime_V2_artifact_validation",
+      "recheck": "after controlled scale isolation and all-V2 tokenizer/template gates, then separate optimizer/quality evidence",
+      "historical_status_note": "HF tokenizer V2 later completed in GT131; GGUF/template/runtime-training gates remain open."
+    },
+    {
+      "id": "GT129",
+      "type": "observed_local_state",
+      "claim": "V4 synthetic-only GPU scale-isolation đang chuẩn bị, chưa started; chưa full-training fit/quality claim. Active-job field được giữ nguyên trong docs update; formal 100%/interim 99% active-unreached, best real voice lịch sử 13,5556% trên 30 development chưa đổi; chưa commit/push hoặc production readiness.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_V3_diagnostics_and_runtime_V2_artifact_validation",
+      "recheck": "after controlled scale isolation and all-V2 tokenizer/template gates, then separate optimizer/quality evidence",
+      "historical_status_note": "V4 later completed six synthetic cases in GT130; V5 is the new unrun design."
+    },
+    {
+      "id": "GT130",
+      "type": "observed_remote_state",
+      "claim": "V4 script b9a1c9f07b43ebafd16f79d745d6acf85eb05c502d667953fd0d834f00f6dc7c hoàn tất 6 synthetic backwards, 0 optimizer steps/adapters unchanged. Scale128 full/selective đều 4 NaN tensors layer3, 0 missing; scale8/1 cả 24 finite và loss 2,6261706352. Strict per-tensor parity vẫn fail ở 8/1, global relativeL2 .0028397302/.0026738186; thresholds giữ nguyên, chưa parity/training-fit/quality claim. First recorded nonfinite backward output layer4.block là observed boundary, chưa exact root-op.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_synthetic_numerical_and_CPU_tokenizer_receipts",
+      "recheck": "after matched V5 numerical controls and actual GGUF-prefix parity, then separate training/task evaluation"
+    },
+    {
+      "id": "GT131",
+      "type": "observed_local_state",
+      "claim": "Exact HF tokenizer V2 hoàn tất 3861 actor records/model trên 2 pinned tokenizers, không truncate/exclude/model/inference/GPU/training/network. Tất cả full sequences và prompt+768 reserve fit 6144. 2B prompt median/p95/max 2389/3750/5166, full max 5177; 4B 2443/3848/5334, full max 5345, chỉ 42 tokens margin sau reserve. Source/target hashes, prefix/EOS/order/roundtrip/span-metadata checks pass; actual GGUF-HF rendered-prefix/full-corpus Rust-export/training-mask application chưa verified. Report SHA 2badee05b950e0c53d8ad16f64095941c247e6f5cb33982f4518afda6557b998; chưa training fit hoặc model quality.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_synthetic_numerical_and_CPU_tokenizer_receipts",
+      "recheck": "after matched V5 numerical controls and actual GGUF-prefix parity, then separate training/task evaluation"
+    },
+    {
+      "id": "GT132",
+      "type": "observed_local_state",
+      "claim": "V5 matched numerical repeatability/head-precision control được ghi nhận ban đầu là đang thiết kế. Active-job field giữ nguyên khi cập nhật docs; formal 100%/interim 99% active-unreached, 18 native task profiles/best 13,5556% lịch sử không đổi. Chưa commit/push hoặc production readiness.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_synthetic_numerical_and_CPU_tokenizer_receipts",
+      "recheck": "after matched V5 numerical controls and actual GGUF-prefix parity, then separate training/task evaluation",
+      "historical_status_note": "V5 later completed the matched diagnostic in GT133-GT134; subsequent aligned-tile/GGUF probes remain pending."
+    },
+    {
+      "id": "GT133",
+      "type": "observed_remote_state",
+      "claim": "V5 source 763d55de2fdc8fd0225886e89223e26da37552099e084e4f61eca47fb8e8004f terminal 8 synthetic backwards/0 optimizer steps/adapters unchanged. Within-mode full/full và selective/selective repeats bitwise-identical ở native FP16/CPU FP32 head; all24 finite. Cross-mode strict fails: native 1001 mismatches/87 nonzero sign flips/maxabs .001592636/mincos .999994003; CPU head 755/60/.000785828/.999995762. Predeclared head-only criterion chưa đạt; CPU FP32 chỉ output head, body/backward FP16/NF4, exact root-op chưa resolved.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_matched_synthetic_arrays_and_scoped_CPU_audit",
+      "recheck": "after aligned-tile CPU proof and actual GGUF prefix probe; training/task evidence remains separate"
+    },
+    {
+      "id": "GT134",
+      "type": "observed_local_state",
+      "claim": "Independent CPU read-only audit đã hash/tính lại 8 derivative arrays/8 comparisons V5. Global-norm1 clipped analytic zero-moment Adam first-step cross-mode relativeL2 .0538047498 (native)/.0444609424 (CPU head), max delta 1.99978/1.99943×lr; không optimizer/parameter update. V5 research CPU-head RSS peak 4392218624 bytes, CUDA reserved 2365587456, GPU free min 1400045568, swap delta0; chưa desktop/training fit/task quality. Audit receipt SHA 5da29e945d917b483d39549c745a05238bf183225ded6cbdc7234c63e2492aa9.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_matched_synthetic_arrays_and_scoped_CPU_audit",
+      "recheck": "after aligned-tile CPU proof and actual GGUF prefix probe; training/task evidence remains separate"
+    },
+    {
+      "id": "GT135",
+      "type": "observed_local_state",
+      "claim": "Aligned-tile training-loss CPU proof đang chuẩn bị, GGUF template probe scheduled, chưa result/GPU run mới. Tokenizer V2 HF đã đủ nhưng GGUF-HF rendered-prefix gate còn mở; strict thresholds không đổi. Formal 100%/interim 99% active-unreached; 18 task profiles/best 13,5556% giữ nguyên, evaluation gold/scorer/membership không đổi, chưa commit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_matched_synthetic_arrays_and_scoped_CPU_audit",
+      "recheck": "after aligned-tile CPU proof and actual GGUF prefix probe; training/task evidence remains separate",
+      "historical_status_note": "Later actual V6 and GGUF attempt1/attempt2 status are in GT136-GT138; no parity/training promotion."
+    },
+    {
+      "id": "GT136",
+      "type": "observed_remote_state",
+      "claim": "V6 source 060def5775f0573fac297e570e1bcdce53d59fdbcd4cb0f07e2a03688ffe6d9b first ordinary-full L347 backward có 86167040 FP16 logits finite, loss 2,8581173419952393 và 24 gradients finite. Sau đó self-imposed 512 MiB GPU headroom guard dừng khi free 473104384 bytes; peak allocated 3005579776/reserved 3292528640. Không OOM, 0 accepted diagnostic cases, aligned modes chưa chạy, 0 optimizer. Chưa chứng minh 4GB model bất khả thi, parity/training fit/task quality; guard không đổi.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_V6_guard_stop_and_GGUF_preflight_receipts",
+      "recheck": "after V7 selected-first control and corrected CPU GGUF/HF comparison; no future score assumed"
+    },
+    {
+      "id": "GT137",
+      "type": "observed_remote_state",
+      "claim": "GGUF-HF attempt1 CPU-only dừng preflight do sai assumption substring/build number11960 trong build_info; native/model/source hash pins khớp. 0 corpus examples compared, server/key cleanup confirmed, không generation/GPU/forward inference. Report SHA 13f3aec2bdd132b520e05b911159184e2e1de22cb3b11eec2f4a84977de8f319; chưa phải template/token parity mismatch của model.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_V6_guard_stop_and_GGUF_preflight_receipts",
+      "recheck": "after V7 selected-first control and corrected CPU GGUF/HF comparison; no future score assumed"
+    },
+    {
+      "id": "GT138",
+      "type": "observed_local_state",
+      "claim": "Corrected GGUF-HF probe2 và V7 được ghi nhận ban đầu đang chạy/chuẩn bị; status tiếp theo có receipts riêng. Active GPU/other_remote_activity fields giữ nguyên khi docs update; formal 100%/interim 99% active-unreached, 18 native profiles/best 13,5556% lịch sử không đổi, chưa commit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_verified_V6_guard_stop_and_GGUF_preflight_receipts",
+      "recheck": "after V7 selected-first control and corrected CPU GGUF/HF comparison; no future score assumed",
+      "historical_status_note": "Later V7 partial matrix, completed2B parity and V8 scoped repeatability receipts are in GT139-GT142; activity objects preserved under owner control."
+    },
+    {
+      "id": "GT139",
+      "type": "observed_remote_state",
+      "claim": "V7 source 656f0782425cb094090739dc973d07ac684dec040d38b0dfb067a6153001ac8a completed 6/12 synthetic cases; seventh multi-target aligned-full backward 24 finite rồi guard 512 MiB dừng ở GPU free 531824640 bytes, peak allocated 2538638848/reserved 3233808384. Không OOM/optimizer/adapter save; matrix chưa complete.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independently_audited_scoped_numerical_and_GGUF_format_receipts",
+      "recheck": "before aligned-full/full-example training acceptance or task-quality claim;4B GGUF scope remains separate"
+    },
+    {
+      "id": "GT140",
+      "type": "observed_local_state",
+      "claim": "V7 completed-case audit verify 6 derivative hashes: L347 short selected repeat 571 mismatches/45 sign flips, full repeat 190/15, cross443/34; cả ba strict fail. Multi-target selected repeat strict pass nhưng không bitwise; full counterpart/EOS fixture chưa đo. Chưa overall repeatability/parity acceptance, tile-only attribution, training capacity hoặc quality.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independently_audited_scoped_numerical_and_GGUF_format_receipts",
+      "recheck": "before aligned-full/full-example training acceptance or task-quality claim;4B GGUF scope remains separate"
+    },
+    {
+      "id": "GT141",
+      "type": "observed_local_state",
+      "claim": "Corrected GGUF-HF probe2 completed và independent-audit pass 3861 unique actor records (3377 train/484 validation); 8 prefix/full byte/token counters match HF, 0 discrepancies/truncation/generation. Scope Qwen3.5-2B pinned GGUF/HF typed-textual-catalog only; 4B chưa actual probe. Controller/server absent và auth dir/key removed independently checked. Report SHA bd627bdccca31eddec61e86b17984ab875b0748bcfea362afda561351ea8f968, audit SHA42ba3ab907c917e4af39162f8d150b9ddba1c02c5f0d416da188bdfba2caac83; chưa inference/training/task-accuracy proof.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independently_audited_scoped_numerical_and_GGUF_format_receipts",
+      "recheck": "before aligned-full/full-example training acceptance or task-quality claim;4B GGUF scope remains separate"
+    },
+    {
+      "id": "GT142",
+      "type": "observed_local_state",
+      "claim": "V8 source e78d2da885eb6171c5cd7dcc40754f6f9a148bf70912f9e1ca6d4676305e94d1 independent selected-only repeatability pass 3 synthetic fixture pairs: 6 backwards, 24/24 gradients byte-identical/zero-tolerance numeric và exact loss, 0 optimizer. Saved guards pass, min GPU free 628293632 bytes. Determinism settings đổi cùng lúc, chưa individual cause của V7 drift; chưa aligned-full cross-mode/full-example capacity/task quality. Activity fields giữ nguyên, formal100/interim99 active-unreached, chưa commit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independently_audited_scoped_numerical_and_GGUF_format_receipts",
+      "recheck": "before aligned-full/full-example training acceptance or task-quality claim;4B GGUF scope remains separate"
+    },
+    {
+      "id": "GT143",
+      "type": "observed_local_state",
+      "claim": "v28 source b3741911604269ba5342baca85f2ed498da8ba31be546b1856fa083170d0fa61 armA fewshot-a-smoke003 compact-typed 4B/context8192/allGPU/outputCPU/WhisperGPU beam1: model loaded rồi CUDA OOM tại first request cudaGraphInstantiate;3/3failed,0SDKcalls. Supervisor exit0/status complete chỉ chứng minh xuất3records. Whitelistarchive10files SHA be2392f8fd80d25e1ff21c89ac9ee9c60138b9fc1f611415d57e9d7bcd6dcb94 và receipt độc lập22c9484fc92c0e53b51b63de73be78669816ecd5fd6fc07467c552586be9997e đã kiểm tra hash/source/native/executable/order/resourcepeaks. DeviceGPU sampled3902799872bytes mỗi1s không đo instantaneous failing allocation. Protocol8192dừng trướcB/full30; không chấm chất lượng/replay hoặc suy ra4GBmodelimpossible. Goalformal100/interim99active-unreached,khôngcommit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independently_collected_scoped_deployment_failure_receipts",
+      "recheck": "preregister and verify a new matched resource profile before any replacement A/B inference; this failure does not establish accuracy or capacity on A30"
+    },
+    {
+      "id": "GT144",
+      "type": "observed_local_state",
+      "claim": "4B historicalv19prefix audit6144:150rows=75positions/arm over30frozen development,0render/token-IDmismatches reported, matchingrenderhashes/tokencounts/IDscoverage independentlyreadback. Maxprompt A3223/B3484, B+768reserve4252. Dummyemptyresponseschema,0generation/GPU/network; nofuturetrajectory/constraineddecoder oractorV2fullcorpus/trainingquality proof. Firstattempt self-imposed3GiB RSSguardstop wasnotOOM; secondresearch4GiB guardpeak3434545152bytes,hostavailablemin10282139648bytes. Controller reportsserverexit/keyremoved. ReportSHA15c873fd1534810ae45140a623257fa8b75adb17ce49e3f4512b505c07acb391; localreadbackSHA0141b2726e0d9fd4907b0821e53595be4ec0b3e4b57fe39c4b7ac9cac90b9755.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_collected_scoped_formatting_counts_hashes_and_saved_records",
+      "recheck": "actual changed trajectories and constrained generation need their own inference receipts;4BactorV2fullcorpus gate remains open"
+    },
+    {
+      "id": "GT145",
+      "type": "observed_local_state",
+      "claim": "New6144preregistered v28smokes A/B sharefrozen3IDs/order/source/executable/assets/allparams exceptmode/tag; initialinputmessages byte-equal3/3, Bsystem=A+fixedsuffix. A3complete/B2complete+1modelgenerationdeadline(28.502s), allfailedstatuspreserved. IndependentofficialSDKreplay3each0mismatch/0reject, actualobservationresults7/4match. NoOOM/CUDA/context/transport/deadmodelsignal,completednative8/7alltruncated0; observedpaireddeploymentscreen passesv2whichpermitsordinarysampletimeouts,butnotallsamplesuccess/accuracy. DeviceGPU sampled3749707776bytes both; nohardcapclaim. ArchivesA de279b52d54679c1f3005ac69c32ff192d253082516a0f6db389d10a82095617,B2548e02f6177dcd05232b2a1b482503cde33446144c9b4ee42a33553c9d2181e. Noqualitypromotion/paired30score/commit.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independently_collected_smoke_replay_trace_and_resource_receipts",
+      "recheck": "collect completed independently scored matched30runs before anytaskqualitycomparison;deploymentpassnotaccuracy"
+    },
+    {
+      "id": "GT146",
+      "type": "observed_local_state",
+      "claim": "v28 paired30 A/B collected unchanged:37whitelist members/run, frozen30 IDs/order/source/native/model/executable/supervisor/params match except mode/tag. All30 initial input messages byte-equal, B system=A+one fixed suffix. Independent official SDK replay30/arm has0 mismatch/reject; actual SDK result observations52/41 and final call/state receipts match,5 unexecuted refusals/arm retained. Native releases75/67 truncated0; B has65 captured responses plus2deadline releases. Archive A2030030b6baa7973dfa2c4b135f21aef60a4be9455ad016e041b792bbbc96cf8/Bfc31891e7b45f46799333a0550be737813c9650c1d73c41df864f32c563c03c1; no raw data published or SDK/scorer/gold/membership altered.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independently_replayed_scoped_collection_trace_and_resource_receipts",
+      "recheck": "execution receipt integrity and source/ID controls do not establish intent correctness or future task quality"
+    },
+    {
+      "id": "GT147",
+      "type": "observed_local_state",
+      "claim": "v28 matched6144 paired30 local score A8.333333%/B11.666667%, perfect2/3 all zero-action; nonempty-perfect0/0, states5/7, failures0/2 (B generation deadlines). Independent saved-detail recomputation confirms +3.333333pp,1 improved zero-action sample/0regressed/29equal. Fixed fewshot profile fails preregistered gain>=10pp, additional nonempty-perfect>=2, and no-worse failure gates; not promoted. Sampled A/B PSS1179256832/1180797952bytes, deviceGPU3751804928both,swap0; no hardcap/A30 proof. Independent readbackSHA64c3d9da73ef3ecb6984025dc8fd0076cf868ccee02e6b655d00eba0e6a275db. Besthistorical voice13.5556% unchanged; formal100/interim99 active-unreached, no holdout/officialscore/commit/push.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_local_frozen30_metric_and_predeclared_rejection_only",
+      "recheck": "small previously analysed development cohort is not statistical generalisation; other prompts/models require separately frozen tests"
+    },
+    {
+      "id": "GT148",
+      "type": "observed_local_state",
+      "claim": "V9 isolated synthetic aligned-reference/selected control shares one initial LoRA hash across4observed children. Five evaluable comparisons (shortL347 selected repeat/full repeat/cross-mode; multi-target selected repeat/cross-mode repeat0) have24/24 byte-identical finite gradients and exact loss, original strict pass. Local readback verifies7saved gradient payload hashes/finiteness/layouts/bytes; auditSHA91f3caedf47a4288c100f6dab969ec2b22b13ede08d884d5b2c4521119554109, readbackSHA9f17d522059fa8cfa68b4de37c3fb9cb97dd285784e448f41be7a316fbd226f4. Matrix stops after multi-target full repeat1 finite backward at GPUfree527630336bytes<unchanged512MiBguard;7acceptedcases, EOS not run, noOOM/optimizer/adapter save. Not all9comparisons accepted, not ordinary full-head parity, full-example training/update/save capacity, individual cause of V7 drift or taskquality.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_saved_scoped_numerical_payload_hashes_and_independent_comparison_readback",
+      "recheck": "complete the predeclared matrix and separate ordinary-full/full-example optimizer-update-save gates before any training-capacity claim; taskquality still requires actual audio evaluation"
+    },
+    {
+      "id": "GT149",
+      "type": "observed_local_state",
+      "claim": "V29 frozen experimental alias source manifest ad76310ddacc7c5e8ad53801ca681e33e0992f5baefceb1eee2e2680a96c8b48 has127 verified bundled files, ZIP SHA e9a493260fb6e0bb90fb4a47c287fb208dc482926e7dc6274abc8a535561575b. Collected Linux log records99 passed/0failed/3ignored tests (73lib,19workflow,4alias,1CLI,2example); build result stage complete, actual same release used by A/Bsmokes. Original prereg manifest literal has a duplicated substring; original kept unchanged, erratum SHA c376c477851d9f246cd26735d3370367639db9a5122af228b54dea3d4dd3988f recorded after A/before B corrects transcription only, no source/cohort/profile/threshold change. Default mode and originalSDKpermissions stay authoritative.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_collected_source_bundle_release_log_and_explicit_erratum",
+      "recheck": "technical/source/token/asset evidence does not establish new task accuracy; preserve ownership/protocol/SDK/gold/membership and use actual independent audio benchmarks"
+    },
+    {
+      "id": "GT150",
+      "type": "observed_local_state",
+      "claim": "V29 CPU token probe on75historical prefix positions/arm over30development compares observed A and counterfactual structured-alias B, not actual B trajectories. Report/render/token-ID equality150rows; Amax3223/B3256, B+768reserve4024,2120remaining. Actual Rust-derived matching decision schemas supplied; old A75render hashes/counts match, non-system changes only typed toolfields.0generation/GPU/network, timingnotisolated, no futurefit/quality/capacity proof. Readback SHA 194b836b64909180769a757fc10d91656ceb39183470230ce0972849bbe73a8e.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_scoped_collected_historical_render_and_token_readback",
+      "recheck": "technical/source/token/asset evidence does not establish new task accuracy; preserve ownership/protocol/SDK/gold/membership and use actual independent audio benchmarks"
+    },
+    {
+      "id": "GT151",
+      "type": "observed_local_state",
+      "claim": "V29 real A/B technical smokes each3complete<30s, same frozenIDs/order/source/assets/exe/supervisor/params exceptmode/tag; firstinputs byte-equal3/3. Original officialSDKreplay0mismatch/reject both;7actual observedSDKresults/finalreceipts perarm match. Fullsplit147-entry aliasbijection checked, accepted alias proposals map back original allowed SDKnames;0alias/systemic/deadline errors,8responses/releases perarm truncated0. Stricter observed technical screen passes, not taskquality; alias30score unavailable.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independent_whitelist_collection_mapping_and_originalSDK_replay",
+      "recheck": "technical/source/token/asset evidence does not establish new task accuracy; preserve ownership/protocol/SDK/gold/membership and use actual independent audio benchmarks"
+    },
+    {
+      "id": "GT152",
+      "type": "observed_local_state",
+      "claim": "PhoWhisper-medium source 55a7e3eb6c906de891f8f06a107754427dd3be79 asset-only receipts complete: converted F16 1533763076bytes SHA 24433822f81ab63826f35b4f6b6202c3724b0b43473700125c54029339ffee63; Q5 539212484bytes SHA e2cd4ceda28646fc74e48f171fad8ebd75e0ab06817d70349bc42ae2335bfc27. download-only receipt itself does not claim converted assets; later conversion/quantization receipts do. ASRtestedfalse,datasetreadfalse,hostedLLMAPIusedfalse. Collector retrieved only5explicit metadata/log files, archive SHA 475556455301e7bf7c31e377b4355d118430d08a13b1c8fee5c1e82a32d25c6f; no weight reads/rehash or new inference by collector. No newASRquality/latency/fullapphardwarefit proof.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_collected_asset_receipt_consistency_not_independent_weight_reverification",
+      "recheck": "technical/source/token/asset evidence does not establish new task accuracy; preserve ownership/protocol/SDK/gold/membership and use actual independent audio benchmarks"
+    },
+    {
+      "id": "GT153",
+      "type": "observed_local_state",
+      "claim": "V29 paired30 original/alias arms collected with37raw whitelisted files/run, frozen IDs/order/source/assets/exe/native/supervisor/params verified. Initial messages match bytes29/30; one expected typed-history name change, after only typed known-name inverse mapping all30match. OfficialSDKreplay30/arm0mismatch/reject; actualSDK observations52/53 and finalcall/state receipts exact;5unexecuted refusals/arm.147-entry aliasbijection preserved,0mapping errors;75responses/releases perarm truncated0,no systemic/deadline errors. Collections remain immutable and failed samples would be retained; no newmodel/scorer used for independent readback.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independent_collection_mapping_trace_SDK_and_raw_hash_integrity",
+      "recheck": "mapping/receipt integrity does not establish intent correctness or task-quality improvement"
+    },
+    {
+      "id": "GT154",
+      "type": "observed_local_state",
+      "claim": "V29 paired30 local A8.333333%/B6.666667%, perfect2/2allzero-action,nonempty-perfect0/0,states5/5,failed0/0. Saved-detail independent recomputation gives-1.666667pp,0improved/1regressed/29equal; fixed alias rule/profile fails mean gain>=10pp and additional nonempty-perfect>=2 screening gates,not promoted. Both SDK replays clean and elapsed<30s do not change quality decision. Source ad76310ddacc7c5e8ad53801ca681e33e0992f5baefceb1eee2e2680a96c8b48; independent readbackSHA93d581f5641e80a6cbc45547283dcf294d60bb94becbb67d0afe4a111719aa10. Besthistorical13.5556% unchanged; formal100/interim99active-unreached,noholdout/official/A30/desktopcap/commit claim.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_fixed30_local_metric_and_predeclared_rejection_only",
+      "recheck": "one previously analysed development pair does not disprove all alias methods or establish generalisation; preserve gold/scorer/membership and preregister future tests"
+    },
+    {
+      "id": "GT155",
+      "type": "observed_local_state",
+      "claim": "PhoQ5ASR-only paired control has exact30fixed development samples/32user utterances (30latest+2history),4run receipts/20rawmembers verified; source/native/example/supervisor/input hashes match. Full outputs complete/0exit/groupempty,collection audit separately reports all8owner/supervisor PIDs absent. Prelaunch host>=4GiB/GPUfree>=1GiB and sampled runtime host>=4GiB/GPUfree>=256MiB pass;1s telemetry not hardcaps. SIGINT/SIGTERM cleanup does not catch SIGKILL/powerloss, OS egress not blocked. ReadbackSHA9d62a7ec526a8ecba05ce884d457bbd72740cf7fcf07e1d163621fc062293f60.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_local_raw_hash_receipt_and_saved_resource_readback",
+      "recheck": "ASR and synthetic evidence require separate real downstream task/capacity validation; preserve original outputs,gold,membership and exact scoring-process scope"
+    },
+    {
+      "id": "GT156",
+      "type": "observed_local_state",
+      "claim": "PosthocASR recalculation confirms baseline wordedits204/526=38.783270%,charedits531/2179=24.368977%;PhoQ5word170/526=32.319392%,char437/2179=20.055071%. Both normalizedexact1/32;Pho better18/worse9/tied5byutterancecharedits. Median sampleASR2541.125094->1601.750023ms,p95nearest2585.300149->1788.483188ms;CERgain4.313905pp,medianchange-939.375071ms.3numericalscreenflags pass prioritisation only;manualentity/negation/time/amount rubric notdone,no task/officialWER/generalisation/promotion claim. NFC/lower/alphanumeric/space normalization,numbersnotexpanded,charspacescount.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independently_recomputed_fixed30_ASR_edit_counts_and_latency",
+      "recheck": "ASR and synthetic evidence require separate real downstream task/capacity validation; preserve original outputs,gold,membership and exact scoring-process scope"
+    },
+    {
+      "id": "GT157",
+      "type": "observed_local_state",
+      "claim": "Historic task scorer scripts/evaluate_lifemate_train.py SHAefa87d2b3187abc1c1421356b7e230a41ea153b9ef52d4bc74465768453241e0 load_jsonl deserialises all train and goldreceipt rows before selecting predictions,includingouterholdout values in scoring process memory. Saved local task scores still use only selecteddevelopment predictions; no evidence heldoutlabels were fed to model,training/tuning or holdout modelscore. Thus holdout_evaluated=false doesnotmean labelsneverparsed. ASRposthoc scorerV2SHA1bc34c... separately filters ID/fields before values and reports noholdoutreference/labeldeserialization. Filtered taskscorer/equivalence work pending; preserve historicalresults/hashes,do not silently rewrite scores.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_observed_historic_loader_source_and_scope_correction",
+      "recheck": "ASR and synthetic evidence require separate real downstream task/capacity validation; preserve original outputs,gold,membership and exact scoring-process scope"
+    },
+    {
+      "id": "GT158",
+      "type": "observed_local_state",
+      "claim": "V10 independent auditSHA5a5341333769a7132d77cea5e585e10d86deb2dbd5636957a323daba15921e51 passes12isolated children/12comparisons,onebackwardperchild,all24gradients byte/numeric equal,exactobjective/loss and active-logithashes;sharedinitialLoRA/software. MinGPUfree573767680bytes/minhost11557945344bytes,0optimizer/noOOM/adapterupdate. Scopecross-process synthetic only: doesnotestablish same-process full multi-target/EOS,ordinaryfullhead parity,realexample training/update/savefit or taskquality. EarlierV8/V9scopes preserved.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_independently_audited_scoped_cross_process_synthetic_matrix",
+      "recheck": "ASR and synthetic evidence require separate real downstream task/capacity validation; preserve original outputs,gold,membership and exact scoring-process scope"
+    },
+    {
+      "id": "GT159",
+      "type": "observed_local_state",
+      "claim": "V11 auditSHA56dec768f5d3a9e23885f544daa2647556d12124b8bfd2b385d2a6b4c6b73611:7selected full-context cases internal-training only,0validation/outerholdout/benchmark30/public selected. Two fresh-process single backwards945/1940tokens accepted,24gradients finite and2privategradientfiles independently checked;1940minGPUfree542310400bytes,margin5439488bytes above512MiB. Third2413tokens has24finite gradients but guardstops at424869888bytes;current-free and baseline-adjusted peak-reserved checks fail,peakallocated3144938496/reserved3290431488bytes. Four cases2655/3496/3790/5177unrun. NoOOM/optimizer/update/save/fullfit/taskquality acceptance;one backward/child,lengthnotcapacityguarantee. No private training text/IDs published or raw training payload downloaded by docs reader.",
+      "artifact": "docs/lifemate-validation.json",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_collected_training_only_backward_metadata_source_hashes_and_guard_stop_scope",
+      "recheck": "complete training/optimizer/update/save and exported-runtime task validation separately without weakening guards or excluding evaluation failures"
+    },
+    {
+      "id": "GT160",
+      "type": "observed_local_state",
+      "claim": "Project review identifies 12 Rust crates and separate desktop API/contest offline execution paths. Architecture documentation previously described proposed Tauri/LangGraph; docs/architecture.md now describes implemented egui/Rust runtime. Structured nora-core routing policy has no runtime/app call site in the reviewed source; no validated automatic simple/complex classifier or unbounded multi-agent spawning capability is established.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_current_source_structure_and_call_site_search",
+      "recheck": "Recheck actual integration and classifier evaluation before product claims."
+    },
+    {
+      "id": "GT161",
+      "type": "observed_local_state",
+      "claim": "Historical v29 compact-typed baseline authoritative calls on 30 selected development samples contain 10 sys.ask_missing_info calls; 3 calls have a total of 5 parameter names absent from the target tool properties. Schema-membership diagnostic uses catalogs and saved calls, no labels or new inference; it does not prove correction gain or that every other clarification is necessary.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_saved_selected_development_calls_and_catalog_membership",
+      "recheck": "Test schema-bound clarification as separate controlled intervention with no label input to inference."
+    },
+    {
+      "id": "GT162",
+      "type": "observed_local_state",
+      "claim": "Frozen Q3 allGPU6144 selected30 E2E: turbo A8.333333%, Pho B3.333333%, nonempty-perfect0/1, failure1/1 retained. Both exact SDK calls/observations/state replay match. B fails screen, no promotion. V1 inherited alias inner-target assertion blocked scoring; explicit posthoc V2 identity-call correction preserves frozen code/hashes, outputs/cohort/formula/thresholds and reports policy violations A5/B9 (unavailable target1each, unknownparams4/8). Observed truncation flags0 but coverage unverified. Sampling1s is not hard peak/A30/desktop certification.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_saved_archives_replay_and_selected30_local_metric",
+      "recheck": "Not official accuracy, no holdout score, Q3-vs-Q4 effect unisolated."
+    },
+    {
+      "id": "GT163",
+      "type": "observed_local_state",
+      "claim": "Opt-in compact-typed-clarify-experimental adds decoder target/param restrictions and independent pre-SDK membership rejection. Default unchanged; optional declared fields retained, membership not intent/missingness. Windows285pass0fail3ignored, packageClippy/fmt pass. Isolated Linuxv30 withwhisper104pass0fail3ignored and release/Clippy/fmt pass. Native model quality not established by these tests; same-source controlled screen pending.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_source_and_test_logs_only",
+      "recheck": "Measure actual native decoder support, quality, latency and new refusal feedback before promotion."
+    },
+    {
+      "id": "GT164",
+      "type": "observed_local_state",
+      "claim": "V30 same-source Q3/turbo clarification A/B selected30: A8.333333%,B5.0%,nonempty-perfect0/0,failure1/1;0improved/1regressed/29equal. Actual initial inputs equal30/30,exact SDK observations/calls/state replay pass. Fresh baseline authoritative receipts match v29 Q3 baseline30/30. B blocks8duplicate-params asks in one sample before SDK; nine turns end at deadline. Score loss is a separate extra ask on a zero-action task. No promotion. Native pinned llama.cpp documents uniqueItems unsupported and silent skipping; zero grammar warnings does not prove enforcement.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_frozen_selected30_artifacts_and_exact_replay",
+      "recheck": "Not official/heldout accuracy; preserve original v30 outputs. V31 enum constraint fix is a separate source and has no task score yet."
+    },
+    {
+      "id": "GT165",
+      "type": "observed_local_state",
+      "claim": "V31 replaces uniqueItems reliance for small schemas with all nonempty unique ordered param lists, preserving every order/optional field. Bounded at6fields/64bytes-per-name/256KiB-total; larger/budget-exceeded schemas preserve fields with independent runtime guard, no claim of decoder uniqueness there. Windows287pass0fail3ignored; Linuxwhisper release alltargets106pass0fail3ignored,fmt/Clippy/build pass. Two forced-ask native synthetic probes2/5fields resist requested duplicates and return valid membership/unique lists; no dataset/SDK/taskscore. Source6bf29af544ebb093bca3b8ccb0306b033be96ab0ff60de2e60e562515c7a4eff, native probe rawarchivefde66a03172e67527914b8481e9ed494043ce5514f0bf7f47af7bcf566d2ec2d independently read back5hash-matchingfiles. Owner/supervisor/group absent and postpins/cleanup verified.5resource samples,minGPUfree1509949440bytes,not hardpeak/desktop/A30 proof.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_source_tests_and_two_scoped_synthetic_native_cases",
+      "recheck": "No v31 audio task score or quality gain; v30 rejection remains. Proceed to actor training/independent validation without label inputs to inference."
+    },
+    {
+      "id": "GT166",
+      "type": "observed_local_state",
+      "claim": "V12 all-text-linear rank16 pilot stopped before adapter/optimizer by frozen global swap counter guard: pswpout11464->14069,2605pages; pswpin4941unchanged. Parent16samples minMemAvailable11374571520bytes, ownsampledswap0. Attribution not established; no claim activity belonged to another app. Before stop, unused vision storage release measured CUDAallocated1950426624->1760338944,delta190087680bytes; text parameter object/pointer identity and synthetic text logits preserved.0optimizer; failed V12 artifacts/protocol retained.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_saved_V12_metadata_and_parent_telemetry_only",
+      "recheck": "Global vmstat is not process attribution; V13 uses explicit new kernel-scoped policy, not a retroactive V12 pass."
+    },
+    {
+      "id": "GT167",
+      "type": "observed_local_state",
+      "claim": "V13 separate frozen profile uses transient kernel MemoryMax8GiB/MemorySwapMax0, unchanged host4GiB/GPU512MiB guards, globalvmstat diagnostic. One full945token internal-train update with NF4Qwen3.5-2B,all186text-bodylinears,rank16alpha32,16819200FP32LoRAparams/372tensors,scale8/clip1/AdamW8bit2e-4. Synthetic123token checkpoint-offload control has exact loss/all372gradients,scopeonly. Actual completed optimizer1,186B matrices changed; safetensors save/unload/newadapter reload in SAMEbaseprocess retains allweights and full-inputlastlogits. FreshCPU independent audit checks372finiteF32/rank/shape/keytensors,186nonzeroB, noCUDAinit. PEFT minimizes186names to12suffixes; auditv2 resolves pinned textheader rather than literal spelling, no model/result changes. Audit invocation-I avoids control-directory inspect.py shadowing stdlib. Parent/group absent; minsampleGPUfree1220542464bytes,minhost11341127680,peakCG2432143360,ownedSwap0/OOM0. Archive6metadatafilesSHA177f178187964a0035febf5c48e8de8027e701b61bd457f49b405832a96d0728; weights stay remote. No fresh-process model reload/optimizer resume/sustained/fulltrain/nativeexport/quality acceptance.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_terminal_metadata_kernel_caps_CPU_all_tensor_audit_and_scoped_update",
+      "recheck": "Measure long/sustained contexts with same modules/profile and independent task validation before model promotion; hardening-I/HUP/runtime lifetime is required for long jobs."
+    },
+    {
+      "id": "GT168",
+      "type": "observed_local_state",
+      "claim": "V14 frozen seven-context sustained rank16/all186linears QLoRA completed three actual AdamW8bit updates at945/1940/2413tokens; parent guard stopped backward2655 when NVML GPUfree530579456B crossed536870912B. Min sampled host10618290176B, ownswap0, sampled cgrouppeak3344302080B. Owner/supervisor absent, original child report stale running due SIGTERM, no adapter saved. Independent failure audit and7file readback pass; archive28f8d0c2b0e8af78de7a466ffedbb71b599ebfd74a8bdaa6b9aab0c63be90220. Failure preserved, not training accepted/fullfit/quality.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_terminal_receipts_raw_telemetry_and_independent_failure_audit",
+      "recheck": "Need allocation optimization preserving all full contexts/modules and training guard; do not retryV14 unchanged."
+    },
+    {
+      "id": "GT169",
+      "type": "observed_local_state",
+      "claim": "V32 adds opt-in train-only hash-pinned ID cohort, preflights missing/duplicate/partition exclusions, forbids start/limit or public/private cohort, preserves dataset order and tested model message bytes. Windows package109pass0fail3ignored; Linux releasewhisper alltargets111pass0fail3ignored,fmt/Clippy/build pass. All123 additional validation IDs outside previous30 frozen without labels, disjoint1082train/310outer;400audio/400distinct content hashes, no contentcache reuse. Full native unadapted Qwen3.5-2B Q4+turboQ5 actualaudio->SDK run started, no completed/audited score yet. Prior gold replay/validation tokenization exists, not sealed blind test.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_frozen_split_source_tests_and_input_integrity_not_quality",
+      "recheck": "Finish exact123 baseline, independent SDK audit, unchanged selected-only score and failure coding; do not treat package pass or partial run as accuracy.",
+      "later_evidence": [
+        "GT171",
+        "GT172",
+        "GT173",
+        "GT174"
+      ]
+    },
+    {
+      "id": "GT170",
+      "type": "observed_local_state",
+      "claim": "V15 frozen tied-table transport candidate prepared without GPU launch. V2 uses native embedding/linear/autograd with shared CPU backing and exact restored shape/stride/offset, preserving V1 expanded-view rejection. Actual pinned seven train records checked and8CPU functional tests pass in kernel2GiB/swap0 scope, CUDA uninitialized in tensor tests. Candidate requires full945 resident-vs-CPU exact logits/loss/all372gradient control before any optimizer, then same7 full contexts/rank16/all186linears and512MiB GPU guard. No actual GPU saving/parity/fit/quality established yet.",
+      "artifact": "docs/development/project-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_frozen_sources_and_CPU_preflight_only",
+      "recheck": "Wait current GPU evaluation/placement comparison, then run exact controls before claiming capacity; keep failures and no100% commit gate.",
+      "later_evidence": [
+        "GT171",
+        "GT172",
+        "GT173",
+        "GT174"
+      ]
+    },
+    {
+      "id": "GT171",
+      "type": "observed_local_state",
+      "claim": "V32 both123terminal/SDK replay exact/scored, A=B2.9810298103%,nonemptyperfect2each,failures79/78;0improved0regressed123equal.117available actualinitialmessages byteequal,6bothpremodel missing not counted equal. Median model15.8797->15.0211s ~5.4%reduction fails20%gate. No default change/promotion or official score. Archives A543a972a1cabec049cca9c1e7814d9466d919125164ccc751de92892456f0c65/B2baa7aeb5486572fcc8cea38aeed84a0b5a58d5bdb6bff034bec62edccfc85ff.",
+      "artifact": "docs/development/lifemate-error-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_frozen_artifacts_and_scoped_audit; causal_and_generalization_limits_disclosed",
+      "recheck": "Not99/100 or official score; preserve failures, unchanged metric and private dataset boundaries."
+    },
+    {
+      "id": "GT172",
+      "type": "observed_local_state",
+      "claim": "V15 native frozen tied-table CPU transport full945logits/loss/all372gradients exact; measuredCUDAallocatedreduction1017118720B. Oneactualupdate then GPUguardfailure1940free517996544B<512MiB; noadapter. FreshCPUoriginalshardcast all508559360elements hash matches. Failuremetadataaudited/archive0f267d2a3bcf66d2d12e249f483fcc2c01cb9575a5f32862703ed75019353a25; not fullfit/quality.",
+      "artifact": "docs/development/lifemate-error-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_frozen_artifacts_and_scoped_audit; causal_and_generalization_limits_disclosed",
+      "recheck": "Not99/100 or official score; preserve failures, unchanged metric and private dataset boundaries."
+    },
+    {
+      "id": "GT173",
+      "type": "observed_local_state",
+      "claim": "V16 cache lifecycle full1940logits/loss/all372gradients exact,6actualupdates945/1940/2413/2655/3496/3790; full5177guardstopGPUfree509607936B<536870912B.50cacheevents preserve liveallocated, maxreservedrelease1017118720B. Source/tablepins match freshCPUcomplete casthash; parent/groupabsent,swap0/OOM0,minhost8822005760B,peakCG4908933120B. Noadapter/full7fit/fullSFT/quality. Independentfailureaudit7filearchive8c0a511f3dcbf946beb8922751e6ed14e08fa151d207b1b8e83800130908d0ce.",
+      "artifact": "docs/development/lifemate-error-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_frozen_artifacts_and_scoped_audit; causal_and_generalization_limits_disclosed",
+      "recheck": "Not99/100 or official score; preserve failures, unchanged metric and private dataset boundaries."
+    },
+    {
+      "id": "GT174",
+      "type": "observed_local_state",
+      "claim": "Codex agent open-coded123private diagnosticcards in originalcohort order, notes8de1ad62865baa2bc110ded2319e9110c09fb800796c35d2346e84de83c72a18; nothumanlabels. Sixdeterministicproxygraders baseline:45samples repeatedexecutedcalls,35repeatproposals,45with240provenancerefusals,16nomodeldecisionincluding6premodel.117latesttranscripts observedmicroCER18.6898% excludes6missing, nottaskaccuracy. Four same-run serverlogcontextoverflow6340/6250/6614/6302>6144; no per-sampletaskIDjoin. Incorrect intent/extraeffects occur with intelligibleASR; genericIDprovenance doesnotestablish namespace/intent. Driftbaseline/fullSFT gate incomplete; no LLMjudge used.",
+      "artifact": "docs/development/lifemate-error-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_frozen_artifacts_and_scoped_audit; causal_and_generalization_limits_disclosed",
+      "recheck": "Not99/100 or official score; preserve failures, unchanged metric and private dataset boundaries."
+    },
+    {
+      "id": "GT175",
+      "type": "observed_local_state",
+      "claim": "V32A673actualSDKcalls contain74calls across14samples withok=true/done=false. Readall14resultmessagegroups:invalidemails/menuitems/namespaceIDs/etc. Do not infer successful draft/order/location effects from executed=true.599othercalls lack explicitfailure,notproofstatechange. Original123opencoding notes retained withSDK-outcome V2errata; score/metric/traces unchanged.",
+      "artifact": "docs/development/lifemate-error-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_pinned_artifacts_and_scoped_audit_only",
+      "recheck": "Keep fixed profile/denominator and private data boundaries; task goal remains unmet."
+    },
+    {
+      "id": "GT176",
+      "type": "observed_local_state",
+      "claim": "Six posthoc sameactualruntimeprefixes: nativeQ4withoutgrammar6outputs; V1HFkernelGQAfailed before realprompt andV2tokenizerBatchEncodingwrapperfailed beforerealforward, bothaudited/preserved. V3explicitcausalmaskandtokenizerhelperpassedall6preGPUCPUtokenchecks,6HFoutputsEOS plusfreshCPUfulltokendecode/input/resource/cleanup audit. HFstillwrongbillpaymentvs transfer,AC24/reminder7aslamp24/fan7; onecompletioncorrectedbutnotnumericalparityor taskscore. V3archiveba0cae7228e36cb474daa9b65368a52c6af7d3337df4a4e6953289fdc0cd3e1e. Syntheticcacheargmaxmatchesfullrecompute,maxlogitdiff.015625,notexactnumericclaim.",
+      "artifact": "docs/development/lifemate-error-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_pinned_artifacts_and_scoped_audit_only",
+      "recheck": "Keep fixed profile/denominator and private data boundaries; task goal remains unmet."
+    },
+    {
+      "id": "GT177",
+      "type": "observed_local_state",
+      "claim": "Frozen200syntheticMCQ capabilitydrift,199uniquefullmodelmessages/1duplicate,4templatefamilies50each,balance50answersperletter,noneofficialdata. UnadaptedHFNF4Qwen3.5-2B rawlogits/logsoftmax A/B/C/D no generation/parser/judge:114/200=57%,time24/50,quantity15/50,evidence35/50,safety-completion40/50. All200CPUtoken/pin/rank/resource/cleanupaudit/readback pass; labels localpostinference only. Archive1370f3651ae2023c521ef0c72a515e3e3533aeafcda9db411ef64a8674a9b9db. NotLifeMate/MMLU/productionsecurityscore; native123task andHF200driftare distinctfixedprofiles. No fullSFT/capacity/resume/export/99/100 certification.",
+      "artifact": "docs/development/lifemate-error-review-2026-11-03.md",
+      "observed_as_of": "2026-11-03",
+      "confidence": "high_for_pinned_artifacts_and_scoped_audit_only",
+      "recheck": "Keep fixed profile/denominator and private data boundaries; task goal remains unmet."
+    },
+    {
+      "id": "GT178",
+      "type": "verified_external_fact",
+      "claim": "Public LifeMate Rule re-read on 2026-11-04 (server update 2026-11-03T02:09:50Z): whole system<6B parameters, LLM<5B, context<=16384, offline,30s/sample on A30/16-core Xeon Gold6442Y/64GB. Exactly one ToolEnv/sample; inference permits validate,call,get_tool_calls,get_state_hash only. Public SLM leaderboard top observed96.51, provisional pending verification. Formula image agrees with state-gated callF1; fuzzy tokenizer implementation remains unspecified.",
+      "sources": [
+        "https://challenge.zalo.ai/portal/lifemate"
+      ],
+      "artifact": ".artifacts/lifemate-public-rules-20261104/public-read-receipt.json",
+      "confidence": "high_for_observed_public_snapshot",
+      "recheck": "Before submission; leaderboard is not a NORA score or verified Docker result.",
+      "observed_as_of": "2026-11-04"
+    },
+    {
+      "id": "GT179",
+      "type": "observed_local_state",
+      "claim": "V2 R14 same12 reused development reference-text tasks: BM25 example in current JSON39.7186147%, same example as data turn before current request51.0149110%; both strict30s0%. Nonempty-perfect3->2, failures1->0. All95actualSDK calls/results/finalstates replay exact;110retrieval receipts independently audited, same selected examples and byte-identical original current payloads. No production promotion, voice/A30/official or >90 claim.",
+      "artifact": "docs/research/lifemate-v2-architecture.md",
+      "confidence": "high_for_frozen_R14_artifacts_only",
+      "recheck": "Need larger frozen evaluation, actual audio and A30/official confirmation; preserve denominator and failures.",
+      "observed_as_of": "2026-11-04"
+    },
+    {
+      "id": "GT180",
+      "type": "observed_local_state",
+      "claim": "4B complete-trajectory capacity V6 actual257-token numerical gates passed: head-group gradients exact, FP32 CPU-head global relative gradient error0.00132850, full-trajectory objective0.00355914, all504 tensors checked. Complete7881-token forward passed; backward stopped at494MiB GPUfree below512MiB. Zero optimizer steps, owned swap0 and CPU OOM0; supervisor cleanup verified. Cgroup peak8GiB included reclaimable file cache. V6 terminal archive1c335fa7c39cbc29771da2071b0d26c543cc5d23fd343c5d461957b99d1d6853. This is not the older prefix-training V6 that completed short updates.",
+      "artifact": ".artifacts/lifemate-4b-trajectory-capacity-v6/failure-audit.json",
+      "confidence": "high_for_terminal_receipt_and_independent_audit",
+      "recheck": "No full SFT, accepted adapter, fresh4B resume, export or quality certification.",
+      "observed_as_of": "2026-11-04"
+    },
+    {
+      "id": "GT181",
+      "type": "observed_local_state",
+      "claim": "xLAM-2-3B was already tested, not an unexplored replacement: R8 same12 reference tasks6.25%/180s, strict30s0%,1failure,15SDK calls exact; R9 separate-latest-request layout0%/12 with no transport failures,14SDK calls exact. These rejected profiles do not prove all specialized tool models fail. xLAM research licence must not be treated as commercial clearance.",
+      "artifact": "docs/research/lifemate-v2-architecture.md",
+      "confidence": "high_for_scoped_R8_R9_artifacts",
+      "recheck": "Do not repeat these unchanged candidates or infer LifeMate quality from external benchmark scores.",
+      "observed_as_of": "2026-11-04"
+    },
+    {
+      "id": "GT182",
+      "type": "observed_local_state",
+      "claim": "R15 matched28GPU/8CPU Q3/Q4 reference12 pair:16.6667%/13.8889%,both8failures and strict30s0%;52actualSDK calls replayed,47retrieval receipts audited. Placement rejected; not an uncensored precision comparison.",
+      "artifact": ".artifacts/lifemate-v2-r15/text-paired-report-audit-v2.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "No fullSFT, official or >90 completion claim."
+    },
+    {
+      "id": "GT183",
+      "type": "observed_local_state",
+      "claim": "Full-trajectory4B capacity V7 complete7881-token forward passed; backward CUDAallocator124MiB request OOM at.80fraction,zerooptimizerupdates; no ownedCPUOOM/swap,cleanup verified. SampledGPUminimum668MiB; exact failing operation/fragmentation unproven.",
+      "artifact": ".artifacts/lifemate-4b-trajectory-capacity-v7/terminal-audit.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "No fullSFT, official or >90 completion claim."
+    },
+    {
+      "id": "GT184",
+      "type": "observed_local_state",
+      "claim": "V8 fulltrajectory4B capacity accepted: full7881/238 and5581/249 targets,2updates/save. NativeRMSNormchunk256 yields exact loss/all504gradients at257-token actual4B control. MinGPUfree924MiB,CPUOOM0,swap0,ownedcleanup verified. Wholepilot1906.38s. Not fullSFT/resume/export/quality.",
+      "artifact": ".artifacts/lifemate-4b-trajectory-capacity-v8/terminal-audit.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "No official100 or production completion claim."
+    },
+    {
+      "id": "GT185",
+      "type": "observed_local_state",
+      "claim": "R17Qwen3.5-4B+BM25 same12developmentreference:9.68254%,strict30s0%,1failure,0nonemptyperfect; rejected. SDK103calls/finalhashes replayed;101originalresults compared,2suffixresults missing from oldtrace mid-block caperror. V3 audit retainsfailure0 and proves suffix from proposal; Rustfix28workflowtests passes,notLinuxbuilt.",
+      "artifact": ".artifacts/lifemate-v2-r17/text-paired-report-audit-v3.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "No official100 or production completion claim."
+    },
+    {
+      "id": "GT186",
+      "type": "observed_local_state",
+      "claim": "R18 FunReason-MT4.4B Q3 in R14 constrained JSON/no-thinking interface:16.8650794% on same12 reused development reference tasks,strict30s0%,1failure,0nonemptyperfect; all54SDKcalls/results/finalstates and95pairedretrievalreceipts audited. Reject this profile; originalauthorBFCLprompt/longreasoning profile not reproduced.",
+      "artifact": ".artifacts/lifemate-v2-r18/text-paired-report-audit-v3.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_profile_only",
+      "recheck": "Do not generalize to the author benchmark or official LifeMate score."
+    },
+    {
+      "id": "GT187",
+      "type": "observed_local_state",
+      "claim": "Actual4B fresh-process resumeV2 passes exact all504adapter/optimizer/RNG/second-update comparison plus independent resource/source audit; minimumGPUfree1004535808B,CPUOOM0,swap0,clean. This is not a task-quality or fullpass result.",
+      "artifact": ".artifacts/lifemate-4b-resume-v2/resource-audit.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "Task quality/fullpass/A30/official results still pending; do not infer >90 or real100."
+    },
+    {
+      "id": "GT188",
+      "type": "observed_local_state",
+      "claim": "ActualV8 F32 GGUF exportV2 preserves all504 LoRA tensor bytes and alpha16/rank8,66095328B. ExportV1 StopIteration before conversion is retained. Native smoke uses sameR19 Rustlibrary:4syntheticrequests complete acrossbase/adapter,clean/noOOM/swap. Not HF/GGUF numerical-equivalence or taskscore.",
+      "artifact": ".artifacts/native-lora-v1/independent-audit.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "Task quality/fullpass/A30/official results still pending; do not infer >90 or real100."
+    },
+    {
+      "id": "GT189",
+      "type": "observed_local_state",
+      "claim": "R19 Linux fmt/clippy/release and149tests passed,0failed/3ignored. This build contains optional nativeLoRA,NFCretrieval and mid-block trace preservation. No new task-quality score.",
+      "artifact": ".artifacts/lifemate-v2-r19/build-receipt.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "Task quality/fullpass/A30/official results still pending; do not infer >90 or real100."
+    },
+    {
+      "id": "GT190",
+      "type": "observed_local_state",
+      "claim": "First64 ordered full-trajectory SFT tasks started on lattice from base4B, among1082train-only tasks. Fixedseed42order,unchangedV8 math/physicalguards,per-update checkpoints;64tasks291318tokens. Started is not fullpass completion or improved LifeMate score.",
+      "artifact": ".artifacts/lifemate-full-sft-v1/protocol.md",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "Task quality/fullpass/A30/official results still pending; do not infer >90 or real100."
+    },
+    {
+      "id": "GT191",
+      "type": "observed_local_state",
+      "claim": "Public HF/GGUF fragment audit matches398 layouts/all145 norm tensors/151669 defined IDs/merges. Templates differ, but all3377 TRAIN prefixes match in Python Jinja. Native tokenizer/logits/quantized projections and synthetic closing-think edge remain unverified; no task-quality conclusion.",
+      "artifact": ".artifacts/base-alignment-v1/chat-template-string-audit-v1.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "No >90/real100, official score or production claim."
+    },
+    {
+      "id": "GT192",
+      "type": "observed_local_state",
+      "claim": "First64 SFT run failed after6 committed updates at8000 allocator telemetry samples, not an observed physical-guard failure. Independent audit preserves29515tokens/621targets and cleanup. Exact checkpoint0006 resume0006-0008 is live; same frozen math/guards, shorter scheduling. Chain audit through6 passes;16 synthetic invalid links rejected. No first64/fullpass or quality completion.",
+      "artifact": ".artifacts/lifemate-full-sft-v1/audit-0000-0064.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "No >90/real100, official score or production claim."
+    },
+    {
+      "id": "GT193",
+      "type": "observed_local_state",
+      "claim": "Actual SFT0006-0008 completes2tasks; chain through8 independently accepted,39733tokens/838targets; minGPUfree1042284544B,cgrouppeak8GiB,zeroOOM/swap,clean. First64/fullpass/quality not complete.",
+      "artifact": ".artifacts/lifemate-full-sft-v1/chain-audit-through-0008/chain-audit.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "No A30 benchmark/official score or quality completion claim."
+    },
+    {
+      "id": "GT194",
+      "type": "observed_local_state",
+      "claim": "Re-read official public rules stillA30/64GB/30s,public submissions JSONL not hosted execution. Pinned R14 reference12 elapsed39.49–92.86s,99.98% in model step. A30 hardware advantages support possible speedup, not measured NORA latency/score; hypothetical scaling cannot certify target deadline or >90quality.",
+      "artifact": ".artifacts/lattice-a30-feasibility-20261104/latency-analysis.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "No A30 benchmark/official score or quality completion claim."
+    },
+    {
+      "id": "GT195",
+      "type": "observed_local_state",
+      "claim": "SFT0008-0010 complete and chain through10 independently verified:46062 full-sequence tokens/943targets, no missing/duplicated updates. Segment minGPUfree1040MiB, zero owned swap/CPUOOM, cleanup verified. Ordered queue10to64 started with mandatory chain admission between at-most-two-task segments; first64 and task quality still pending.",
+      "artifact": ".artifacts/lifemate-full-sft-v1/chain-audit-through-0010/chain-audit.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "No >90/100, full learned-model evaluation, official result or production claim."
+    },
+    {
+      "id": "GT196",
+      "type": "observed_local_state",
+      "claim": "Native16K capacity v4 completed4 synthetic requests with CUDAgraphsdisabled verified on both native PIDs; allGPU/Q3/F32LoRA/q8KV/batch128-32. MinGPUfree274MiB above unchanged256MiB guard, zero owned swap/CPUOOM and cleanup verified. Retains v1/v2/v3 failures. Same-shaped capacity adapter is not step64. Both unrun R20 arms adopt this profile; no task quality/fullvoice/A30/production claim.",
+      "artifact": ".artifacts/native-lora-context-v4/independent-audit.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "No >90/100, full learned-model evaluation, official result or production claim."
+    },
+    {
+      "id": "GT197",
+      "type": "observed_local_state",
+      "claim": "Actual segment0010-0012 complete and chain through12 audited:58031tokens/1064targets, no gaps/duplicates, clean. Windows queuePID4072 was absent while remote completed; cause unestablished. Retained interruption evidence and resumed same frozen script from12 in hidden processPID40524; first64 still pending.",
+      "artifact": ".artifacts/lifemate-full-sft-v1/chain-audit-through-0012/chain-audit.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "Full learned quality/audio/A30/official results pending; no completion claim."
+    },
+    {
+      "id": "GT198",
+      "type": "observed_local_state",
+      "claim": "Pinned R14 trace audit verifies five observed mechanisms: wrong destination appears in selected example but not current input and persists after actual location observed; unsatisfied numeric condition still creates alarm; pays TV rather than internet despite sufficient wallet; orders one portion for three named group members; calls first of two Lan contacts with empty history. Source overlap is not causal proof. No model/scorer/input changes or new quality score.",
+      "artifact": ".artifacts/lifemate-v2-r14/error-mechanisms-v1.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_pinned_artifacts_only",
+      "recheck": "Full learned quality/audio/A30/official results pending; no completion claim."
+    },
+    {
+      "id": "GT199",
+      "type": "observed_local_state",
+      "claim": "Ordered SFT chain through14 independently audited:66633 sequence tokens/1175targets; unchanged training queue advanced to0014-0016. A hidden post64 controller is live and waiting for that queue to complete and exit; it is configured to bind/export/byte-audit the learned adapter, then run matched R20 and original scorer. Four fault cases rejected without external commands. No post64 compute, learned quality, voice/A30 or official result yet.",
+      "artifact": ".artifacts/sft64-r20-pipeline-run-v1/state.json",
+      "supporting_evidence": [
+        ".artifacts/lifemate-full-sft-v1/queue-0012-0064-v1/chain-through-0014/chain-audit.json",
+        ".artifacts/pipeline-stop-fixtures-v1/result.json"
+      ],
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_observed_state_only",
+      "recheck": "Verify both live controllers and actual remote process. Pipeline completion has not occurred; do not duplicate its future stages."
+    },
+    {
+      "id": "GT200",
+      "type": "observed_local_state",
+      "claim": "Audio CLI now exposes paired --lora/--lora-sha256 and --prefill-batch/--prefill-microbatch; adapter hashing shared with text diagnostic before native startup. Windows142package+7diagnostic tests passed,3preexisting ignored; clippy/fmt passed. Missing-libclang and incompatible bundled Linux ABI attempts retained; successful build regenerated Windows bindings using pinned portable libclang18.1.1. No real model/audio quality or new Linux build; frozenR19/R20 unchanged.",
+      "artifact": ".artifacts/audio-adapter-cli-v1-result.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_tested_scope_only",
+      "recheck": "Snapshot/build Linux after active training/R20; verify actual audio and final package before any production or contest score claim."
+    },
+    {
+      "id": "GT201",
+      "type": "observed_local_state",
+      "claim": "ID-only broad cohort audit verified original1545 IDs partition into1082 actual SFT-whitelist tasks,153internal-validation and310outer-holdout with no overlap. Compiled Rust CLI accepted both correct ID/partition selections before deliberate ASR rejection; wrong-partition and wrong-hash controls rejected before model startup. Internal validation is reused, not blind; outer historical blindness not certified. No labels decoded by the preparation script, no environments/models/scoring or new quality result.",
+      "artifact": ".artifacts/lifemate-v2-broad-eval-v1/cohort-admission.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_ID_and_preflight_scope_only",
+      "recheck": "Freeze selected candidate after R20 and build new Linux audio CLI before actual153/310 scoring. Preserve failures and distinguish diagnostics/local/official results."
+    },
+    {
+      "id": "GT202",
+      "type": "observed_remote_state",
+      "claim": "R21 source staged on lattice:143files, manifest537338702f1a8c598195c5b8d6c1e51bfb31f4d53f432f44537b67a747d9a9b5, bundle364d2878bc20d9a0918b194880f43d7e268d8c5be1ff53bcd504519a1e1e9a7d. Exactly four existing source files differ from R19 plus new assets.rs for audio LoRA/prefill CLI. All extracted hashes verified; no build, model, policy/default promotion or old source/job mutation.",
+      "artifact": ".artifacts/lifemate-v2-r21/staging-receipt.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_staged_source_only",
+      "recheck": "Linux build/test and actual audio pending after active training/R20. Do not claim R21 executable or score exists."
+    },
+    {
+      "id": "GT203",
+      "type": "observed_local_and_remote_state",
+      "claim": "R21 bounded CPU build helper staged, not executed. Four temporary-metadata admission tests passed; live Linux plan mode started no build. Execution requires both R20 receipts complete, supervisor/PGroup absent, exclusive shared lock, 2GiB/swap0/CPU<=2/nice15/GPU hidden; offline locked single-job Cargo and independent R19 target copy. No Linux build, model, new quality score or existing job mutation.",
+      "artifact": ".artifacts/lifemate-v2-r21/build-plan-v1.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_preparation_and_fixture_tests_only",
+      "recheck": "Verify actual queue/R20 terminal state before launch. Scope and cleanup require actual Linux build evidence; metadata tests are not full execution validation."
+    },
+    {
+      "id": "GT204",
+      "type": "observed_source_and_retained_measurements",
+      "claim": "Current audio CLI holds LLM and GPU ASR concurrently. Native-capacity-v4 proved LLM-only residency, minimumGPUfree274MiB; retained pinned R2 GPU ASR log allocates573.45MB weights alone plus caches/workspaces. R2 used8K/CPUoutput/no learnedLoRA and is not proof for16K+LoRA. Combined profile must be measured before broad audio; first CPUoutput-on candidate is unexecuted. No new model run, OOM claim, quality result or frozenR20 mutation.",
+      "artifact": ".artifacts/audio-capacity-review-v1.json",
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_source_and_retained_logs; combined_fit_unproven",
+      "recheck": "Measure simultaneous models/prefill with actual selected adapter under unchanged guards. ASR CPU or CPU-output placement changes must be disclosed and cannot imply A30 timing."
+    },
+    {
+      "id": "GT205",
+      "type": "observed_source_preparation",
+      "claim": "Combined audio/LoRA Rust probe prepared, Windows metadata/type-check passed with warnings-as-errors and two source files staged on lattice. Source keeps ASR owner through base/adapter long-prefill12k..15k requests after ASR silence warmup. No executable linked, Linux build, guarded supervisor or actual model run yet; liveness/resource admission still requires external observed guard.",
+      "artifact": ".artifacts/native-audio-lora-capacity-v1/staging-receipt.json",
+      "supporting_evidence": [
+        ".artifacts/native-audio-lora-capacity-v1/preparation.json"
+      ],
+      "observed_as_of": "2026-11-04",
+      "confidence": "high_for_metadata_compilation_and_staging_only",
+      "recheck": "After R20 selection and R21 build, prepare pinned Linux link and guarded supervisor. This is neither actual audio testing nor a quality/latency/resource-fit result."
+    },
+    {
+      "id": "GT206",
+      "type": "verified_external_snapshot",
+      "claim": "Public model-type leaderboard top10 fetched2026-11-04T14:18:50Z without account cookies: BXT SLM96.58 rank1, TrustedAI96.51 rank2, Tan Cuong-Teo96.25 rank3. TrustedAI APIs96.66 is a separate reference column. Scores are provisional submissions, not verified Docker/A30/NORA results.",
+      "artifact": ".artifacts/lifemate-leaderboard-20261104T141850Z/receipt.json",
+      "sources": [
+        "https://api-challenge.zalo.ai/fe/api/leaderboard-model-type?from=0&count=10&title=1&utm_source=default&utm_medium=default&utm_campaign=default",
+        "https://challenge.zalo.ai/portal/lifemate"
+      ],
+      "observed_as_of": "2026-11-04T14:18:50Z",
+      "confidence": "high_for_returned_snapshot_only",
+      "recheck": "Leaderboard changes over time; do not infer hidden score, native runtime or NORA accuracy."
+    },
+    {
+      "id": "GT207",
+      "type": "verified_external_fact",
       "claim": "LifeMate Evaluation chấm sample gold không rỗng bằng state-hash gate; hash sai hoặc không có call match thì 0, nếu không dùng harmonic mean của tool-call precision/recall. Gold rỗng chỉ được 1 khi submission cũng rỗng, không xét hash. Public leaderboard chỉ xếp hạng theo SLM.",
       "sources": [
         "Z02"
       ],
       "confidence": "high_for_public_evaluation_and_leaderboard_checked_2026-11-02",
-      "recheck": "before final public submission or if the portal evaluation changes"
+      "recheck": "before final public submission or if the portal evaluation changes",
+      "imported_from": {
+        "commit": "4ff330f",
+        "record_id": "GT059",
+        "reason": "Keep the independently added local GT059 and this upstream evaluation fact under unique IDs."
+      }
     }
-  ]
+  ],
+  "historical_scope_note": "as_of is the ledger update date. Earlier observations retain their original artifact/date/scope; a foundation snapshot is not a claim about the current desktop or contest candidate. Historical task scorer memory scope is clarified in GT157: holdout model evaluation is distinct from deserializing labels in a posthoc scoring process."
 }

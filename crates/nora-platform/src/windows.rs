@@ -4,15 +4,16 @@ use std::{
     mem::{size_of, zeroed},
     os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle},
     ptr,
+    sync::{Arc, OnceLock},
 };
 use windows_sys::Win32::{
     Foundation::{ERROR_ALREADY_EXISTS, FILETIME, GetLastError, SetLastError},
     System::{
         JobObjects::{
             AssignProcessToJobObject, CreateJobObjectW, JOB_OBJECT_LIMIT_BREAKAWAY_OK,
-            JOB_OBJECT_LIMIT_JOB_MEMORY, JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
-            JobObjectBasicProcessIdList, JobObjectExtendedLimitInformation,
-            QueryInformationJobObject, SetInformationJobObject,
+            JOB_OBJECT_LIMIT_JOB_MEMORY, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+            JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JobObjectBasicProcessIdList,
+            JobObjectExtendedLimitInformation, QueryInformationJobObject, SetInformationJobObject,
         },
         ProcessStatus::{GetProcessMemoryInfo, PROCESS_MEMORY_COUNTERS_EX},
         RemoteDesktop::{
@@ -72,6 +73,30 @@ pub struct BudgetJob {
 impl BudgetJob {
     pub fn install(bytes: u64) -> io::Result<Self> {
         let limit = validate_memory_limit(bytes)?;
+        Self::install_limit(bytes, limit, false)
+    }
+
+    /// Fixed LifeMate scoring profile; does not relax the desktop constructor
+    /// or its validation. This does not create 64 GB of physical host memory.
+    pub fn install_contest() -> io::Result<Arc<Self>> {
+        // A job containing this process must not close its last handle during
+        // normal Rust teardown: KILL_ON_JOB_CLOSE would kill this process too.
+        // This single non-inheritable handle lives until OS process teardown,
+        // including abrupt termination, then Windows kills all descendants.
+        // OnceLock also prevents racing installations of multiple root jobs.
+        static CONTEST_JOB: OnceLock<io::Result<Arc<BudgetJob>>> = OnceLock::new();
+        match CONTEST_JOB.get_or_init(|| {
+            let bytes = crate::CONTEST_RAM_LIMIT_BYTES;
+            let limit = usize::try_from(bytes)
+                .map_err(|_| io::Error::other("contest profile needs a 64-bit target"))?;
+            Self::install_limit(bytes, limit, true).map(Arc::new)
+        }) {
+            Ok(job) => Ok(Arc::clone(job)),
+            Err(error) => Err(io::Error::new(error.kind(), error.to_string())),
+        }
+    }
+
+    fn install_limit(bytes: u64, limit: usize, contest: bool) -> io::Result<Self> {
         // SAFETY: null security/name request an unnamed, non-inheritable job;
         // success returns a newly owned kernel handle, transferred exactly once.
         let raw = unsafe { CreateJobObjectW(ptr::null(), ptr::null()) };
@@ -82,8 +107,12 @@ impl BudgetJob {
         let handle = unsafe { OwnedHandle::from_raw_handle(raw) };
         // SAFETY: Win32's POD info struct permits the all-zero initial state.
         let mut info: JOBOBJECT_EXTENDED_LIMIT_INFORMATION = unsafe { zeroed() };
-        info.BasicLimitInformation.LimitFlags =
-            JOB_OBJECT_LIMIT_JOB_MEMORY | JOB_OBJECT_LIMIT_BREAKAWAY_OK;
+        info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_JOB_MEMORY
+            | if contest {
+                JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            } else {
+                JOB_OBJECT_LIMIT_BREAKAWAY_OK
+            };
         info.JobMemoryLimit = limit;
         // SAFETY: valid job handle, matching info class/struct/byte size; the
         // function borrows this initialized buffer only for the duration of call.

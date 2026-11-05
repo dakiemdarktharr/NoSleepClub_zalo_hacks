@@ -2,6 +2,8 @@
 
 Updated 2026-11-01. This is a **partial build inventory**, not a complete binary SBOM, license clearance or security certification. The Rust application and its tested executable are unchanged by this tooling update.
 
+Working-tree refresh 2026-11-02: the two inventory files have been regenerated against the lockfile that adds `nora-lifemate`; the selected desktop `nora-app` dependency graph remains 357 packages, 251 observed texts and 18 gaps. The historical validation/package receipt below belongs to its original lockfile and executable. This desktop inventory does **not** cover the Linux LifeMate image, its CUDA runtime or its separately built model servers.
+
 The [CycloneDX 1.6 build BOM](windows-build.cdx.json) records the locked `nora-app` Windows all-features normal/build dependency graph, excluding dev-only edges. Its composition is explicitly `incomplete`: compiler/std/CRT, vendored native subcomponents, the separate ORT DLL, models, dictionaries and voice rights still need separate coverage/review. Inclusion in this graph does not prove that code is linked into the executable. Package archive checksums are labelled as **source archive hashes**, not binary hashes.
 
 The [license inventory](windows-licenses.json) records 357 packages and the observed paths, byte lengths and SHA-256 hashes of their license/notice files. The local export contains 251 unique text blobs, 827,719 bytes. Text bytes are preserved; identical files are deduplicated by hash. SPDX expressions are recorded as declared, without silently selecting an alternative license.

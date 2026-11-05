@@ -11,6 +11,7 @@ members = [
     "crates/nora-platform",
     "crates/nora-runtime",
     "crates/nora-app",
+    "crates/nora-lifemate",
 ]
 resolver = "3"
 

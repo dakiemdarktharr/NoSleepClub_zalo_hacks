@@ -1,104 +1,85 @@
-# Kiến trúc đề xuất
+# Kiến trúc NORA đang triển khai
 
-Trạng thái cập nhật 01/11/2026: **Rust foundation đã triển khai; desktop/product integration vẫn proposed**. [ADR-0005](adr/0005-rust-client-proposal.md) thay Python resident goal/audio workers của thiết kế ban đầu bằng Rust. Xem [phạm vi code thực tế](rust-foundation.md); các mô tả Python/LangGraph dưới đây giữ để giải thích phương án cũ, không phải dependencies của bản Rust.
+Cập nhật 03/11/2026. Nguồn có hai delivery surfaces: desktop Windows dùng LLM API và adapter LifeMate offline. Bản desktop là unsigned validation candidate; chất lượng LifeMate chưa đạt mục tiêu. Đây là mô tả code hiện có, thay cho thiết kế Tauri/LangGraph cũ; lịch sử quyết định nằm trong các ADR.
 
-Ràng buộc mới của user: **2 GB RAM cho NORA, hỗ trợ card 4 GB VRAM, SSD 15 GB; LLM có thể dùng API**. [ADR-0004](adr/0004-lightweight-client.md) và [thiết kế client nhẹ](lightweight-client.md) đề xuất native/ONNX audio và giới hạn process/model residency. Đây là target cần đo; Python/audio framework dưới đây là hướng ban đầu, không phải bộ runtime đã chốt đạt ngân sách.
-
-## Ranh giới tiến trình
+## Desktop Windows
 
 ```mermaid
 flowchart LR
-    U[Người dùng] --> UI[Tauri UI và tray]
-    UI <-->|IPC có xác thực| B[Rust broker tin cậy]
-    A[Audio worker] --> R[Router và goal runtime]
-    R --> B
-    B --> FS[Scoped filesystem adapter]
-    B --> APP[App API adapters]
-    B --> UA[Browser/UI Automation adapter]
-    R <--> DB[Goal store, checkpoints, effect ledger]
-    R --> EV[Trusted event bus]
-    EV --> NP[Notification policy và outbox]
-    NP --> UI
-    NP --> TTS[TTS và audio output]
+    U[PTT / văn bản / WAV] --> UI[eframe/egui + tray]
+    UI --> B[Trusted backend]
+    B --> A[AudioBridge: một native worker]
+    A --> ASR[Silero + Whisper CPU]
+    ASR --> G[Durable goal runner]
+    G <--> S[SQLite checkpoints / effects / outbox]
+    G <--> L[Responses API]
+    G --> P[Typed permission broker]
+    P --> F[Folder được cấp quyền / EXE đã đăng ký]
+    P --> G
+    G --> N[Evidence-gated notifications]
+    N --> UI
+    N --> T[VieNeu FP32 + playback]
 ```
 
-UI hiển thị mic state, transcript, goal progress, permission cards, preview, evidence và kill switch. Không giữ connector secrets hoặc generic shell. Remote content không được có quyền core. Tauri capabilities chỉ hạn chế WebView → core; mã Rust/sidecar vẫn cần được tin cậy hoặc cô lập riêng. [Tauri security](https://v2.tauri.app/security/capabilities/)
+`nora-app` khởi tạo Windows Job, cấu hình và UI; `nora-desktop` chỉ gửi command qua bounded channels. `nora-runtime::backend` giữ quyền tạo goal, thay grant và duyệt proposal. Model chỉ đề xuất typed tool calls. App không mở microphone hay gọi API khi chỉ khởi động.
 
-Rust broker dự kiến là ranh giới hành động: xác thực caller, kiểm tra grant hiện tại, validate schema/target, khóa approval với preview, kiểm tra budget/cancel, thực thi adapter và trả receipt. Rust goal workers không được thực thi model output như mã, cài package từ lệnh model hoặc lách broker qua generic filesystem/shell tools. Foundation mới có typed primitives, chưa enforce ranh giới OS này.
+PTT dùng Ctrl+Shift+Space. Audio được giới hạn thời lượng, resample/VAD rồi gửi tới native worker. ASR và TTS chạy tuần tự: không giữ hai model worker resident cùng lúc. `nora-platform::sandbox` tạo AppContainer không có network capability và nested one-process Job, chỉ cho đọc binary/assets và ghi scratch của chính worker. Lease gắn PID và creation time phục vụ khôi phục/dọn dẹp. Sandbox không bảo đảm native parser hoặc driver không có lỗi.
 
-Trong threat model bản đầu, audio/goal sidecar là mã first-party được review và ký; tách process không tự tạo security sandbox. Plugin hoặc mã không tin cậy cần containment thật trước khi hỗ trợ. Spike AppContainer/restricted-token phù hợp cho worker không cần desktop access; adapter UI được giữ trong broker có quyền giới hạn vì AppContainer window isolation cản can thiệp app khác. Job Objects giúp giới hạn resource/thu hồi process tree, không tự thay thế security limits. [AppContainer isolation](https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-isolation), [Job Objects](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects)
+Goal được lưu trước khi xác nhận admission. Runner có budget cho API/steps/time, checkpoint, journal cho follow-up và effect ledger. Sau crash, thao tác chưa rõ kết quả cần reconciliation; không tự suy ra exactly-once từ transaction local. Một orchestrator hoạt động tại một thời điểm; public research dùng context riêng và cùng ngân sách goal. Đây không phải hệ thống tự sinh số lượng worker không giới hạn. `nora-core::routing` là policy trên structured facts; chưa phải classifier tiếng nói đã được chứng minh.
 
-IPC nên dùng named pipe với ACL theo user/instance và thông điệp có schema/version/nonce; xác thực lại cho effect. Tránh endpoint localhost không xác thực mà website bất kỳ có thể gọi. Token cloud tồn tại phía broker/OS secret store; model và WebView không thấy secret. Thiết kế ACL/containment phải được thử trên Windows trước beta.
+Broker hỗ trợ list/read/search trong folder có grant, create-new note có preview/readback, calculator, giờ, reminders và mở EXE đã đăng ký theo hash. Quyền read/create/cloud-disclosure tách nhau. Approval có hạn, một lần, gắn đúng goal/action/grant revision. Không có tool shell, xóa file, gửi tin nhắn hay arbitrary GUI automation. App ngoài được mở có phê duyệt chạy ngoài Job và ngân sách NORA.
 
-## Chạy nền, ngủ và khởi động lại
+Thông báo được tạo từ lifecycle/receipt đã tin cậy. Question, approval, finding, blocker và kết quả đã xác minh có thể lên UI/TTS. Technical events, epoch và heartbeat không đổi giữ trong diagnostic; quiet mode và lượt nói của người dùng được ưu tiên. Audio/UI acknowledgements được ghi riêng; playback drain không chứng minh người dùng đã nghe. Hidden reasoning không được lưu vào checkpoint hoặc phát như progress.
 
-User process + tray, autostart opt-in, nút mute rõ. Đóng cửa sổ có thể thu về tray nếu người dùng chọn; Quit phải thoát và tắt mic. Supervisor quản lý child processes và resume goal khi user session khả dụng. Không dựa vào Windows Service cho tương tác mic/UI. [Microsoft services](https://learn.microsoft.com/en-us/windows/win32/services/interactive-services), [Tauri autostart](https://v2.tauri.app/plugin/autostart/)
-
-Khi khóa màn hình: mặc định mute capture, không tiếp tục UI action; chỉ các tác vụ nền đã được cấp đúng quyền mới có thể tiếp tục. Khi máy sleep/offline, lưu trạng thái; reconnect/resume bắt đầu bằng reconciliation. Local assistant không tiếp tục chạy khi máy tắt. Không thay power plan, registry hoặc lịch khởi động của máy ngầm.
-
-## Voice runtime
-
-Capture → echo handling/noise handling → VAD → endpointing → ASR → structured request. VAD chỉ phát hiện speech; endpointing cần quyết định đã hết lượt nói. Streaming partial transcript không đủ để thực thi số tiền, người nhận hoặc target path chưa xác định.
-
-Cascade là baseline. Dùng Pipecat nếu spike cho thấy giảm công xây turn-taking; LiveKit khi có browser/mobile sessions hoặc multi-device realtime nhu cầu thật. Không lắp cả hai chỉ để so sánh framework. TTS adapter phải hỗ trợ cancel/flush; context giữ phần thực sự đã nghe. [LiveKit turns](https://docs.livekit.io/agents/logic/turns/), [Pipecat interruptions](https://docs.pipecat.ai/pipecat/fundamentals/interruptions)
-
-Giới hạn raw audio trong RAM buffer ngắn; lưu để eval chỉ khi opt-in. Capture, STT, endpointing, model reasoning/tool use, TTS và playback có latency metrics riêng. Speech-to-speech là adapter nâng cấp; không bypass action pipeline.
-
-## Router và goal runner
-
-| Tuyến | Khi dùng | Contract |
-|---|---|---|
-| Answer | Không cần environment mutation hoặc discovery dài | Trả lời; nêu giới hạn dữ liệu nếu có |
-| Bounded tool | Thao tác hẹp, đã biết tool và đầu ra | Broker → tool → verifier |
-| Durable goal | Dependency/discovery/chờ/resume/acceptance checks nhiều bước | Goal store, plan, checkpoint, ledger, budget và verifier |
-| Unsupported | Không tool được cài/được hỗ trợ xử lý được | Không tự bịa tool; đề xuất capability request nếu product context cho phép |
-
-Các gate `waiting_input`, `waiting_permission`, `waiting_approval` độc lập với tuyến. Mọi gate chưa được giải quyết phải kiểm tra lại sau resume. Reference [routing.py](../src/nora_policy/routing.py) minh họa quy tắc xác định; chưa có NLP/LLM classifier. Threshold bốn bước là fixture heuristic, phải hiệu chỉnh bằng task corpus.
-
-Lựa chọn runtime dự kiến: LangGraph cho flow local, persistent checkpoints và supervisor riêng. Không dùng `InMemorySaver` cho goal cần qua restart. Chưa chọn/pin saver production: SQLite là ứng viên local store cần durability/locking/migration tests; không coi development saver là bằng chứng sẵn sàng sản phẩm. Nếu cần nhiều ngày/nhiều worker/cloud tenancy, đánh giá Temporal qua ADR tiếp theo. Không xếp cả LangGraph và Temporal trong một critical path ban đầu. [LangGraph](https://docs.langchain.com/oss/python/langgraph/checkpointers), [Temporal](https://docs.temporal.io/workflows)
-
-## Tính bền vững và external effects
+## LifeMate offline
 
 ```mermaid
-stateDiagram-v2
-    [*] --> queued
-    queued --> running
-    running --> waiting_input
-    running --> waiting_permission
-    running --> waiting_approval
-    waiting_input --> running
-    waiting_permission --> running
-    waiting_approval --> running
-    running --> verifying
-    verifying --> completed
-    verifying --> running
-    running --> needs_reconciliation
-    needs_reconciliation --> running
-    running --> failed
-    running --> cancelled
+flowchart LR
+    I[Input ID / audio / context / history] --> V[Validate typed input]
+    V --> W[Whisper server local]
+    W --> M[Prompt + catalog được sample cấp]
+    M --> Q[llama-server local + JSON grammar]
+    Q --> C[Parse / normalize / ID provenance]
+    C --> E[Python bridge: SDK BTC nguyên bản]
+    E --> O[Actual observations]
+    O --> Q
+    E --> R[Authoritative calls + state hash JSONL]
+    R --> H[Replay và scorer riêng sau inference]
 ```
 
-Trước effect: persist intent (`effect_id`, target, canonical arguments hash, grant revision, approval ref). Gửi idempotency key nếu được hỗ trợ. Sau effect: persist receipt và verify actual state. Nếu effect đã xảy ra nhưng receipt thất lạc, query theo identifier trước retry. Nếu không biết, dừng nhánh ở `needs_reconciliation`. Model output, checkpoint và local transaction không tạo exactly-once guarantee với app bên ngoài. [Temporal Activities](https://docs.temporal.io/activity-definition), [LangGraph resume](https://docs.langchain.com/oss/python/langgraph/interrupts)
+`nora-lifemate` không gọi LLM API. Typed input bỏ qua transcript đáp án, label và inline hidden state. Catalog bị giới hạn bởi installed apps/tools của sample; provenance chỉ kiểm giá trị ID đã quan sát, không chứng minh hành động đúng ý. Mỗi call đi qua `ToolEnv.validate` rồi SDK `call`; output lấy call list/state hash thực từ SDK. Python là cầu nối tới SDK bắt buộc, không phải desktop runtime.
 
-Budgets chặn step, elapsed time, cost và worker concurrency. Quota dành riêng cho verification/reconciliation, tránh tiêu hết token rồi không kiểm tra kết quả. Replan có version; không đổi goal hoặc acceptance criteria ngầm. User hủy thì ngừng bước mới, thử hủy calls đang chạy khi adapter hỗ trợ, báo effects đã hoàn tất.
+Mỗi mẫu có deadline 30 giây, bao gồm ASR/history và tool loop; runner dành khoảng thời gian cho receipt cuối, giữ mẫu failed trong output. `ok=true,done=false` không chứng minh effect hoàn tất. JSON hợp lệ, state hash khớp và intent/call metric là các điều kiện khác nhau. Kiểm tra SDK replay xác minh receipt, không đo chất lượng tác vụ.
 
-## Store và memory
+Native services nghe numeric loopback với xác thực riêng từng run, môi trường allowlist, tắt proxy/redirect và không truyền API key. Timeout HTTP dùng Tokio background runtime để hủy request tiếp tục được xử lý giữa các pha ASR/LLM. Research Linux process-group ownership khác với Windows AppContainer; không coi chúng là cùng mức containment.
 
-| Store | Dữ liệu | Kiểm soát |
-|---|---|---|
-| Goal/checkpoint | Plan, state, pending approvals | Transactions, schema version, backup/recovery |
-| Effect ledger | Intent, receipt, reconciliation | Immutable identifiers, audit redaction |
-| Notification outbox | Pending/delivered per channel | Dedupe, expiry, stale-event checks |
-| Fact store | Facts kèm nguồn/ngày/scope | TTL, user edit/delete, grant checks |
-| Conversation | Transcript phù hợp và played audio text | Retention, export/delete |
-| Secret store | Tokens theo connector | OS protection, rotation/revoke; không vào prompt |
+Baseline là compact-typed actor. Các mode typed plan, native tools, progressive catalog, few-shot, aliases và catalog-bound clarification là thí nghiệm opt-in. Mode clarification mới chỉ cho hỏi tên tool được cấp và params thuộc schema, với kiểm tra trước SDK; không chứng minh thông tin thật sự thiếu. Hard tool routers đã bị loại vì thiếu recall. Trên cặp 30 development, few-shot không đạt gates (8,33%→11,67%, tăng failures); alias giảm điểm (8,33%→6,67%). Chưa phương án nào chứng minh 99% hoặc 100%. Xem [sổ thí nghiệm](research/nora-architecture-experiments.md) và [kết quả LifeMate](lifemate-2026.md).
 
-Không dùng vector database chỉ vì có memory. SQLite + structured records/full-text là baseline cần đánh giá; thêm semantic retrieval khi corpus và recall tests đòi hỏi. Thiết kế NORA yêu cầu raw audio không đi vào tracing mặc định; phải cấu hình exporter/redaction chủ động, vì một số SDK bật tracing mặc định. Không lưu hidden chain-of-thought; dùng quyết định, trạng thái và evidence phục vụ audit.
+Clarification v30 cũng không đạt quality gate (8,33%→5,00%, nonempty-perfect0/0, mỗi arm1failure). Decoder không enforce `uniqueItems`; runtime guard chặn8lần lặp trong một sample trước SDK. V31 thay uniqueness ở schema nhỏ bằng bounded enum của mọi danh sách không trùng, giữ mọi thứ tự và guard độc lập;2synthetic native probes qua. Probe decoder khác với task accuracy; default actor không đổi.
 
-## Hai delivery surfaces
+## Trách nhiệm 12 crates
 
-`LifeMateAdapter`: nhận dataset contract và tool schemas của devkit; gọi môi trường mô phỏng, xuất JSONL đúng contract. Chưa được triển khai trong repo này.
+| Crate | Trách nhiệm |
+|---|---|
+| nora-app | Executable desktop, chọn startup/diagnostics/runtime |
+| nora-desktop | UI/tray, state và bounded contracts |
+| nora-runtime | Goal/backend/audio lifecycle, tools, budgets và recovery |
+| nora-broker | Grants, approval, capability filesystem và effect verification |
+| nora-store | SQLite goal/effect/checkpoint/result/notification storage |
+| nora-llm | Cấu hình và transport Responses API có giới hạn |
+| nora-core | Routing facts, resource/notification policies |
+| nora-audio | PCM/capture/resample/VAD/Whisper/playback primitives |
+| nora-vieneu | VieNeu prompt/G2P/heads/sampling/ONNX/TTS streaming |
+| nora-platform | Windows Job/AppContainer, process lifecycle và measurements |
+| nora-cli | Asset/core/native diagnostic commands |
+| nora-lifemate | Contest input/ASR/local LLM/SDK adapter và experimental modes |
 
-`DesktopAdapter`: typed filesystem/app tools qua permission broker; có lifecycle, consent, rollback/reconciliation thực. Kết quả LifeMate không tự cho phép thực thi banking/ride/email ngoài đời.
+## Tài nguyên và giới hạn bằng chứng
 
-Optional web dashboard không nắm quyền desktop mặc định. Chưa chọn cloud provider, chưa provision dịch vụ tính phí; không có provider SDK hardcoded trong reference core.
+Desktop giữ root Job cap **2.000.000.000 bytes commit**, native child **1.700.000.000**. Một synthetic integrated journey đã đo dưới cap; chưa thay cho live microphone corpus, signing, clean-machine testing hoặc mọi laptop 4GB GPU. SSD runtime khác developer model/build caches. [Validation desktop](validation.md) ghi dữ liệu và release gates.
+
+Bản thi được phép dùng A30/64GB của BTC; lattice GTX1650/16GB là máy phát triển. Profile thử có GPU-free headroom guard theo `nvidia-smi` và telemetry 1 giây; sampling có thể bỏ lỡ peak ngắn. Số free phải được đo trực tiếp, không suy `total-used` khi driver có phần reserved. Chưa có benchmark thực trên A30 hoặc điểm public NORA.
+
+PhoWhisper Q5 cải thiện character edits trong phép ASR-only 30 samples/32 utterances. Cặp đầu cuối cùng Q3 4B/context6144 sau đó cho turbo 8,33%, Pho 3,33%; mỗi arm có một failure, giữ trong denominator. SDK replay khớp nhưng Pho không đạt task gate; không đổi default ASR. QLoRA V13 trên lattice có một full945-token update/save/reload, all text linears/rank16, với unused vision storage release và checkpoint-input CPU transport. V14 tiếp tục cùng model/optimizer qua945/1940/2413tokens, rồi dừng bởi GPU512MiB guard trong backward2655; chưa train đủ bảy trường hợp, full SFT, native export hay quality gain. V32 thêm cohort ID-only có SHA-256 để đánh giá đủ123 validation ngoài bộ30, không sửa prompt/SDK hoặc cho phép lọc public submission. Xem review hiện hành để phân biệt từng failure và kết quả đo.
+
+Code/tests có trong repo không đồng nghĩa tất cả capability đã được kiểm chứng trên thiết bị đích. Mã nguồn, private receipts và đo thực là ba lớp bằng chứng riêng. Không commit credentials, dataset, model weights, private predictions/traces hoặc raw training gradients.

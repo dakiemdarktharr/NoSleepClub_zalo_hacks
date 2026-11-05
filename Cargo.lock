@@ -2647,6 +2647,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "nora-lifemate"
+version = "0.1.0"
+dependencies = [
+ "getrandom 0.3.4",
+ "nora-audio",
+ "nora-platform",
+ "ort",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror 2.0.21",
+ "tokenizers",
+ "tokio",
+ "unicode-normalization",
+]
+
+[[package]]
 name = "nora-llm"
 version = "0.1.0"
 dependencies = [

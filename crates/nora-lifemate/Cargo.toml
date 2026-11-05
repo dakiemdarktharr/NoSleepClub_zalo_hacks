@@ -1,0 +1,67 @@
+[package]
+name = "nora-lifemate"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Offline LifeMate adapter with an authoritative, unchanged zaic_tools environment"
+
+[[example]]
+name = "lifemate-asr"
+path = "examples/lifemate_asr.rs"
+required-features = ["whisper"]
+
+[[example]]
+name = "lifemate-text-diagnostic"
+path = "examples/lifemate_text_diagnostic.rs"
+
+[[example]]
+name = "lifemate-supervision-replay"
+path = "examples/lifemate_supervision_replay.rs"
+
+[[example]]
+name = "lifemate-pack-trajectories"
+path = "examples/lifemate_pack_trajectories.rs"
+
+[[example]]
+name = "lifemate-bind-training-ids"
+path = "examples/lifemate_bind_training_ids.rs"
+
+[features]
+default = []
+whisper = ["dep:nora-audio", "nora-audio/whisper"]
+semantic-retrieval = ["dep:ort", "dep:tokenizers"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+sha2.workspace = true
+unicode-normalization = "=0.1.26"
+getrandom = "=0.3.4"
+tempfile.workspace = true
+reqwest = { version = "=0.13.5", default-features = false }
+tokio = { version = "=1.54.1", default-features = false, features = ["rt-multi-thread", "net", "time", "macros"] }
+nora-audio = { path = "../nora-audio", optional = true }
+nora-platform = { path = "../nora-platform" }
+ort = { workspace = true, optional = true }
+tokenizers = { version = "=0.22.2", default-features = false, features = ["fancy-regex"], optional = true }
+
+[lints]
+workspace = true
+
+[[example]]
+name = "lifemate-embedding-probe"
+path = "examples/lifemate_embedding_probe.rs"
+required-features = ["semantic-retrieval"]
+
+[[example]]
+name = "lifemate-index-training-examples"
+path = "examples/lifemate_index_training_examples.rs"
+required-features = ["semantic-retrieval"]
+
+[[example]]
+name = "lifemate-count-prompt-tokens"
+path = "examples/lifemate_count_prompt_tokens.rs"
+required-features = ["semantic-retrieval"]

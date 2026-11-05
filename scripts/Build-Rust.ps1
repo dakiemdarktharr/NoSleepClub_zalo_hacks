@@ -3,7 +3,8 @@
 param(
     [ValidateSet('Test','Check','Clippy','Release','Format')]
     [string]$Action='Test',
-    [switch]$CoreOnly
+    [switch]$CoreOnly,
+    [string[]]$Package=@()
 )
 
 $ErrorActionPreference='Stop'
@@ -36,7 +37,17 @@ try {
         if (-not (Get-Command cl -ErrorAction SilentlyContinue)) { throw 'Windows native builds require installed MSVC C++ tools. This script does not install system components.' }
         if (Get-Command ninja -ErrorAction SilentlyContinue) { $env:CMAKE_GENERATOR='Ninja' }
         $noraLlvmDir=Join-Path $env:ProgramFiles 'LLVM\bin'
-        if (Test-Path -LiteralPath (Join-Path $noraLlvmDir 'libclang.dll')) { $env:LIBCLANG_PATH=$noraLlvmDir }
+        if (Test-Path -LiteralPath (Join-Path $noraLlvmDir 'libclang.dll')) {
+            $env:LIBCLANG_PATH=$noraLlvmDir
+        } else {
+            # Optional portable build dependency; no download or global install.
+            $noraPortableClang=Join-Path $noraRepositoryRoot '.tools/libclang-18.1.1-win-amd64'
+            $noraPortableClangDll=Join-Path $noraPortableClang 'libclang.dll'
+            if (Test-Path -LiteralPath $noraPortableClangDll) {
+                if ((Get-FileHash -LiteralPath $noraPortableClangDll -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'b13ec96d9a036d6c6c36dd09e00415ead7acc7fcfd40e721bf33ea86b3490f9d') { throw 'Portable libclang checksum differs' }
+                $env:LIBCLANG_PATH=$noraPortableClang
+            }
+        }
         $noraTarget=@('--target','x86_64-pc-windows-msvc')
         # Add the target to a GNU-hosted workspace toolchain too. This changes
         # the selected toolchain only, never system PATH or Visual Studio.
@@ -73,12 +84,23 @@ try {
     }
     [string[]]$noraFeatures=@()
     if (-not $CoreOnly) { $noraFeatures+= '--all-features' }
+    [string[]]$noraPackageSelection=@('--workspace')
+    if ($Package.Count -gt 0) {
+        $noraPackageSelection=@()
+        foreach($noraPackage in $Package) {
+            if ($noraPackage -cnotmatch '^nora-[a-z0-9-]+$') { throw 'Invalid NORA package selector' }
+            $noraPackageSelection+=@('-p',$noraPackage)
+        }
+    }
     switch ($Action) {
         'Format' { & cargo fmt --all -- --check }
-        'Test' { & cargo test --locked --workspace @noraFeatures @noraTarget }
-        'Check' { & cargo check --locked --workspace --all-targets @noraFeatures @noraTarget }
-        'Clippy' { & cargo clippy --locked --workspace --all-targets @noraFeatures @noraTarget -- -D warnings }
-        'Release' { & cargo build --locked --release --jobs 1 -p nora-cli -p nora-app @noraFeatures @noraTarget }
+        'Test' { & cargo test --locked @noraPackageSelection @noraFeatures @noraTarget }
+        'Check' { & cargo check --locked @noraPackageSelection --all-targets @noraFeatures @noraTarget }
+        'Clippy' { & cargo clippy --locked @noraPackageSelection --all-targets @noraFeatures @noraTarget -- -D warnings }
+        'Release' {
+            if ($Package.Count -eq 0) { $noraPackageSelection=@('-p','nora-cli','-p','nora-app') }
+            & cargo build --locked --release --jobs 1 @noraPackageSelection @noraFeatures @noraTarget
+        }
     }
     if ($LASTEXITCODE -ne 0) { throw "Rust $Action failed" }
 } finally { Pop-Location }

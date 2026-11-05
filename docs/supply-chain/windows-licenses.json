@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "target": "x86_64-pc-windows-msvc",
-  "lock_sha256": "f1421061e55ee5ae4400be148da9cce12096781c25dd197223fc211f69795d73",
+  "lock_sha256": "51a5db5505518409184fbeed1a6fce70afd9f9b4c2df9cba3aa932345a9f0acd",
   "lock_hash_basis": "Cargo.lock UTF-8 bytes with CRLF normalized to LF",
   "scope": "nora-app Windows all-features normal and build dependencies, excluding dev-only edges; Cargo resolved graph, not binary linkage analysis",
   "text_collection": "Observed license/notice files within each package. Alternative SPDX licenses are not selected or legally cleared.",

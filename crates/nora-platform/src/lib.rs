@@ -7,6 +7,9 @@ use std::io;
 pub const RAM_LIMIT_BYTES: u64 = 2_000_000_000;
 pub const VRAM_LIMIT_BYTES: u64 = 4_000_000_000;
 pub const DISK_LIMIT_BYTES: u64 = 15_000_000_000;
+/// Separate competition profile explicitly authorised for the LifeMate offline
+/// runner. The desktop assistant always retains RAM_LIMIT_BYTES.
+pub const CONTEST_RAM_LIMIT_BYTES: u64 = 64_000_000_000;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ProcessMemory {

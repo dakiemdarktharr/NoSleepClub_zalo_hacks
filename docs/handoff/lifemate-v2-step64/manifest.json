@@ -1,0 +1,887 @@
+{
+  "release_tag": "lifemate-v2-step64-research-20261105",
+  "status": "research_checkpoint_not_production",
+  "base_model": "Qwen/Qwen3-4B-Instruct-2507",
+  "base_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+  "completed_tasks": 64,
+  "full_train_tasks": 1082,
+  "sequence_tokens": 291318,
+  "target_tokens": 5816,
+  "lora": {
+    "rank": 8,
+    "alpha": 16,
+    "dropout": 0,
+    "trainable_parameters": 16515072,
+    "tensor_count": 504,
+    "dtype": "float32"
+  },
+  "quality_evaluated": false,
+  "official_public_score": null,
+  "private_score": null,
+  "training_chain_sha256": "c266170214d243c7602519c14d25e7a5415f0edb2da4ac6f14f88ace26faf8f9",
+  "adapter_binding_sha256": "77f28c955f587e6795ba73ce4e782960df064c88971d0631b82f2ce672868ee7",
+  "adapter_files": {
+    "README.md": "0c3f2687a1ebc2777ddd1d49688290b7746c145da18b8fc9abbda6550806d473",
+    "adapter_model.safetensors": "0c148d83bb5cff1739261046414fb47b878aea726c9ae56bba14a69e0b311932",
+    "adapter_config.json": "efc4bc5a9e36bf101a2938a9efff4b79f2aca204d8ec0aa552ff768efdb31533"
+  },
+  "checkpoint": {
+    "step": 64,
+    "directory": "/home/koi/nora-lifemate/work/lifemate-full-sft-v1-0062-0064/checkpoint-0064",
+    "manifest_sha256": "9ddc543f55f4777b75a3b7b1d55315bfa612acd3135e0eeb96c2d8744401157d",
+    "state_sha256": "d69f47f483db722753a26efd186e69d6dbdeb097147198933af6176d29d75198",
+    "state_bytes": 101661581
+  },
+  "assets": [
+    {
+      "name": "nora-lifemate-v2-step64-adapter.zip",
+      "sha256": "96bd57f569c6e4ae6ffc75e19145301e831da3692e88d094556ed290ae5bf8d0",
+      "bytes": 61430803,
+      "files": [
+        {
+          "path": "adapter/README.md",
+          "sha256": "0c3f2687a1ebc2777ddd1d49688290b7746c145da18b8fc9abbda6550806d473",
+          "bytes": 5292
+        },
+        {
+          "path": "adapter/adapter_model.safetensors",
+          "sha256": "0c148d83bb5cff1739261046414fb47b878aea726c9ae56bba14a69e0b311932",
+          "bytes": 66126768
+        },
+        {
+          "path": "adapter/adapter_config.json",
+          "sha256": "efc4bc5a9e36bf101a2938a9efff4b79f2aca204d8ec0aa552ff768efdb31533",
+          "bytes": 1221
+        },
+        {
+          "path": "QWEN-APACHE-2.0.txt",
+          "sha256": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e",
+          "bytes": 11343
+        }
+      ]
+    },
+    {
+      "name": "nora-lifemate-v2-step64-resume.zip",
+      "sha256": "369e62e0b9eb6dd2f9f8aa407c49f3bedd14d9e1afb0b5ffe62b73dd172c17ec",
+      "bytes": 92937236,
+      "files": [
+        {
+          "path": "checkpoint-0064/manifest.json",
+          "sha256": "9ddc543f55f4777b75a3b7b1d55315bfa612acd3135e0eeb96c2d8744401157d",
+          "bytes": 131936
+        },
+        {
+          "path": "checkpoint-0064/state.pt",
+          "sha256": "d69f47f483db722753a26efd186e69d6dbdeb097147198933af6176d29d75198",
+          "bytes": 101661581
+        }
+      ]
+    },
+    {
+      "name": "nora-lifemate-v2-step64-research-support.zip",
+      "sha256": "862359ad9de96a47a9c43ef639415d8b814a7e034b0d13682f30cd3018af0d8a",
+      "bytes": 9037555,
+      "files": [
+        {
+          "path": "evidence/chain-audit-0064.json",
+          "sha256": "c266170214d243c7602519c14d25e7a5415f0edb2da4ac6f14f88ace26faf8f9",
+          "bytes": 19172
+        },
+        {
+          "path": "evidence/training-report.json",
+          "sha256": "712f89bd805a78bd26e806fb5fcdc5b321b86c7d21903e0b383b1fd9e9866db4",
+          "bytes": 22078
+        },
+        {
+          "path": "evidence/saved-adapter-audit-v3.json",
+          "sha256": "77f28c955f587e6795ba73ce4e782960df064c88971d0631b82f2ce672868ee7",
+          "bytes": 183579
+        },
+        {
+          "path": "evidence/bind-adapter-v2-failure.log",
+          "sha256": "11bfa4865badf9ca39cf48908db83bb88002e14f12f32f5d4af766c240182369",
+          "bytes": 605
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0000-0064.zip",
+          "sha256": "f7816c6e21fbb820252e34d9664919aacb8a347e96bf96008c4a7e05a1516200",
+          "bytes": 529811
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0000-0064.json",
+          "sha256": "652ce08e9264d57d8ffbb16d42094954a84edb756ea007624411db262156fbe3",
+          "bytes": 10202
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0006-0008.zip",
+          "sha256": "fbcc49d156042c6a938b542105e2cc342670113a133bd154433e759cb23b161b",
+          "bytes": 308169
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0006-0008.json",
+          "sha256": "2f1cd4d71952dc891e1033c2da8aea6dabbc536b9b78aff708f0fbc66405dcdd",
+          "bytes": 8554
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0008-0010.zip",
+          "sha256": "045fc891ad776dd7cc10f96f3a87da5b67fc525b20d16f1feeb200228db9ed52",
+          "bytes": 263362
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0008-0010.json",
+          "sha256": "4c034d3b58f32c6d2f55df082924ff17e76a694f456c9c440ad139ec4eed908e",
+          "bytes": 8556
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0010-0012.zip",
+          "sha256": "4d03df009794e100ea1f71e21ae10cfc84079bfaea40f9b97b42ae9aaaf389ee",
+          "bytes": 324773
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0010-0012.json",
+          "sha256": "5c18d82e92b135afc885c7e958710b0499e896febbe41daaf8b875db1aebca58",
+          "bytes": 8559
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0012-0014.zip",
+          "sha256": "be1ca36e025c1ca028cb8eba9cb3a44e98998d509e4e39f85a81793e35981cbe",
+          "bytes": 287617
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0012-0014.json",
+          "sha256": "0c1510ef8a959d0ad2c3019dd7743cd8c79ad2b2481b1e71e7f1840c65eb6d72",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0014-0016.zip",
+          "sha256": "2c4b7b11b1c40a63a5353a35b3817d57263f281f82a65f7cf5ed86580eb327f6",
+          "bytes": 266418
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0014-0016.json",
+          "sha256": "bff969269e343b024406ad79dbd5045de277e14da765d150dd97260c236d7e75",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0016-0018.zip",
+          "sha256": "9147b3d6575769b1e4307e0415693c0c316786b0a875f0b0485590e3ae477b20",
+          "bytes": 282619
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0016-0018.json",
+          "sha256": "aad5b4f46a748ff45e8892f7428cee20079bca6c7859eae821b439e7c0db65a1",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0018-0020.zip",
+          "sha256": "d880ac2b7e1b785067db2b13940fd56f07f58f75ba9ff9aafc65c2a90b956742",
+          "bytes": 300303
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0018-0020.json",
+          "sha256": "00a83c0923632115053e046802e30e7b19f5533a1d9206c63ad6f5352d357fa6",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0020-0022.zip",
+          "sha256": "909a0cd4ebae7855d90a8f87c8449903afe1a9fe3d00565c309dc7a125ff268c",
+          "bytes": 270572
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0020-0022.json",
+          "sha256": "b67309671f526077c9eb550f90676dd716b8831ec71a967f07970eacbc0eb6f6",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0022-0024.zip",
+          "sha256": "ebb76eda22179167c1d8cf18d20a8e34a27ee2645123b91fec86c7ee2c9d4f02",
+          "bytes": 296918
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0022-0024.json",
+          "sha256": "e6680a28fc7c4d8b9c93930e8abb78dfec989b113974eca494de8c0bb34f50b4",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0024-0026.zip",
+          "sha256": "a8808cba81c94a7873f6b568b7288462e3399e7575672e3dfdbbd98795271504",
+          "bytes": 306060
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0024-0026.json",
+          "sha256": "2f68086997feded85a64c1e18f16b6aebaac91b938c00db1cf7fe92d7354fe3f",
+          "bytes": 8559
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0026-0028.zip",
+          "sha256": "1003ba338fb1efe15e01cba61ce39f8f76c18a837bf7d875665fe0622dcaf49e",
+          "bytes": 277272
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0026-0028.json",
+          "sha256": "223210b57d69ca50cec35fe835d203af8e220f07bbb2ab405ed5a3ae344b6857",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0028-0030.zip",
+          "sha256": "9c96db9c68773362c73a26bd4ae3f14fa35576263687e433337bcafb3cdd919d",
+          "bytes": 261753
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0028-0030.json",
+          "sha256": "3177e5c08df6cac6a8a47c86fcaf534b2a82ea53ee7bac3f59dad99ccc7db472",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0030-0032.zip",
+          "sha256": "6a9d866fee3046df75c5de575f0b1dc6c4ea534bc56511fdededf6f49fd5fc66",
+          "bytes": 285945
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0030-0032.json",
+          "sha256": "887a23dc0a10570a326b9cb8bb55bf66e40434d633b2289a67e496016c1181d2",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0032-0034.zip",
+          "sha256": "628819da62544a79d6667fbfb4b9f8e3120f7c799b4e8d2776e829d7db83d125",
+          "bytes": 287044
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0032-0034.json",
+          "sha256": "60795a81855dd144fa72fead17d3ac6ca84823ccf5ed95d78bf8690ebeb58a8b",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0034-0036.zip",
+          "sha256": "42909823decd111c56e22dd46640e4c24766bd4da134be7ee965918e48f625d4",
+          "bytes": 312225
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0034-0036.json",
+          "sha256": "4b5df997a7cbc65b08505a57d87af9e2837cfc9c5c044188e304e968ad92d277",
+          "bytes": 8559
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0036-0038.zip",
+          "sha256": "37aabcb20306f6653a34f3802eab2d94a433a1c8652031e11459ddafc92e7963",
+          "bytes": 315046
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0036-0038.json",
+          "sha256": "3dbb83c1da66dae1e1530d0045257951ffbca821f8e6228090bfa57c8aaf4e22",
+          "bytes": 8559
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0038-0040.zip",
+          "sha256": "5a25ebf735e3617decc363e670895b2a08356f6b3cc6e72f6a1bbff730576619",
+          "bytes": 307709
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0038-0040.json",
+          "sha256": "11966fef8c87e90c9d2e63ae1650d03c22a5e1d3010b53632cce840b2efaedda",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0040-0042.zip",
+          "sha256": "32f7fa292aa56a2691b6f5f5921e94e1fd2a4ced32d4a3d1b1104f225c34ff43",
+          "bytes": 289651
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0040-0042.json",
+          "sha256": "703d89c9adb6da69b6e66cebe427b8382cd6b48b7bda30fce9a5c634f101ece3",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0042-0044.zip",
+          "sha256": "dde86eb15fa7c1f44561e0f2cd6bb0084370ef07dce0fd09e0cf100c7d2780ee",
+          "bytes": 340896
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0042-0044.json",
+          "sha256": "37b578f125749a71456d21f51e2a2f783ecb5d9b0f7d1f6ea8552c637e71de8c",
+          "bytes": 8559
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0044-0046.zip",
+          "sha256": "d67a94f341f6b279a0a9b3782ba77604514a34968c9ee00e4fc3f9e058897ca1",
+          "bytes": 291667
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0044-0046.json",
+          "sha256": "c33bfd982fc3f23a12acde97400b0236aa48cb55a7aadcbba28d674687921e36",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0046-0048.zip",
+          "sha256": "7095c41a0006bab44d784e34906c0e9d2ec3909c35c925222db71dc8c7b7b6be",
+          "bytes": 254114
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0046-0048.json",
+          "sha256": "f1a78391640e0e8d2116ef352cc4c3cba33f8918104122515936a07ca7cafb4c",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0048-0050.zip",
+          "sha256": "3ff2c1d3b94e349da60d656dca4148dc17b6deb432381e76eb7b27cab378afa9",
+          "bytes": 295048
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0048-0050.json",
+          "sha256": "98ddda17ebdedc181a9ed82cfeb9530e99c59e30eeaa420711e3fad72bb4fae6",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0050-0052.zip",
+          "sha256": "43653d513f500324f46c9763456bba7b219094b0d59133e6f0eed4dc036e0a4b",
+          "bytes": 250509
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0050-0052.json",
+          "sha256": "123e40e3ab1b09c13c92569102a73cdf9cf6a495a2cbdf893f32e0fe407c400c",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0052-0054.zip",
+          "sha256": "783c573cc924525c528798d42183dc3e62a0b3653e6045210887fc97fcdb6ca2",
+          "bytes": 325224
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0052-0054.json",
+          "sha256": "79229fc848039ded3b97cfa3681074d6f7f46e5b6a32e821f6eee68fc3702a31",
+          "bytes": 8559
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0054-0056.zip",
+          "sha256": "b96b38655a6026a267b777965257ccb25822b9285d17f724efd64ac2b91d2b1a",
+          "bytes": 286585
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0054-0056.json",
+          "sha256": "782d08c2a4e02e0324cd12581d5fb878caf2961ccf36e820109d183d3943c1f5",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0056-0058.zip",
+          "sha256": "af3bbc7c3bea57fd0089e5ad876f4ae038601429088c43657a032573e223a67c",
+          "bytes": 275913
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0056-0058.json",
+          "sha256": "5addd98fe09265fdec407c0e807be78578ab977020f7f698eeaa087756142543",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0058-0060.zip",
+          "sha256": "9ff88c4fe288dbdf0781e0d6be055f264ce1facac96a7a6c08d607e98b00b7de",
+          "bytes": 306529
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0058-0060.json",
+          "sha256": "c0032510d61f4c5c6ac7949d53c4191aab5fe1765a2b8bc844a3d35f55defeea",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0060-0062.zip",
+          "sha256": "1fa49e720132e969cec1b817fb4d32a843a381336db52d369630d227cb358e2a",
+          "bytes": 305361
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0060-0062.json",
+          "sha256": "6ad7f09cc31daa9393d1439c35f479b36db6e9627662ce88b5065a1d1f3c65d9",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/terminal-0062-0064.zip",
+          "sha256": "c58853f0b28cf5782591ac413f496661e56e40ede1aaf2363f4444154b4bb163",
+          "bytes": 291531
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/collection-0062-0064.json",
+          "sha256": "1fc12a60bb45ec5b517a752a3cb303facb0f6996908c20dd321d5108575efaa6",
+          "bytes": 8558
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/frozen-manifest.json",
+          "sha256": "398193aae882ea604f9755b65cb5222a1b758a3c7c251692eee56816626d4db0",
+          "bytes": 3779
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/stage-source.zip",
+          "sha256": "43763dae00b3b084d73e855802dc51df1967847a251319335a4164ae0ad70e39",
+          "bytes": 174758
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/chain-through-0064.json",
+          "sha256": "58952449aba186b4c2ef181ea3d9f97785b1b21984e9c8656bbafd2b1c41eaba",
+          "bytes": 11107
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/admission.json",
+          "sha256": "955ff3fae3aeb66c54f95079945f3d88f21178c283e80c8e33c110aa03449432",
+          "bytes": 981
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/chunk-norm-cpu-result.json",
+          "sha256": "00a22c92a7d12dc9b1f611ab2721ca3af8842aa4f429560dfa2938f107adb93f",
+          "bytes": 1299
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/chunk_mlp.py",
+          "sha256": "01a7f925501be58550827f8e50e63c4ac00ed01738f1e12d0a550f756bd9b3df",
+          "bytes": 1121
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/chunk_norm_v1.py",
+          "sha256": "dd18dd3aafc1644935d9e0e3bfa9eb0ea1cd7d2f83f1f99696daae8b6053c87d",
+          "bytes": 1882
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/cohort-ids.json",
+          "sha256": "c4dd90810ed3a4c23390f2351c4c66e95cc00e9e4015eaaf44add1bc826b1a82",
+          "bytes": 18399
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/cpu-api-test-result-v2.json",
+          "sha256": "3cc6abbe7d94494c4ca61105d077d8d59605cc8e0ea8917ed8460fa387c6de68",
+          "bytes": 738
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/cpu-head-fp32-test-result.json",
+          "sha256": "f8277ffba39c790f73ac9a0aafd0ed55b0cd505501a6663b9683d5cf88a8f6c9",
+          "bytes": 1026
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/cpu_api_test_v2.py",
+          "sha256": "5151945830d9e01bba5fa456fefc130711cba0f0c8ac8a1ba43d61b9825bbc04",
+          "bytes": 6595
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/cpu_head.py",
+          "sha256": "8bc86d9b04df08808334326e73f22a2fd13c578bc137f5e53b9e5ddadd5745c9",
+          "bytes": 1490
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/cpu_head_fp32_v1.py",
+          "sha256": "e3b73f7952c672b72a8dae8e87de516697b4d232d8b166e323b7c66a8e6ebf50",
+          "bytes": 3068
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/cuda_allocator_telemetry_v1.py",
+          "sha256": "b0a4090f10af73d884762bfce08abc2be14634f612040eafbed6e981c7386fb7",
+          "bytes": 2242
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/head-group-cpu-result.json",
+          "sha256": "abf2e8a6ac0be34464723ab701a27ae37bd4c46135100fdc537117e955c981a4",
+          "bytes": 807
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/head-group-model-cpu-result.json",
+          "sha256": "ec055b71c2706971db9d90460f3cce2d8fc89d68f01126fc68a373b08a5f4a06",
+          "bytes": 437
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/head_group_attention_v1.py",
+          "sha256": "5e4606964a6714a9166f8fddadd94685990f61a32991768a91ae673cc8525e34",
+          "bytes": 2988
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/inherited-cpu-certificates.json",
+          "sha256": "bd036790e1906db6cda7dd792b8ea8a7d24aa45ccc4d16bc5d2da321eb7c7d7a",
+          "bytes": 790
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/inherited-v6-numerical-report.json",
+          "sha256": "401ace0382b34b1c978de5dbdedcd3641df5ed9ae4dfe6473105180ca28b022d",
+          "bytes": 34983
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/inherited-v8-capacity-report.json",
+          "sha256": "6c1507711ec3d2841e5229db73c3a2afa99d1f110f27417f4592c33dffe519d0",
+          "bytes": 24725
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/launch.py",
+          "sha256": "25bff5de3c3c95ae7eb6b922299ce9cd803c07cdb87cc9bb856132affa4a03da",
+          "bytes": 1814
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/local-preflight.json",
+          "sha256": "2c68cce8d2b45fb8b38d1463bde226e30a8cb12218dbc22bc768de3b353f6ac1",
+          "bytes": 1428
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/norm-cpu-test-result.json",
+          "sha256": "333ec27dba13cddcc6cc7d9cda1affd93cf7c25ad38ecf37955d551187b0b60e",
+          "bytes": 448
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/norm_cpu_test.py",
+          "sha256": "b93ebfca907b634b7d91e74c9e8ae020b00c360e8fcf84237584b1e77a256aea",
+          "bytes": 3290
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/norm_output_dtype.py",
+          "sha256": "4cc42ee43ffde458709675f25b7802685440a42c9816dc6ef001bec2c8b3c64a",
+          "bytes": 808
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/oom-operator-cpu-result.json",
+          "sha256": "00286cb6f544f84732c6b852ed6d94c5345cefe23ed763bfa02a2ca90964bfce",
+          "bytes": 227
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/oom_operator_v1.py",
+          "sha256": "25f4d3bbc4d90dc04e8f2bf8738408908ca26fd740ecd3c36b4f895a35a44ff0",
+          "bytes": 1363
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/order.json",
+          "sha256": "0397fa09e35eb2a0a17347e91fdfe66a3d308274a3e9d30de6b64ab5f1edfc0e",
+          "bytes": 403914
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/protocol.md",
+          "sha256": "cd2007f3310a66d39bcf5649f850540679da03aeaf45f156d223d0379cdb752b",
+          "bytes": 3665
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/reentrant_offload.py",
+          "sha256": "f996583f5c54a628f176a7ff0964f79d896c057ccd062c7f4a6516ba1c94ab6a",
+          "bytes": 1095
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/runner.py",
+          "sha256": "d3835c0bbfb7d05c203fbf53b58cfbb184c1efe9171baf76e0a3371cb8004a8e",
+          "bytes": 13049
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/sm75_sdpa.py",
+          "sha256": "0ba04c02aceff0e91543507e60f86efc4aa8e088c25712a4d8f30b653cd4963a",
+          "bytes": 690
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/telemetry-test-result.json",
+          "sha256": "06fd925bd346453ba01acef7c01df5458e989b3fb69648dc2af9f24dbc9db3d3",
+          "bytes": 275
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/test_cpu_head_fp32_v1.py",
+          "sha256": "9b4bd1c9b7b564bae515550b9dfe219b5d52b5491dcb3a4d0607ecbee9e09dc6",
+          "bytes": 3011
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/test_cuda_allocator_telemetry_v1.py",
+          "sha256": "b24611843b02eb5b359996249062dac09df73f2c53bf1458113a7b390b90a8d5",
+          "bytes": 2590
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/test_head_group_attention_v1.py",
+          "sha256": "6ac579d68a30624d6c317aecae4d15657ecbcf21e448dde823503b6a5a1c18b6",
+          "bytes": 2644
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/test_head_group_model_v1.py",
+          "sha256": "0290f525660156a89fcbc2acaa06c9756c263d5f0a025e43e17f72e3080778d4",
+          "bytes": 2527
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/test_trajectory_loss_v1.py",
+          "sha256": "2ea9dfe7a719e5e25108c40333fc5a3afb4b49436928a20fa348f021979d098b",
+          "bytes": 4285
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/training_checkpoint_v1.py",
+          "sha256": "fe9c7293c19b6770e251f18b6f7c78dfffa6d353e482d1b855d1626b51441383",
+          "bytes": 6063
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/trajectory-test-result.json",
+          "sha256": "dde5dc63d01559bad2b18029434b76f8a055fdec8f3274b5bae0bca5d7d12228",
+          "bytes": 500
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/trajectory_loss_v1.py",
+          "sha256": "7c1f5cc8eff8162c5e41586e13acd9bf7b6a97367144368eb7bd9c5b2afcdd48",
+          "bytes": 3157
+        },
+        {
+          "path": ".artifacts/lifemate-full-sft-v1/worker.py",
+          "sha256": "dcb7cf476f1ae9e71c7980686667cff9f28ef6cc8c2760352285e2ec3739f5f5",
+          "bytes": 21615
+        },
+        {
+          "path": ".artifacts/audit-sft64-saved-adapter-v2.py",
+          "sha256": "34e9241dd11d411ca79fa1dad51a06e6e4d475c7a2744b5bbb378bec84164d19",
+          "bytes": 4746
+        },
+        {
+          "path": ".artifacts/audit-sft64-saved-adapter-v3.py",
+          "sha256": "2e4d176b86cae3a4f856e812da78eb3023f47ca10b814c790813e2e2f2e24b44",
+          "bytes": 4749
+        },
+        {
+          "path": ".artifacts/export-sft64-lora-v2.py",
+          "sha256": "64d3c2acf64ac50abc3eda421600e22de894dbb034bcd75dab85ee7c54672f72",
+          "bytes": 5818
+        },
+        {
+          "path": ".artifacts/audit_lora_gguf_v2.py",
+          "sha256": "f416cb982d844d514aa843b3ceee763943f6e1de8dc749780203965599bfb0a3",
+          "bytes": 9277
+        },
+        {
+          "path": ".artifacts/sft-chain-admission-v1.py",
+          "sha256": "90f90b77f1f65b0eefa62187bffedc76db9e7338f31d2f30a0121fc4aa5d85fc",
+          "bytes": 2351
+        },
+        {
+          "path": ".artifacts/audit-full-sft-chain-v1.py",
+          "sha256": "fbedefcd5147291d3e059c6f93565235a83d4f5f7a1f9daa27f0cab514aa75a0",
+          "bytes": 8051
+        },
+        {
+          "path": ".artifacts/audit-full-sft-v1.py",
+          "sha256": "30fd5952ef98d6f58eaf0e638eb9d2e3e010fc8c9a3620a80fcf1fd3334bb860",
+          "bytes": 7548
+        },
+        {
+          "path": ".artifacts/collect-full-sft-v1.py",
+          "sha256": "bb1cb4d7cdf8190c871825324b796ab2f3221bac6cc9f6d9878d496df97ceea3",
+          "bytes": 3464
+        },
+        {
+          "path": ".artifacts/run-sft-chain-queue-v1.py",
+          "sha256": "c30809d0ff7943e10126bfe46fcbbef2a58a9547c8995f4c1b549d247cd5cf37",
+          "bytes": 8816
+        },
+        {
+          "path": ".artifacts/run-sft64-r20-pipeline-v1.py",
+          "sha256": "6e6bea12c572a6124342dce2566400d2d18078339a19cbb68975c45d04fda4c6",
+          "bytes": 16656
+        },
+        {
+          "path": ".artifacts/sft64-r20-pipeline-plan-v1.json",
+          "sha256": "4e69c850ca1e6dc2ed6fe747c57453f5e511b17db444408bfb377b5b6e410607",
+          "bytes": 2983
+        },
+        {
+          "path": ".artifacts/lifemate-e2e-q3-supervisor-v1.py",
+          "sha256": "b351916cfba290361a24fb509381b90fdd68cb427c9b5be198e396d024ff5d06",
+          "bytes": 25879
+        },
+        {
+          "path": ".artifacts/lifemate-asr-paired-supervisor-v2.py",
+          "sha256": "6f89dd350bbc3993b8a2335d1434b11bb3b98b00ad9ad0b827b88fd7549027ab",
+          "bytes": 31035
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/audit_interface.py",
+          "sha256": "e01928fd46cc2661722fb15749c783149ddec573aeacf5d828f59f29e82b986a",
+          "bytes": 3147
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/build-receipt.json",
+          "sha256": "bdb5025cbdb9bf05dae5e78cd93887f2a071c303b67507d919e1026c3811506c",
+          "bytes": 1892
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/cohort-ids.json",
+          "sha256": "a615b6f27f43cee211673fdcd9eefed7320bd64c7069c002bf6e61702379ae45",
+          "bytes": 209
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/collect.py",
+          "sha256": "f63e54c01de513800921944a2e72bf06eb2320826da53f88da9f5c8b916e0e07",
+          "bytes": 1711
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/input-freeze.json",
+          "sha256": "0d992e5c0d73b6c3147c182973e231a4f1e9713dc00b38db903c9d61a4c668b3",
+          "bytes": 14187
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/inputs.py",
+          "sha256": "9adf988dd83bffafc47271231e21441d7ae74ca92965b656c3ac9b6a5850b418",
+          "bytes": 3259
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/launch_text.py",
+          "sha256": "bb811de7fd7acc1bf34253e89df3f041118e2b4c8e449838c2f768aa5497dbf8",
+          "bytes": 1724
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/pre-chain-preparation.json",
+          "sha256": "5c78d888152adf2017ca5f062d5a6ffe4704152ac04f59443fc26a66827b2d98",
+          "bytes": 2004
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/preparation.json",
+          "sha256": "61edecae10cc6e8dd5d405c93cc9b6fd033eb49d32528555b58e3b9c2ff04dcf",
+          "bytes": 2374
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/resource-admission-risk.json",
+          "sha256": "7ce9b2129864a617250b9fed14c19d731ef165f844c8d3f769ff7acbce42d593",
+          "bytes": 1483
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/run_text.py",
+          "sha256": "b5f6ec279ba78e82dfa42c8c59a871d76f6e2ce0ec9a4f307508d141d34d881b",
+          "bytes": 14851
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/score_pair_v2.py",
+          "sha256": "2bbbca5d90866118f2aacff8015d9ca1baf2ba4ede90328c27fecab4b84c8af1",
+          "bytes": 8096
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r20/text-protocol.md",
+          "sha256": "3e6ca6ca0aff6c246e233ac173e03c7b9a49e1cd18e40d10f545cb4e8cc0eaf9",
+          "bytes": 4873
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r21/build-plan-v1.json",
+          "sha256": "8e4e843bd88e58322c535eeb0d164262f98234c77a351e9b71b20719e5ead2e8",
+          "bytes": 1485
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r21/build_after_r20.py",
+          "sha256": "564c6551481c22f4535691e66fed2fa3a02ecdab4fbcaf1b6d230ac268cd2565",
+          "bytes": 12070
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r21/preparation.json",
+          "sha256": "00b3e9ee044d9e2ce8fd05533449a9e7a9752e0bd61824a54f9ad021d1d785b4",
+          "bytes": 885
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r21/remote-source-manifest.json",
+          "sha256": "537338702f1a8c598195c5b8d6c1e51bfb31f4d53f432f44537b67a747d9a9b5",
+          "bytes": 24457
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r21/stage_source.py",
+          "sha256": "c08884677c0b4b68039ae2aa182301736ec0941eb357bab70a02c36395ce6170",
+          "bytes": 2879
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r21/staging-receipt.json",
+          "sha256": "d9009826c84355169a8fd9ffc638fd4139a9e4edb7f467635655d63f75d26e78",
+          "bytes": 613
+        },
+        {
+          "path": ".artifacts/lifemate-v2-r21/test_build_admission.py",
+          "sha256": "7d3d03da797e363ecc50b5b5e3241f81444d28f37e05d4961f2fa4fda2584027",
+          "bytes": 3108
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/build-preparation.json",
+          "sha256": "b44b09f001df1998257a916694ba874d81977982ced665e88135e66f30e93566",
+          "bytes": 1334
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/build-staging-receipt.json",
+          "sha256": "87a5272e7409f37746b69cde5c84ce33c06a1a74eddd1f6347e3a449fcbd1593",
+          "bytes": 454
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/build.py",
+          "sha256": "da8afda960229360994bada26f7398552c11eff215d589655a674d7d22ea9982",
+          "bytes": 12643
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/preparation.json",
+          "sha256": "28b1e23e33e3c727a8c61115ddd672935aaba002c9d47c329f23648a586051b6",
+          "bytes": 1223
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/probe.rs",
+          "sha256": "3688553988f7bb6fcc9e0711f7155d306ac091f4509f5d115c43beda4c87b1f0",
+          "bytes": 6634
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/protocol.md",
+          "sha256": "70479f1ee05c9dc783089c00946ef75cdd777b20dc6de0cb3ae95c0f7852736c",
+          "bytes": 2480
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/run-preparation.json",
+          "sha256": "096c2b45d061ce650deb95eea2c108c343565397f9b256134653250242360356",
+          "bytes": 1572
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/run-protocol.md",
+          "sha256": "2d18d161e4da47617e94c0bdc5ae4524228b8a40cfda940cb3a9275f26546f97",
+          "bytes": 3115
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/run.py",
+          "sha256": "f14daeee288d8b923e922067b78aa96768aff2254265a2492e3be67271b6a030",
+          "bytes": 26580
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/staging-receipt.json",
+          "sha256": "2659136626dd376e6fe58f18aed00ea9f7cd0ffb4700ed857d18109fcda966ac",
+          "bytes": 481
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/test_build.py",
+          "sha256": "49d9cbac969f4c9351b1f29cf43b51ba5d26425768c20e70c2fb2baa0ee9086e",
+          "bytes": 4471
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/test_run.py",
+          "sha256": "77cfdf36e42c02c8ebb4f601d10b7a4c6e81b194dd789fd18d8fc69f80d06c16",
+          "bytes": 9535
+        },
+        {
+          "path": ".artifacts/native-audio-lora-capacity-v1/worker.py",
+          "sha256": "6f4f113658be408f15e89c2a45a9ea3456ab1beddd0ccc674aeeea23726a9fc3",
+          "bytes": 3362
+        },
+        {
+          "path": ".artifacts/lifemate-v2-broad-eval-v1/cohort-admission.json",
+          "sha256": "86bfcc75e4305f6ac51e446c77d1c05c3da40f61877c902ddfd60448b89857b2",
+          "bytes": 2404
+        },
+        {
+          "path": ".artifacts/lifemate-v2-broad-eval-v1/internal-validation-ids.json",
+          "sha256": "547f4f1f7fc7c1cdd445a3f37d87f0a8dc6612763d7948268605820a19c7b71e",
+          "bytes": 2606
+        },
+        {
+          "path": ".artifacts/lifemate-v2-broad-eval-v1/outer-holdout-ids.json",
+          "sha256": "f7accd0cf7562fefb43115706b7f18b21dfa63112c3006422596ef1e396208e8",
+          "bytes": 5275
+        },
+        {
+          "path": ".artifacts/lifemate-v2-broad-eval-v1/protocol.md",
+          "sha256": "56471271c36f1470fe0e62716e8e318ea6be36573dafa2e79bddac1ab1e7cf57",
+          "bytes": 2834
+        },
+        {
+          "path": ".artifacts/lifemate-sft-v2-runtime/split-ids.json",
+          "sha256": "bb8a53c7d80ebc8f4f951ab26f09c25269667b4e0e3e41ddb351fe761ade325d",
+          "bytes": 28496
+        }
+      ]
+    },
+    {
+      "name": "nora-lifemate-v2-r21-source.zip",
+      "sha256": "364d2878bc20d9a0918b194880f43d7e268d8c5be1ff53bcd504519a1e1e9a7d",
+      "bytes": 492845,
+      "scope": "Frozen R21 source; Linux build pending"
+    }
+  ],
+  "excludes": [
+    "base model weights",
+    "official dataset/audio/labels/environments",
+    "API keys",
+    ".env.local",
+    "binaries claiming production readiness"
+  ],
+  "authorization": "User explicitly requested publishing the current model for team handoff on 2026-11-05, superseding the previous wait-for-100 publication gate for this research snapshot."
+}

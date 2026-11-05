@@ -50,3 +50,8 @@ Nói khi có milestone/finding/blocker/permission/completion đã xác minh. Im 
 Track phù hợp: [LifeMate 2026](https://challenge.zalo.ai/portal/lifemate). Điểm mẫu kết hợp state hash với precision/recall của tool calls; matching call không xét thứ tự, nhưng output phải giữ thứ tự thực thi để replay. Public ranking chỉ tính cột SLM. Hạn giải pháp được công bố tại ngày kiểm tra: **16/11/2026 23:59 GMT+7**. Cần đọc lại lịch và devkit trước nộp.
 
 Public repo chứa nghiên cứu và policy reference độc lập. Không đưa dataset/audio/private outputs lên repo. Mã thi trong thời gian cuộc thi có điều kiện chia sẻ riêng tại mục 8.2; GitHub public không tự đáp ứng điều kiện công khai trên diễn đàn chính thức. [Thể lệ PDF](https://dl-challenge.zalo.ai/zalo-ai-challenge-regulations-vi.pdf)
+
+
+Cập nhật kiểm thử: [[NORA - LifeMate Lattice 2026-11-03]].
+
+- [[NORA - Project Review 2026-11-03]] — source review, paired benchmark results, v31 decoder fix và các gate còn mở.
